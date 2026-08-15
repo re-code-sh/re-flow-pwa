@@ -25,3 +25,6 @@ dist-ssr
 
 # Symlink reference
 re-flow
+
+# Cloudflare Wrangler
+.wrangler/

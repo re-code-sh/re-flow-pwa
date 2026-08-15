@@ -1,0 +1,16 @@
+name = "reflow-api"
+main = "worker/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "reflow-d1"
+database_id = "local-d1-reflow-id"
+migrations_dir = "worker/db"
+
+[observability]
+enabled = true
