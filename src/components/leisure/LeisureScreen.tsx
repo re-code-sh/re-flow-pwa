@@ -27,6 +27,8 @@ export const LeisureScreen: React.FC = () => {
       setFun(cfg);
       const p = await repo.dayPlan(todayKey());
       setPlan(p);
+    } catch (_) {
+      setFun({ title: 'تفریح بدون عذاب وجدان', minutes: 30 });
     } finally {
       setLoading(false);
     }

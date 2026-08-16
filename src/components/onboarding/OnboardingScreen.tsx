@@ -62,15 +62,15 @@ export const OnboardingScreen: React.FC = () => {
     },
   ];
 
-  const handleFinish = async () => {
-    await repo.setReminderMinutes('rem_morning', morning);
-    await repo.setReminderMinutes('rem_evening', evening);
+  const handleFinish = () => {
     appActions.setOnboarded(true);
+    repo.setReminderMinutes('rem_morning', morning).catch(() => {});
+    repo.setReminderMinutes('rem_evening', evening).catch(() => {});
   };
 
   const handleNext = () => {
     if (page < slides.length - 1) {
-      setPage(page + 1);
+      setPage((prev) => prev + 1);
     } else {
       handleFinish();
     }

@@ -34,6 +34,22 @@ export const TodayScreen: React.FC = () => {
       setPlan(p);
       const s = await repo.stats();
       setReviewDue(s.reviewDue);
+    } catch (err) {
+      console.error('Error loading today:', err);
+      setPlan({
+        dayKey: todayKey(),
+        planned: false,
+        boulderId: null,
+        prediction: null,
+        tasks: [],
+        closed: false,
+        outcome: null,
+        whys: [],
+        note: '',
+        boulder: null,
+        others: [],
+        boulderDone: false,
+      });
     } finally {
       setLoading(false);
     }
