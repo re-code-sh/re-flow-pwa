@@ -2,12 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
-  Lock,
-  Unlock,
-  Play,
   Settings2,
   Info,
-  Clock,
   Check,
 } from 'lucide-react';
 import { repo } from '../../db/repo';
@@ -17,17 +13,17 @@ import { Reveal } from '../ui/Reveal';
 import { Modal } from '../ui/Modal';
 import { GlassField } from '../ui/GlassField';
 import { useToast } from '../ui/Toast';
-import { todayKey, faNum } from '../../lib/fa';
-import type { ActiveFocusSessionConfig } from '../focus/FocusArena';
+import { todayKey } from '../../lib/fa';
+import { LeisureCard } from '../LeisureCard';
+import type { FocusTimerConfig } from '../FocusTimer';
 
 interface LeisureScreenProps {
-  onStartFocus: (config: ActiveFocusSessionConfig) => void;
+  onStartFocus: (config: FocusTimerConfig) => void;
 }
 
 export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { showToast } = useToast();
-  const currentLang = (i18n.language || 'fa').startsWith('en') ? 'en' : 'fa';
 
   const today = todayKey();
 
@@ -97,69 +93,14 @@ export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) =>
         </div>
       </Reveal>
 
-      {/* 2. Main Play Block Card (Matching Flutter) */}
+      {/* 2. Main Play Block Card (Direct 1:1 Transpiled LeisureCard) */}
       <Reveal order={1}>
-        <div className="space-y-2">
-          <span className="text-[11.5px] font-semibold text-ink3 uppercase tracking-[0.4px] block px-1.5">
-            {t('leisure.guiltFreePlayBlock')}
-          </span>
-
-          <GlassCard
-            radius="card"
-            emberRing={isBoulderDone}
-            className="p-5 sm:p-6 space-y-4 relative overflow-hidden"
-          >
-            {/* Status chip & duration */}
-            <div className="flex items-center justify-between">
-              <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold border ${
-                  isBoulderDone
-                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30'
-                    : 'bg-white/5 text-ink3 border-glass-line'
-                }`}
-              >
-                {isBoulderDone ? (
-                  <>
-                    <Unlock className="w-3.5 h-3.5" />
-                    <span>{t('leisure.funUnlockedSub')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>{t('leisure.funLockedSub')}</span>
-                  </>
-                )}
-              </span>
-
-              <span className="text-[12px] font-mono font-bold text-ink2 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-[var(--accent)]" />
-                {currentLang === 'fa' ? faNum(activeMinutes) : activeMinutes} {t('leisure.durationMinutes')}
-              </span>
-            </div>
-
-            {/* Activity Title & Hint */}
-            <div className="space-y-1">
-              <h2 className="text-[21px] font-bold text-ink truncate">
-                {activeTitle}
-              </h2>
-              <p className="text-[13px] text-ink2 leading-relaxed">
-                {t('leisure.funHint')}
-              </p>
-            </div>
-
-            {/* Start Button */}
-            <div className="pt-2">
-              <Pill
-                pillStyle={isBoulderDone ? 'ember' : 'glass'}
-                onClick={handleStartPlay}
-                icon={<Play className="w-4 h-4 fill-current" />}
-                className="h-[52px] text-[14.5px] font-bold"
-              >
-                {t('leisure.startLeisurePlay')}
-              </Pill>
-            </div>
-          </GlassCard>
-        </div>
+        <LeisureCard
+          title={activeTitle}
+          minutes={activeMinutes}
+          isBoulderDone={isBoulderDone}
+          onStartPlay={handleStartPlay}
+        />
       </Reveal>
 
       {/* 3. Philosophy Banner: Antidote to Parkinson's Law */}

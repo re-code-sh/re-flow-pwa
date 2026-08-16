@@ -6,11 +6,11 @@ import { AppLayout, type ActiveTab } from './components/layout/AppLayout';
 import { TodayScreen } from './components/today/TodayScreen';
 import { HabitsScreen } from './components/habits/HabitsScreen';
 import { LeisureScreen } from './components/leisure/LeisureScreen';
-import { FocusArena, type ActiveFocusSessionConfig } from './components/focus/FocusArena';
+import { FocusTimer, type FocusTimerConfig } from './components/FocusTimer';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<ActiveTab>('tasks');
-  const [activeFocus, setActiveFocus] = useState<ActiveFocusSessionConfig | null>(null);
+  const [activeFocus, setActiveFocus] = useState<FocusTimerConfig | null>(null);
 
   // Seed sample initial data if database is brand new
   useEffect(() => {
@@ -81,8 +81,8 @@ export const App: React.FC = () => {
         <LeisureScreen onStartFocus={(config) => setActiveFocus(config)} />
       )}
 
-      {/* Immersive Focus Mode Arena */}
-      <FocusArena
+      {/* Immersive 1:1 Focus Timer Arena */}
+      <FocusTimer
         config={activeFocus}
         onClose={() => setActiveFocus(null)}
         onTaskCompleted={() => {}}

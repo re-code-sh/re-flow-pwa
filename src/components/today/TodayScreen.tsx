@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
-  Flame,
-  Play,
   Moon,
   Sliders,
   BarChart2,
@@ -11,25 +9,24 @@ import {
   Bolt,
   ChevronLeft,
   ChevronRight,
-  Bell,
 } from 'lucide-react';
 import { repo } from '../../db/repo';
 import type { Task } from '../../db/schema';
 import { GlassCard } from '../ui/GlassCard';
-import { Pill } from '../ui/Pill';
-import { CheckCircle } from '../ui/CheckCircle';
 import { Reveal } from '../ui/Reveal';
 import { useToast } from '../ui/Toast';
-import { fmtTodayLabel, fmtTime, todayKey, faNum } from '../../lib/fa';
-import { MorningWizardModal } from './MorningWizardModal';
-import { EveningReviewModal } from './EveningReviewModal';
+import { fmtTodayLabel, todayKey } from '../../lib/fa';
+import { BoulderCard } from '../BoulderCard';
+import { TaskItem } from '../TaskItem';
+import { MorningWizard } from '../MorningWizard';
+import { EveningReview } from '../EveningReview';
 import { TaskEditModal } from './TaskEditModal';
-import { StatsModal } from '../stats/StatsModal';
-import { SettingsModal } from '../settings/SettingsModal';
-import type { ActiveFocusSessionConfig } from '../focus/FocusArena';
+import { StatsView } from '../StatsView';
+import { SettingsView } from '../SettingsView';
+import type { FocusTimerConfig } from '../FocusTimer';
 
 interface TodayScreenProps {
-  onStartFocus: (config: ActiveFocusSessionConfig) => void;
+  onStartFocus: (config: FocusTimerConfig) => void;
 }
 
 export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
@@ -128,192 +125,46 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
         </div>
       </Reveal>
 
-      {/* 2. The Boulder Section (Matching Flutter BoulderCard) */}
+      {/* 2. The Boulder Section (Direct 1:1 Transpiled BoulderCard) */}
       <Reveal order={1}>
         <div className="space-y-2">
           <span className="text-[11.5px] font-semibold text-ink3 uppercase tracking-[0.4px] block px-1.5">
             {t('today.theBoulder')}
           </span>
 
-          {dayPlan?.planned && boulderTask ? (
-            <div className="relative">
-              {/* Breathing Glow */}
-              <div
-                className={`absolute -top-8 -start-6 w-56 h-44 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
-                  boulderDone ? 'opacity-5' : 'animate-breathe-glow'
-                }`}
-                style={{ backgroundColor: 'var(--accent)' }}
-              />
-
-              <GlassCard
-                radius="card"
-                emberRing
-                className="p-5 sm:p-6 relative overflow-hidden"
-                onDoubleClick={() => setEditingTask(boulderTask)}
-              >
-                <div className="relative space-y-3.5">
-                  {/* Ember Tag & Reminder chip */}
-                  <div className="flex items-center gap-2">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/25 text-[var(--accent)] text-[11px] font-bold">
-                      <Flame className="w-3 h-3 fill-current" />
-                      <span>{t('today.boulderTitle')}</span>
-                    </div>
-
-                    {boulderTask.reminder_time !== null && !boulderDone && (
-                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/30 text-[var(--accent)] text-[11px] font-semibold">
-                        <Bell className="w-2.5 h-2.5" />
-                        <span>{fmtTime(boulderTask.reminder_time, currentLang)}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h2
-                    className={`text-[21px] font-bold leading-[1.45] ${
-                      boulderDone ? 'line-through text-ink3' : 'text-ink'
-                    }`}
-                  >
-                    {boulderTask.title}
-                  </h2>
-
-                  {/* Prediction & Done Status */}
-                  <div className="flex items-center gap-1.5 text-[12.5px] text-ink2">
-                    <span>
-                      {currentLang === 'fa'
-                        ? `پیش‌بینی صبح: ${faNum(dayPlan.prediction ?? 80)}٪`
-                        : `Morning prediction: ${dayPlan.prediction ?? 80}%`}
-                    </span>
-                    {boulderDone && (
-                      <span className="font-bold text-[var(--accent)]">
-                        {currentLang === 'fa' ? '— انجام شد' : '— Done'}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Action Buttons Row */}
-                  <div className="flex items-center gap-2.5 pt-1">
-                    {!boulderDone && (
-                      <Pill
-                        pillStyle="ember"
-                        onClick={() => handleTaskFocusClick(boulderTask)}
-                        icon={<Play className="w-4 h-4 fill-current" />}
-                        className="flex-1 text-[14.5px]"
-                      >
-                        {t('today.startFocus')}
-                      </Pill>
-                    )}
-
-                    <Pill
-                      pillStyle="glass"
-                      onClick={() => handleToggleTask(boulderTask)}
-                      className={boulderDone ? 'w-full text-[14.5px]' : 'flex-1 text-[14.5px]'}
-                    >
-                      {boulderDone ? t('common.undo') : t('today.markTaskCompleted')}
-                    </Pill>
-                  </div>
-                </div>
-              </GlassCard>
-            </div>
-          ) : (
-            <GlassCard
-              radius="card"
-              emberRing
-              className="p-5 sm:p-6 space-y-3.5"
-            >
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/25 text-[var(--accent)] text-[11px] font-bold">
-                <Flame className="w-3 h-3 fill-current" />
-                <span>{currentLang === 'fa' ? 'یک نقطهٔ داغ' : 'One Hot Spot'}</span>
-              </div>
-
-              <p className="text-[15.5px] font-medium text-ink2 leading-[1.7]">
-                {t('today.todayNotPlannedYet')}
-              </p>
-
-              <div className="pt-1">
-                <Pill
-                  pillStyle="ember"
-                  onClick={() => setShowWizard(true)}
-                  className="h-[50px]"
-                >
-                  {t('today.planToday')}
-                </Pill>
-              </div>
-            </GlassCard>
-          )}
+          <BoulderCard
+            dayPlan={dayPlan || null}
+            boulderTask={boulderTask}
+            onStartFocus={handleTaskFocusClick}
+            onToggleTask={handleToggleTask}
+            onOpenWizard={() => setShowWizard(true)}
+            onEditTask={(task) => setEditingTask(task)}
+          />
         </div>
       </Reveal>
 
-      {/* 3. Secondary Tasks Section (_OtherTaskRow) */}
+      {/* 3. Secondary Tasks Section (Direct 1:1 Transpiled TaskItem slots) */}
       {dayPlan?.planned && otherTasks.length > 0 && (
         <Reveal order={2}>
           <div className="space-y-2">
             <span className="text-[11.5px] font-semibold text-ink3 uppercase tracking-[0.4px] block px-1.5">
               {currentLang === 'fa'
-                ? `کارهای دیگر (${faNum(otherTasks.length)})`
+                ? `کارهای دیگر (${otherTasks.length})`
                 : `Other Tasks (${otherTasks.length})`}
             </span>
 
             <div className="space-y-2">
-              {otherTasks.map((task, idx) => {
-                const isCompleted = task.status === 'completed';
-                const isLocked = !boulderDone && !isCompleted;
-                const isPebble = idx >= 2;
-
-                return (
-                  <GlassCard
-                    key={task.id}
-                    className={`flex items-center justify-between p-4 transition-all ${
-                      isCompleted ? 'opacity-55' : isLocked ? 'opacity-70' : 'opacity-100'
-                    }`}
-                    onDoubleClick={() => setEditingTask(task)}
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-2">
-                      <CheckCircle
-                        checked={isCompleted}
-                        onToggle={() => handleToggleTask(task)}
-                      />
-
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span
-                          className={`text-[15px] font-medium leading-[1.5] truncate ${
-                            isCompleted ? 'line-through text-ink3' : 'text-ink'
-                          }`}
-                        >
-                          {task.title}
-                        </span>
-
-                        {isPebble && (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-[var(--accent-soft)] text-[var(--accent)]">
-                              {t('today.pebbleTag')}
-                            </span>
-                            <span className="text-[10.5px] text-ink3">
-                              {t('today.pebbleHelper')}
-                            </span>
-                          </div>
-                        )}
-
-                        {isLocked && (
-                          <span className="text-[11.5px] text-ink3 mt-0.5">
-                            {t('today.queuedBehindBoulder')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {!isCompleted && (
-                      <button
-                        type="button"
-                        onClick={() => handleTaskFocusClick(task)}
-                        className="pressable flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-[var(--accent)]/12 border border-glass-line text-[var(--accent)] text-[11.5px] font-bold"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-current" />
-                        <span>{t('today.focusButton')}</span>
-                      </button>
-                    )}
-                  </GlassCard>
-                );
-              })}
+              {otherTasks.map((task, idx) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  index={idx}
+                  boulderDone={boulderDone}
+                  onToggle={handleToggleTask}
+                  onStartFocus={handleTaskFocusClick}
+                  onEditTask={(t) => setEditingTask(t)}
+                />
+              ))}
             </div>
           </div>
         </Reveal>
@@ -397,13 +248,13 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
       )}
 
       {/* Modals */}
-      <MorningWizardModal
+      <MorningWizard
         isOpen={showWizard}
         onClose={() => setShowWizard(false)}
         onPlanComplete={() => setShowWizard(false)}
       />
 
-      <EveningReviewModal
+      <EveningReview
         isOpen={showEveningReview}
         onClose={() => setShowEveningReview(false)}
         dayPlan={dayPlan || null}
@@ -418,8 +269,8 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
         onUpdated={() => setEditingTask(null)}
       />
 
-      <StatsModal isOpen={showStats} onClose={() => setShowStats(false)} />
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <StatsView isOpen={showStats} onClose={() => setShowStats(false)} />
+      <SettingsView isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 };

@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
-import {
-  Repeat,
-  Bell,
-  Ban,
-} from 'lucide-react';
+import { Repeat } from 'lucide-react';
 import { repo } from '../../db/repo';
 import type { Habit } from '../../db/schema';
 import { GlassCard } from '../ui/GlassCard';
 import { Pill } from '../ui/Pill';
-import { CheckCircle } from '../ui/CheckCircle';
 import { Reveal } from '../ui/Reveal';
 import { useToast } from '../ui/Toast';
 import { todayKey, shiftDayKey, faNum } from '../../lib/fa';
+import { HabitCard } from '../HabitCard';
 import { HabitEditorModal } from './HabitEditorModal';
 import { FrictionModal } from './FrictionModal';
 
@@ -52,13 +48,26 @@ export const HabitsScreen: React.FC = () => {
     if (isDone) return null;
 
     const y = shiftDayKey(today, -1);
-    if (habit.created <= y) {
+    const y2 = shiftDayKey(today, -2);
+    const missedY = habit.created <= y && (!todayLogs || todayLogs[habit.id] !== 'done');
+    const missedY2 = habit.created <= y2;
+
+    if (missedY && missedY2) {
+      return {
+        text:
+          currentLang === 'fa'
+            ? 'دو روز شد — فقط نسخهٔ ۲ دقیقه‌ای را بزن'
+            : 'Two days missed — just do the 2-minute version',
+        isWarn: true,
+      };
+    }
+    if (missedY) {
       return {
         text:
           currentLang === 'fa'
             ? 'دیروز جا ماند — امروز برگرد، زنجیره سالم می‌ماند'
             : 'Missed yesterday — return today, the chain stays healthy',
-        color: 'text-[var(--accent)]',
+        isWarn: false,
       };
     }
     return null;
@@ -112,7 +121,7 @@ export const HabitsScreen: React.FC = () => {
         </Reveal>
       ) : (
         <>
-          {/* Active / Good Habits Section */}
+          {/* Active / Good Habits Section (Direct 1:1 HabitCard) */}
           {goodHabits.length > 0 && (
             <Reveal order={2}>
               <div className="space-y-2.5">
@@ -131,51 +140,17 @@ export const HabitsScreen: React.FC = () => {
                     const recovery = getRecoveryNote(h);
 
                     return (
-                      <GlassCard
+                      <HabitCard
                         key={h.id}
-                        className={`p-4 flex items-center justify-between transition-all ${
-                          isDone ? 'opacity-60' : 'opacity-100'
-                        }`}
-                        onClick={() => {
-                          setEditingHabit(h);
+                        habit={h}
+                        isDone={isDone}
+                        recoveryNote={recovery}
+                        onToggle={handleToggleGoodHabit}
+                        onEdit={(habit) => {
+                          setEditingHabit(habit);
                           setShowEditor(true);
                         }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-2">
-                          <CheckCircle
-                            checked={isDone}
-                            onToggle={() => handleToggleGoodHabit(h)}
-                          />
-
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span
-                              className={`text-[15.5px] font-semibold truncate ${
-                                isDone ? 'line-through text-ink3' : 'text-ink'
-                              }`}
-                            >
-                              {h.title}
-                            </span>
-
-                            {h.cue && (
-                              <span className="text-[12px] text-ink3 truncate mt-0.5">
-                                {currentLang === 'fa' ? `بعد از ${h.cue}` : `after ${h.cue}`}
-                              </span>
-                            )}
-
-                            {recovery && !isDone && (
-                              <span className={`text-[11px] font-semibold mt-1 ${recovery.color}`}>
-                                {recovery.text}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {h.reminder_minutes !== null && (
-                          <div className="p-1.5 rounded-full bg-white/5 text-[var(--accent)] shrink-0">
-                            <Bell className="w-3.5 h-3.5" />
-                          </div>
-                        )}
-                      </GlassCard>
+                      />
                     );
                   })}
                 </div>
@@ -198,52 +173,21 @@ export const HabitsScreen: React.FC = () => {
 
                 <div className="space-y-2.5">
                   {badHabits.map((h) => {
-                    const logStatus = todayLogs?.[h.id];
+                    const isDone = todayLogs?.[h.id] === 'resisted';
 
                     return (
-                      <GlassCard
+                      <HabitCard
                         key={h.id}
-                        className="p-4 flex items-center justify-between"
-                        onClick={() => {
-                          setEditingHabit(h);
+                        habit={h}
+                        isDone={isDone}
+                        recoveryNote={null}
+                        onToggle={() => {}}
+                        onEdit={(habit) => {
+                          setEditingHabit(habit);
                           setShowEditor(true);
                         }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-2">
-                          <div className="w-[30px] h-[30px] rounded-full bg-warn/12 border border-warn/35 flex items-center justify-center text-warn shrink-0">
-                            <Ban className="w-4 h-4" />
-                          </div>
-
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-[15.5px] font-semibold text-ink truncate">
-                              {h.title}
-                            </span>
-                            {h.cue && (
-                              <span className="text-[12px] text-ink3 truncate mt-0.5">
-                                {currentLang === 'fa' ? `محرک: ${h.cue}` : `Trigger: ${h.cue}`}
-                              </span>
-                            )}
-                            {logStatus === 'resisted' && (
-                              <span className="text-[11px] font-bold text-[var(--accent)] mt-1">
-                                {currentLang === 'fa' ? 'امروز مقاومت کردی ✓' : 'Resisted today ✓'}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {logStatus !== 'resisted' && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setFrictionHabit(h);
-                            }}
-                            className="pressable px-3 py-1.5 rounded-full bg-warn/20 text-warn border border-warn/30 text-[12px] font-bold shrink-0 hover:bg-warn/30 transition-colors"
-                          >
-                            {t('habits.faceFrictionAction')}
-                          </button>
-                        )}
-                      </GlassCard>
+                        onFaceFriction={(habit) => setFrictionHabit(habit)}
+                      />
                     );
                   })}
                 </div>
