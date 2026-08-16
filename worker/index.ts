@@ -12,7 +12,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 app.use('*', logger());
 app.use('*', prettyJSON());
 app.use(
-  '*',
+  '/api/*',
   cors({
     origin: '*',
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -21,8 +21,8 @@ app.use(
   })
 );
 
-// Health check & Info
-app.get('/', (c) => {
+// Health check & API Info
+app.get('/api', (c) => {
   return c.json({
     service: 're.flow sync engine',
     version: '1.0.0',
@@ -39,20 +39,9 @@ app.get('/api/health', (c) => {
   });
 });
 
-// Mount route modules
+// Mount API route modules
 app.route('/api/auth', authRouter);
 app.route('/api/sync', syncRouter);
-
-// Global 404 handler
-app.notFound((c) => {
-  return c.json(
-    {
-      error: 'NOT_FOUND',
-      message: `Cannot ${c.req.method} ${c.req.path}`,
-    },
-    404
-  );
-});
 
 // Global Exception handler
 app.onError((err, c) => {

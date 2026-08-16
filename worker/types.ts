@@ -1,8 +1,9 @@
-import type { D1Database } from '@cloudflare/workers-types';
+import type { D1Database, Fetcher } from '@cloudflare/workers-types';
 
 export interface Bindings {
   DB: D1Database;
   ENVIRONMENT?: string;
+  ASSETS?: Fetcher;
 }
 
 export interface Variables {
