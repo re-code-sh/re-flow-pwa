@@ -5,9 +5,13 @@ import {
   Flame,
   Play,
   Moon,
+  Sliders,
+  BarChart2,
   Edit3,
-  MoreVertical,
-  CheckCircle2,
+  Bolt,
+  ChevronLeft,
+  ChevronRight,
+  Bell,
 } from 'lucide-react';
 import { repo } from '../../db/repo';
 import type { Task } from '../../db/schema';
@@ -16,10 +20,12 @@ import { Pill } from '../ui/Pill';
 import { CheckCircle } from '../ui/CheckCircle';
 import { Reveal } from '../ui/Reveal';
 import { useToast } from '../ui/Toast';
-import { fmtTodayLabel, todayKey, faNum } from '../../lib/fa';
+import { fmtTodayLabel, fmtTime, todayKey, faNum } from '../../lib/fa';
 import { MorningWizardModal } from './MorningWizardModal';
 import { EveningReviewModal } from './EveningReviewModal';
 import { TaskEditModal } from './TaskEditModal';
+import { StatsModal } from '../stats/StatsModal';
+import { SettingsModal } from '../settings/SettingsModal';
 import type { ActiveFocusSessionConfig } from '../focus/FocusArena';
 
 interface TodayScreenProps {
@@ -30,12 +36,15 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
   const currentLang = (i18n.language || 'fa').startsWith('en') ? 'en' : 'fa';
+  const isRtl = currentLang === 'fa';
 
   const today = todayKey();
 
   // Modals state
   const [showWizard, setShowWizard] = useState(false);
   const [showEveningReview, setShowEveningReview] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Live DB Queries
@@ -44,6 +53,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
 
   const boulderTask = (dayTasks || []).find((t) => t.is_boulder) || null;
   const otherTasks = (dayTasks || []).filter((t) => !t.is_boulder);
+  const boulderDone = boulderTask?.status === 'completed';
 
   const handleToggleTask = async (task: Task) => {
     const isCompleted = task.status === 'completed';
@@ -62,135 +72,169 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
     });
   };
 
+  const handleEnergyCheck = async (level: number) => {
+    const now = new Date();
+    await repo.addEnergyCheck(now.getHours(), level);
+    showToast(
+      currentLang === 'fa'
+        ? 'ثبت شد — ساعتِ طلایی‌ات کم‌کم پیدا می‌شود'
+        : 'Logged — your Golden Hour pattern will emerge'
+    );
+  };
+
   return (
-    <div className="space-y-6 pb-24">
-      {/* Top Header */}
+    <div className="space-y-5 pb-32">
+      {/* 1. Header (Matching Flutter _Header) */}
       <Reveal order={0}>
-        <div className="flex items-center justify-between pt-2 pb-1">
+        <div className="flex items-end justify-between px-1 pt-3 pb-2">
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-ink3 tracking-wide">
+            <span className="text-[12.5px] font-medium text-ink3">
               {fmtTodayLabel(currentLang)}
             </span>
-            <h1 className="text-2xl font-black tracking-tight text-ink mt-0.5">
-              {t('app.todayTitle')}
+            <h1 className="text-[25px] font-extrabold text-ink tracking-tight leading-tight mt-0.5">
+              {t('app.title')}
             </h1>
           </div>
 
+          {/* 3 Flutter-style 42x42 Glass Icon Buttons */}
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => setShowSettings(true)}
+              className="pressable flex h-[42px] w-[42px] items-center justify-center rounded-[14px] glass-surface text-ink2 hover:text-ink transition-colors"
+              title={t('settings.settingsTitle')}
+            >
+              <Sliders className="w-[19px] h-[19px]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowStats(true)}
+              className="pressable flex h-[42px] w-[42px] items-center justify-center rounded-[14px] glass-surface text-ink2 hover:text-ink transition-colors"
+              title={t('stats.statsMirrorTitle')}
+            >
+              <BarChart2 className="w-[19px] h-[19px]" />
+            </button>
+
+            <button
+              type="button"
               onClick={() => setShowWizard(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-surface text-xs font-semibold text-ink2 hover:text-ink active:scale-95 transition-all"
+              className="pressable flex h-[42px] w-[42px] items-center justify-center rounded-[14px] glass-surface text-ink2 hover:text-ink transition-colors"
               title={t('wizard.morningSetupTitle')}
             >
-              <Edit3 className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-              <span>{t('wizard.planToday')}</span>
+              <Edit3 className="w-[19px] h-[19px]" />
             </button>
           </div>
         </div>
       </Reveal>
 
-      {/* The Boulder Section */}
+      {/* 2. The Boulder Section (Matching Flutter BoulderCard) */}
       <Reveal order={1}>
         <div className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-ink3 flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-              {t('today.theBoulder')}
-            </span>
-            {dayPlan?.planned && dayPlan.prediction && (
-              <span className="text-xs font-mono font-semibold text-ink3">
-                {currentLang === 'fa' ? faNum(dayPlan.prediction) : dayPlan.prediction}% {t('today.boulderTitle')}
-              </span>
-            )}
-          </div>
+          <span className="text-[11.5px] font-semibold text-ink3 uppercase tracking-[0.4px] block px-1.5">
+            {t('today.theBoulder')}
+          </span>
 
-          {boulderTask ? (
-            <GlassCard
-              emberRing
-              radius="card"
-              className="p-6 relative overflow-hidden group"
-            >
-              {/* Subtle ambient breathing glow */}
+          {dayPlan?.planned && boulderTask ? (
+            <div className="relative">
+              {/* Breathing Glow */}
               <div
-                className={`absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
-                  boulderTask.status === 'completed' ? 'opacity-10' : 'opacity-25 animate-pulse'
+                className={`absolute -top-6 -start-4 w-48 h-36 rounded-full blur-2xl pointer-events-none transition-opacity duration-1000 ${
+                  boulderDone ? 'opacity-5' : 'opacity-20 animate-pulse'
                 }`}
                 style={{ backgroundColor: 'var(--color-accent)' }}
               />
 
-              <div className="relative space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1 min-w-0 flex-1">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] text-[11px] font-bold">
+              <GlassCard
+                radius="card"
+                emberRing
+                className="p-5 sm:p-6 relative overflow-hidden"
+                onDoubleClick={() => setEditingTask(boulderTask)}
+              >
+                <div className="relative space-y-3.5">
+                  {/* Ember Tag & Reminder chip */}
+                  <div className="flex items-center gap-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/25 text-[var(--color-accent)] text-[11px] font-bold">
                       <Flame className="w-3 h-3 fill-current" />
-                      {t('today.boulderTitle')}
-                    </span>
+                      <span>{t('today.boulderTitle')}</span>
+                    </div>
 
-                    <h2
-                      className={`text-xl sm:text-2xl font-bold leading-snug truncate ${
-                        boulderTask.status === 'completed'
-                          ? 'line-through text-ink3'
-                          : 'text-ink'
-                      }`}
-                    >
-                      {boulderTask.title}
-                    </h2>
+                    {boulderTask.reminder_time !== null && !boulderDone && (
+                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 text-[var(--color-accent)] text-[11px] font-semibold">
+                        <Bell className="w-2.5 h-2.5" />
+                        <span>{fmtTime(boulderTask.reminder_time, currentLang)}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setEditingTask(boulderTask)}
-                    className="p-2 rounded-lg text-ink3 hover:text-ink hover:bg-white/5 transition-colors"
+                  {/* Title */}
+                  <h2
+                    className={`text-[21px] font-bold leading-[1.45] ${
+                      boulderDone ? 'line-through text-ink3' : 'text-ink'
+                    }`}
                   >
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                </div>
+                    {boulderTask.title}
+                  </h2>
 
-                {/* Boulder Action Buttons */}
-                <div className="flex items-center gap-3 pt-2">
-                  {boulderTask.status !== 'completed' && (
+                  {/* Prediction & Done Status */}
+                  <div className="flex items-center gap-1.5 text-[12.5px] text-ink2">
+                    <span>
+                      {currentLang === 'fa'
+                        ? `پیش‌بینی صبح: ${faNum(dayPlan.prediction ?? 80)}٪`
+                        : `Morning prediction: ${dayPlan.prediction ?? 80}%`}
+                    </span>
+                    {boulderDone && (
+                      <span className="font-bold text-[var(--color-accent)]">
+                        {currentLang === 'fa' ? '— انجام شد' : '— Done'}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Action Buttons Row */}
+                  <div className="flex items-center gap-2.5 pt-1">
+                    {!boulderDone && (
+                      <Pill
+                        pillStyle="ember"
+                        onClick={() => handleTaskFocusClick(boulderTask)}
+                        icon={<Play className="w-4 h-4 fill-current" />}
+                        className="flex-1 text-[14.5px]"
+                      >
+                        {t('today.startFocus')}
+                      </Pill>
+                    )}
+
                     <Pill
-                      pillStyle="ember"
-                      onClick={() => handleTaskFocusClick(boulderTask)}
-                      icon={<Play className="w-4 h-4 fill-current" />}
-                      className="flex-1 h-12 text-xs sm:text-sm font-bold"
+                      pillStyle="glass"
+                      onClick={() => handleToggleTask(boulderTask)}
+                      className={boulderDone ? 'w-full text-[14.5px]' : 'flex-1 text-[14.5px]'}
                     >
-                      {t('today.startFocus')}
+                      {boulderDone ? t('common.undo') : t('today.markTaskCompleted')}
                     </Pill>
-                  )}
-
-                  <Pill
-                    pillStyle={boulderTask.status === 'completed' ? 'glass' : 'quiet'}
-                    onClick={() => handleToggleTask(boulderTask)}
-                    icon={boulderTask.status === 'completed' ? undefined : <CheckCircle2 className="w-4 h-4" />}
-                    className={boulderTask.status === 'completed' ? 'w-full' : 'flex-1'}
-                  >
-                    {boulderTask.status === 'completed'
-                      ? t('common.undo')
-                      : t('today.markTaskCompleted')}
-                  </Pill>
+                  </div>
                 </div>
-              </div>
-            </GlassCard>
+              </GlassCard>
+            </div>
           ) : (
             <GlassCard
               radius="card"
               emberRing
-              className="p-6 text-center space-y-3 cursor-pointer hover:bg-white/[0.06] transition-all"
-              onClick={() => setShowWizard(true)}
+              className="p-5 sm:p-6 space-y-3.5"
             >
-              <div className="w-12 h-12 mx-auto rounded-full bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)]">
-                <Flame className="w-6 h-6" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/25 text-[var(--color-accent)] text-[11px] font-bold">
+                <Flame className="w-3 h-3 fill-current" />
+                <span>{currentLang === 'fa' ? 'یک نقطهٔ داغ' : 'One Hot Spot'}</span>
               </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-bold text-ink">{t('today.unplannedTitle')}</h3>
-                <p className="text-xs text-ink3 max-w-sm mx-auto leading-relaxed">
-                  {t('today.unplannedSub')}
-                </p>
-              </div>
-              <div className="pt-2">
-                <Pill pillStyle="ember" expanded={false} className="px-6 h-10 text-xs">
+
+              <p className="text-[15.5px] font-medium text-ink2 leading-[1.7]">
+                {t('today.todayNotPlannedYet')}
+              </p>
+
+              <div className="pt-1">
+                <Pill
+                  pillStyle="ember"
+                  onClick={() => setShowWizard(true)}
+                  className="h-[50px]"
+                >
                   {t('today.planToday')}
                 </Pill>
               </div>
@@ -199,122 +243,155 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
         </div>
       </Reveal>
 
-      {/* Secondary Tasks Section */}
-      <Reveal order={2}>
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-ink3">
-              {t('wizard.otherTwoTasks')} ({otherTasks.length})
-            </span>
-          </div>
-
+      {/* 3. Secondary Tasks Section (_OtherTaskRow) */}
+      {dayPlan?.planned && otherTasks.length > 0 && (
+        <Reveal order={2}>
           <div className="space-y-2">
-            {otherTasks.length > 0 ? (
-              otherTasks.map((task, idx) => {
+            <span className="text-[11.5px] font-semibold text-ink3 uppercase tracking-[0.4px] block px-1.5">
+              {currentLang === 'fa'
+                ? `کارهای دیگر (${faNum(otherTasks.length)})`
+                : `Other Tasks (${otherTasks.length})`}
+            </span>
+
+            <div className="space-y-2">
+              {otherTasks.map((task, idx) => {
+                const isCompleted = task.status === 'completed';
+                const isLocked = !boulderDone && !isCompleted;
                 const isPebble = idx >= 2;
-                const isLocked = boulderTask && boulderTask.status !== 'completed' && task.status !== 'completed';
 
                 return (
                   <GlassCard
                     key={task.id}
-                    className={`flex items-center justify-between p-3.5 transition-all ${
-                      task.status === 'completed'
-                        ? 'opacity-50'
-                        : isLocked
-                        ? 'opacity-85'
-                        : 'opacity-100'
+                    className={`flex items-center justify-between p-4 transition-all ${
+                      isCompleted ? 'opacity-55' : isLocked ? 'opacity-70' : 'opacity-100'
                     }`}
+                    onDoubleClick={() => setEditingTask(task)}
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-2">
                       <CheckCircle
-                        checked={task.status === 'completed'}
+                        checked={isCompleted}
                         onToggle={() => handleToggleTask(task)}
                       />
 
                       <div className="flex flex-col min-w-0 flex-1">
                         <span
-                          className={`text-sm font-medium leading-snug truncate ${
-                            task.status === 'completed'
-                              ? 'line-through text-ink3'
-                              : 'text-ink'
+                          className={`text-[15px] font-medium leading-[1.5] truncate ${
+                            isCompleted ? 'line-through text-ink3' : 'text-ink'
                           }`}
                         >
                           {task.title}
                         </span>
 
-                        <div className="flex items-center gap-2 mt-0.5">
-                          {isPebble && (
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-400 font-semibold">
+                        {isPebble && (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-[var(--color-accent-soft)] text-[var(--color-accent)]">
                               {t('today.pebbleTag')}
                             </span>
-                          )}
-                          {isLocked && (
-                            <span className="text-[11px] text-ink3">
-                              {t('today.queuedBehindBoulder')}
+                            <span className="text-[10.5px] text-ink3">
+                              {t('today.pebbleHelper')}
                             </span>
-                          )}
-                        </div>
+                          </div>
+                        )}
+
+                        {isLocked && (
+                          <span className="text-[11.5px] text-ink3 mt-0.5">
+                            {t('today.queuedBehindBoulder')}
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 shrink-0">
-                      {task.status !== 'completed' && (
-                        <button
-                          type="button"
-                          onClick={() => handleTaskFocusClick(task)}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--color-accent-soft)] text-[var(--color-accent)] text-xs font-bold hover:brightness-110 active:scale-95 transition-all"
-                        >
-                          <Play className="w-3.5 h-3.5 fill-current" />
-                          <span>{t('today.focusButton')}</span>
-                        </button>
-                      )}
-
+                    {!isCompleted && (
                       <button
                         type="button"
-                        onClick={() => setEditingTask(task)}
-                        className="p-1.5 rounded-lg text-ink3 hover:text-ink transition-colors"
+                        onClick={() => handleTaskFocusClick(task)}
+                        className="pressable flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-[var(--color-accent)]/12 border border-glass-line text-[var(--color-accent)] text-[11.5px] font-bold"
                       >
-                        <MoreVertical className="w-4 h-4" />
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>{t('today.focusButton')}</span>
                       </button>
-                    </div>
+                    )}
                   </GlassCard>
                 );
-              })
-            ) : (
-              <GlassCard className="py-6 text-center text-xs text-ink3">
-                {t('today.todayNotPlannedYet')}
-              </GlassCard>
-            )}
+              })}
+            </div>
           </div>
-        </div>
+        </Reveal>
+      )}
+
+      {/* 4. Energy Check-in Row (Matching Flutter _EnergyCard) */}
+      <Reveal order={3}>
+        <GlassCard className="px-3.5 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <Bolt className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+            <span className="text-[12.5px] font-semibold text-ink2 truncate">
+              {currentLang === 'fa' ? 'انرژی الان؟' : 'Energy right now?'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleEnergyCheck(1)}
+              className="pressable px-3 py-1.5 rounded-full bg-white/[0.04] border border-glass-line text-[11.5px] font-semibold text-ink2 hover:text-ink"
+            >
+              {currentLang === 'fa' ? 'کم' : 'Low'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleEnergyCheck(2)}
+              className="pressable px-3 py-1.5 rounded-full bg-white/[0.04] border border-glass-line text-[11.5px] font-semibold text-ink2 hover:text-ink"
+            >
+              {currentLang === 'fa' ? 'متوسط' : 'Med'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleEnergyCheck(3)}
+              className="pressable px-3 py-1.5 rounded-full bg-white/[0.04] border border-glass-line text-[11.5px] font-semibold text-ink2 hover:text-ink"
+            >
+              {currentLang === 'fa' ? 'زیاد' : 'High'}
+            </button>
+          </div>
+        </GlassCard>
       </Reveal>
 
-      {/* Evening Review CTA */}
+      {/* 5. Evening CTA (Matching Flutter _EveningCta) */}
       {dayPlan?.planned && (
-        <Reveal order={3}>
+        <Reveal order={4}>
           <GlassCard
-            className={`p-4 flex items-center justify-between ${
-              dayPlan.closed_at ? 'bg-white/[0.03] opacity-75' : 'bg-white/[0.06]'
+            radius="card"
+            className={`p-4 flex items-center justify-between cursor-pointer ${
+              dayPlan.closed_at ? 'opacity-70' : ''
             }`}
+            onClick={() => setShowEveningReview(true)}
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-300">
-                <Moon className="w-5 h-5" />
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-[14px] bg-white/5 border border-glass-line flex items-center justify-center text-ink2 shrink-0">
+                <Moon className="w-4 h-4" />
               </div>
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-ink">{t('evening.eveningReviewTitle')}</h4>
-                <p className="text-xs text-ink3">{t('evening.eveningReviewSub')}</p>
+              <div className="flex flex-col">
+                <span className="text-[15px] font-semibold text-ink">
+                  {dayPlan.closed_at
+                    ? currentLang === 'fa'
+                      ? 'روز بسته شد'
+                      : 'Day Closed'
+                    : t('evening.eveningReviewTitle')}
+                </span>
+                <span className="text-[11.5px] text-ink3">
+                  {dayPlan.closed_at
+                    ? currentLang === 'fa'
+                      ? 'فردا، دوباره از تخته‌سنگ.'
+                      : 'Tomorrow, start fresh with the Boulder.'
+                    : t('evening.eveningReviewSub')}
+                </span>
               </div>
             </div>
 
-            <Pill
-              pillStyle={dayPlan.closed_at ? 'glass' : 'ember'}
-              expanded={false}
-              onClick={() => setShowEveningReview(true)}
-              className="h-10 px-4 text-xs font-bold"
-            >
-              {dayPlan.closed_at ? t('common.edit') : t('today.closeDay')}
-            </Pill>
+            {isRtl ? (
+              <ChevronLeft className="w-5 h-5 text-ink3" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-ink3" />
+            )}
           </GlassCard>
         </Reveal>
       )}
@@ -340,6 +417,9 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
         onClose={() => setEditingTask(null)}
         onUpdated={() => setEditingTask(null)}
       />
+
+      <StatsModal isOpen={showStats} onClose={() => setShowStats(false)} />
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 };

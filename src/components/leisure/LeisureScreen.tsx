@@ -69,17 +69,17 @@ export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) =>
   };
 
   return (
-    <div className="space-y-6 pb-24">
-      {/* Top Header */}
+    <div className="space-y-5 pb-32">
+      {/* 1. Header (Matching Flutter _Header) */}
       <Reveal order={0}>
-        <div className="flex items-center justify-between pt-2 pb-1">
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold text-ink3 tracking-wide">
-              {t('leisure.leisureSubtitle')}
-            </span>
-            <h1 className="text-2xl font-black tracking-tight text-ink mt-0.5">
+        <div className="flex items-center justify-between px-1 pt-3 pb-2">
+          <div className="space-y-1">
+            <h1 className="text-[26px] font-extrabold text-ink tracking-tight">
               {t('app.leisureTab')}
             </h1>
+            <p className="text-[12.5px] font-medium text-ink3 leading-relaxed">
+              {t('leisure.leisureSubtitle')}
+            </p>
           </div>
 
           <button
@@ -89,94 +89,89 @@ export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) =>
               setLeisureMinutes(String(activeMinutes));
               setShowConfigModal(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-surface text-xs font-semibold text-ink2 hover:text-ink active:scale-95 transition-all"
+            className="pressable flex h-[42px] w-[42px] items-center justify-center rounded-[14px] glass-surface text-ink2 hover:text-ink transition-colors"
+            title={t('leisure.configFunTitle')}
           >
-            <Settings2 className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-            <span>{t('leisure.configFunTitle')}</span>
+            <Settings2 className="w-[19px] h-[19px]" />
           </button>
         </div>
       </Reveal>
 
-      {/* Main Play Block Card */}
+      {/* 2. Main Play Block Card (Matching Flutter) */}
       <Reveal order={1}>
         <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-ink3 px-1 block">
+          <span className="text-[11.5px] font-semibold text-ink3 uppercase tracking-[0.4px] block px-1.5">
             {t('leisure.guiltFreePlayBlock')}
           </span>
 
           <GlassCard
-            emberRing={isBoulderDone}
             radius="card"
-            className="p-6 relative overflow-hidden"
+            emberRing={isBoulderDone}
+            className="p-5 sm:p-6 space-y-4 relative overflow-hidden"
           >
-            {/* Soft Ambient Glow */}
-            <div
-              className={`absolute -top-10 -left-10 w-44 h-44 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
-                isBoulderDone ? 'opacity-25' : 'opacity-10'
-              }`}
-              style={{ backgroundColor: 'var(--color-accent)' }}
-            />
+            {/* Status chip & duration */}
+            <div className="flex items-center justify-between">
+              <span
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold border ${
+                  isBoulderDone
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                    : 'bg-white/5 text-ink3 border-glass-line'
+                }`}
+              >
+                {isBoulderDone ? (
+                  <>
+                    <Unlock className="w-3.5 h-3.5" />
+                    <span>{t('leisure.funUnlockedSub')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>{t('leisure.funLockedSub')}</span>
+                  </>
+                )}
+              </span>
 
-            <div className="relative space-y-4">
-              <div className="flex items-center justify-between">
-                <span
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-                    isBoulderDone
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                      : 'bg-white/5 text-ink3 border-glass-line'
-                  }`}
-                >
-                  {isBoulderDone ? (
-                    <>
-                      <Unlock className="w-3.5 h-3.5" />
-                      <span>{t('leisure.funUnlockedSub')}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>{t('leisure.funLockedSub')}</span>
-                    </>
-                  )}
-                </span>
+              <span className="text-[12px] font-mono font-bold text-ink2 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                {currentLang === 'fa' ? faNum(activeMinutes) : activeMinutes} {t('leisure.durationMinutes')}
+              </span>
+            </div>
 
-                <span className="text-xs font-mono font-bold text-ink3 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                  {currentLang === 'fa' ? faNum(activeMinutes) : activeMinutes} {t('leisure.durationMinutes')}
-                </span>
-              </div>
+            {/* Activity Title & Hint */}
+            <div className="space-y-1">
+              <h2 className="text-[21px] font-bold text-ink truncate">
+                {activeTitle}
+              </h2>
+              <p className="text-[13px] text-ink2 leading-relaxed">
+                {t('leisure.funHint')}
+              </p>
+            </div>
 
-              <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-bold text-ink truncate">
-                  {activeTitle}
-                </h2>
-                <p className="text-xs text-ink3 leading-relaxed">
-                  {t('leisure.funHint')}
-                </p>
-              </div>
-
-              <div className="pt-2">
-                <Pill
-                  pillStyle={isBoulderDone ? 'ember' : 'glass'}
-                  onClick={handleStartPlay}
-                  icon={<Play className="w-4 h-4 fill-current" />}
-                  className="h-[52px] font-bold"
-                >
-                  {t('leisure.startLeisurePlay')}
-                </Pill>
-              </div>
+            {/* Start Button */}
+            <div className="pt-2">
+              <Pill
+                pillStyle={isBoulderDone ? 'ember' : 'glass'}
+                onClick={handleStartPlay}
+                icon={<Play className="w-4 h-4 fill-current" />}
+                className="h-[52px] text-[14.5px] font-bold"
+              >
+                {t('leisure.startLeisurePlay')}
+              </Pill>
             </div>
           </GlassCard>
         </div>
       </Reveal>
 
-      {/* Philosophy Banner: Antidote to Parkinson's Law */}
+      {/* 3. Philosophy Banner: Antidote to Parkinson's Law */}
       <Reveal order={2}>
-        <GlassCard className="p-5 bg-white/[0.03] border-glass-line space-y-2">
+        <GlassCard className="p-5 space-y-2 bg-white/[0.03]">
           <div className="flex items-center gap-2 text-[var(--color-accent)]">
             <Info className="w-4 h-4" />
-            <h3 className="text-sm font-bold">{t('leisure.leisurePhilosophyTitle')}</h3>
+            <h3 className="text-[13.5px] font-bold">
+              {t('leisure.leisurePhilosophyTitle')}
+            </h3>
           </div>
-          <p className="text-xs text-ink2 leading-relaxed">
+          <p className="text-[12.5px] text-ink2 leading-[1.8]">
             {t('leisure.leisurePhilosophyBody')}
           </p>
         </GlassCard>

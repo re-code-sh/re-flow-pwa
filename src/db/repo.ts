@@ -294,6 +294,20 @@ export const repo = {
     return leisure;
   },
 
+  // ---------- Energy Checks ----------
+
+  async addEnergyCheck(hour: number, level: number, dayKey: string = todayKey()): Promise<void> {
+    const now = Date.now();
+    await db.energy_checks.add({
+      id: uuidv4(),
+      day_key: dayKey,
+      hour,
+      level,
+      created_at: now,
+      updated_at: now,
+    });
+  },
+
   // ---------- Settings & Sync Metadata ----------
 
   async getSetting(k: string): Promise<string | null> {
@@ -317,4 +331,38 @@ export const repo = {
   async setSyncMeta(key: string, value: string): Promise<void> {
     await db.sync_meta.put({ key, value });
   },
+
+  async exportJson(): Promise<string> {
+    const [tasks, days, habits, habit_logs, thoughts, focus_sessions, energy_checks, leisure] =
+      await Promise.all([
+        db.tasks.toArray(),
+        db.days.toArray(),
+        db.habits.toArray(),
+        db.habit_logs.toArray(),
+        db.thoughts.toArray(),
+        db.focus_sessions.toArray(),
+        db.energy_checks.toArray(),
+        db.leisure.toArray(),
+      ]);
+
+    return JSON.stringify(
+      {
+        version: 1,
+        exported_at: Date.now(),
+        data: {
+          tasks,
+          days,
+          habits,
+          habit_logs,
+          thoughts,
+          focus_sessions,
+          energy_checks,
+          leisure,
+        },
+      },
+      null,
+      2
+    );
+  },
 };
+
