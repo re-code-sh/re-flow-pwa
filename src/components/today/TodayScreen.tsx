@@ -83,7 +83,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
   };
 
   return (
-    <div className="space-y-5 pb-32">
+    <div className="space-y-5 pb-40">
       {/* 1. Header (Matching Flutter _Header) */}
       <Reveal order={0}>
         <div className="flex items-end justify-between px-1 pt-3 pb-2">
@@ -139,8 +139,8 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
             <div className="relative">
               {/* Breathing Glow */}
               <div
-                className={`absolute -top-6 -start-4 w-48 h-36 rounded-full blur-2xl pointer-events-none transition-opacity duration-1000 ${
-                  boulderDone ? 'opacity-5' : 'opacity-20 animate-pulse'
+                className={`absolute -top-8 -start-6 w-56 h-44 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
+                  boulderDone ? 'opacity-5' : 'animate-breathe-glow'
                 }`}
                 style={{ backgroundColor: 'var(--color-accent)' }}
               />

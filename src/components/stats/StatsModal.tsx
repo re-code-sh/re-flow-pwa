@@ -124,7 +124,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
             {currentLang === 'fa' ? 'هفت شبِ آخر' : 'Last Seven Nights'}
           </span>
 
-          <div className="space-y-1.5 max-h-[30vh] overflow-y-auto pr-1">
+          <div className="space-y-1.5 max-h-[30vh] overflow-y-auto custom-scrollbar pr-1">
             {closedDays.length > 0 ? (
               closedDays.slice(-7).reverse().map((d) => (
                 <GlassCard

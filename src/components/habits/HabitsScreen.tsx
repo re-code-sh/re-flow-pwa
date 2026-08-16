@@ -65,7 +65,7 @@ export const HabitsScreen: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5 pb-32">
+    <div className="space-y-5 pb-40">
       {/* 1. Header (Matching Flutter _Header) */}
       <Reveal order={0}>
         <div className="px-1 pt-3 pb-2 space-y-1">
