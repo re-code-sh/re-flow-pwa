@@ -209,6 +209,22 @@ export const repo = {
     return habit;
   },
 
+  async updateHabit(id: string, updates: Partial<Habit>): Promise<void> {
+    const now = Date.now();
+    await db.habits.update(id, {
+      ...updates,
+      updated_at: now,
+    });
+  },
+
+  async deleteHabit(id: string): Promise<void> {
+    const now = Date.now();
+    await db.habits.update(id, {
+      deleted_at: now,
+      updated_at: now,
+    });
+  },
+
   async logHabit(habitId: string, dayKey: string, status: HabitLogStatus): Promise<void> {
     const now = Date.now();
     const log: HabitLog = {
