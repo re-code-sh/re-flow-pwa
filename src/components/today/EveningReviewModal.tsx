@@ -73,7 +73,7 @@ export const EveningReviewModal: React.FC<EveningReviewModalProps> = ({
 
           <GlassCard className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-              <Flame className="w-5 h-5 text-[var(--color-accent)] shrink-0" />
+              <Flame className="w-5 h-5 text-[var(--accent)] shrink-0" />
               <span className="text-sm font-semibold text-ink truncate">
                 {boulderTask?.title || t('today.theBoulder')}
               </span>
@@ -85,7 +85,7 @@ export const EveningReviewModal: React.FC<EveningReviewModalProps> = ({
                 onClick={() => setOutcome(true)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                   outcome
-                    ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/40 shadow-sm'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/40 shadow-sm'
                     : 'border border-glass-line text-ink3 hover:text-ink'
                 }`}
               >
@@ -134,7 +134,7 @@ export const EveningReviewModal: React.FC<EveningReviewModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowWhy2(true)}
-                className="text-xs text-[var(--color-accent)] font-semibold flex items-center gap-1 hover:underline"
+                className="text-xs text-[var(--accent)] font-semibold flex items-center gap-1 hover:underline"
               >
                 <Plus className="w-3.5 h-3.5" />
                 {t('evening.addDeeperWhy')}
@@ -153,7 +153,7 @@ export const EveningReviewModal: React.FC<EveningReviewModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowWhy3(true)}
-                  className="text-xs text-[var(--color-accent)] font-semibold flex items-center gap-1 hover:underline"
+                  className="text-xs text-[var(--accent)] font-semibold flex items-center gap-1 hover:underline"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   {t('evening.addDeeperWhy')}

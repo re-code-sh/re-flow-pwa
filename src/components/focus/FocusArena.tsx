@@ -146,12 +146,12 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-glass-line text-xs font-semibold text-ink2">
           {config.kind === 'fun' ? (
             <>
-              <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+              <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>{t('leisure.leisureTab')}</span>
             </>
           ) : (
             <>
-              <Flame className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+              <Flame className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>{t('focus.deepFocusTitle')}</span>
             </>
           )}
@@ -173,7 +173,7 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
           {/* Ambient Glow */}
           <div
             className="absolute inset-4 rounded-full blur-[40px] opacity-25 transition-opacity duration-700 pointer-events-none"
-            style={{ backgroundColor: 'var(--color-accent)' }}
+            style={{ backgroundColor: 'var(--accent)' }}
           />
 
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 280 280">
@@ -191,13 +191,13 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
               cx="140"
               cy="140"
               r={radius}
-              stroke="var(--color-accent)"
+              stroke="var(--accent)"
               strokeWidth="10"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="transparent"
-              style={{ filter: 'drop-shadow(0 0 10px var(--color-accent-glow))' }}
+              style={{ filter: 'drop-shadow(0 0 10px var(--accent-glow))' }}
               className="transition-all duration-300 ease-liquid"
             />
           </svg>
@@ -211,7 +211,7 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
               {config.title}
             </span>
             {isPaused && (
-              <span className="mt-1 text-[11px] font-bold uppercase tracking-wider text-[var(--color-accent)] animate-pulse">
+              <span className="mt-1 text-[11px] font-bold uppercase tracking-wider text-[var(--accent)] animate-pulse">
                 Paused
               </span>
             )}
@@ -225,7 +225,7 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
             onClick={() => handleAddMinutes(10)}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full glass-surface text-xs font-semibold text-ink2 hover:text-ink active:scale-95 transition-all"
           >
-            <Plus className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+            <Plus className="w-3.5 h-3.5 text-[var(--accent)]" />
             {t('focus.addTenMinFocus')}
           </button>
         </div>
@@ -238,7 +238,7 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
           onClick={handlePauseToggle}
           className="flex items-center justify-center h-14 w-14 rounded-full glass-surface border border-glass-line text-ink hover:scale-105 active:scale-95 transition-transform"
         >
-          {isPaused ? <Play className="w-6 h-6 fill-current text-[var(--color-accent)]" /> : <Pause className="w-6 h-6 fill-current" />}
+          {isPaused ? <Play className="w-6 h-6 fill-current text-[var(--accent)]" /> : <Pause className="w-6 h-6 fill-current" />}
         </button>
 
         <Pill
@@ -280,7 +280,7 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
                 onClick={() => setInterruptTag(item.tag)}
                 className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   interruptTag === item.tag
-                    ? 'bg-[var(--color-accent-soft)] border-[var(--color-accent)] text-[var(--color-accent)]'
+                    ? 'bg-[var(--accent-soft)] border-[var(--accent)] text-[var(--accent)]'
                     : 'border-glass-line text-ink2 hover:text-ink'
                 }`}
               >
@@ -325,7 +325,7 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
       >
         <div className="space-y-4 pt-2">
           <GlassCard className="p-4 text-center bg-white/5 border-glass-line">
-            <span className="text-3xl font-extralight font-mono text-[var(--color-accent)]">
+            <span className="text-3xl font-extralight font-mono text-[var(--accent)]">
               {Math.round((totalSeconds - remainingSeconds) / 60)} {t('leisure.durationMinutes')}
             </span>
             <p className="text-xs text-ink3 mt-1">{config.title}</p>

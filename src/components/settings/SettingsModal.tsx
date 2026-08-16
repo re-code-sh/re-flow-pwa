@@ -221,7 +221,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 onClick={() => setActiveSection(item.id)}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   isSelected
-                    ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/35 shadow-sm'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/35 shadow-sm'
                     : 'text-ink2 hover:text-ink hover:bg-white/5 border border-transparent'
                 }`}
               >
@@ -233,7 +233,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           <div className="mt-auto hidden md:block pt-4 border-t border-glass-line/30">
             <div className="flex items-center gap-2 text-ink3 text-[11px] font-mono px-2">
-              <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+              <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>v1.0.0 • Liquid Glass</span>
             </div>
           </div>
@@ -259,7 +259,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       key={key}
                       className={`p-4 cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-[var(--color-accent)] shadow-[0_0_20px_var(--color-accent-soft)] bg-white/[0.06]'
+                          ? 'border-[var(--accent)] shadow-[0_0_20px_var(--accent-soft)] bg-white/[0.06]'
                           : 'hover:border-white/20'
                       }`}
                       onClick={() => setAccent(key)}
@@ -273,7 +273,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                               boxShadow: isSelected ? `0 0 14px ${item.color}90` : 'none',
                             }}
                           >
-                            {isSelected && <Check className="w-4 h-4 text-emberInk stroke-[3]" />}
+                            {isSelected && <Check className="w-4 h-4 text-[var(--accent-ink)] stroke-[3]" />}
                           </div>
 
                           <div className="flex flex-col">
@@ -287,7 +287,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </div>
 
                         {isSelected && (
-                          <span className="text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30">
+                          <span className="text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30">
                             Active
                           </span>
                         )}
@@ -313,7 +313,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 {/* Morning Reminder */}
                 <GlassCard className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <Sun className="w-5 h-5 text-[var(--color-accent)] shrink-0 stroke-[1.75]" />
+                    <Sun className="w-5 h-5 text-[var(--accent)] shrink-0 stroke-[1.75]" />
                     <div className="flex flex-col min-w-0">
                       <span className="text-[13.5px] font-semibold text-ink">
                         {t('settings.morningReminder')}
@@ -356,7 +356,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 {/* Evening Reminder */}
                 <GlassCard className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <Moon className="w-5 h-5 text-[var(--color-accent)] shrink-0 stroke-[1.75]" />
+                    <Moon className="w-5 h-5 text-[var(--accent)] shrink-0 stroke-[1.75]" />
                     <div className="flex flex-col min-w-0">
                       <span className="text-[13.5px] font-semibold text-ink">
                         {t('settings.eveningReminder')}
@@ -431,7 +431,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                   {syncKey && (
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold px-3 py-1 rounded-lg bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30">
+                      <span className="font-mono text-xs font-bold px-3 py-1 rounded-lg bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30">
                         {syncKey}
                       </span>
                       <button
@@ -475,7 +475,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       type="button"
                       onClick={handleGenerateNewKey}
                       disabled={isPairing}
-                      className="text-xs text-[var(--color-accent)] font-semibold flex items-center gap-1.5 hover:underline"
+                      className="text-xs text-[var(--accent)] font-semibold flex items-center gap-1.5 hover:underline"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       صدور کلید جدید برای این کلاستر
@@ -500,7 +500,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <GlassCard className="p-5 space-y-3 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2 text-ink">
-                      <Download className="w-4 h-4 text-[var(--color-accent)] stroke-[1.75]" />
+                      <Download className="w-4 h-4 text-[var(--accent)] stroke-[1.75]" />
                       <span className="text-xs font-bold">{t('settings.exportBackup')}</span>
                     </div>
                     <p className="text-[11px] text-ink3 leading-relaxed">{t('settings.exportBackupSub')}</p>
@@ -514,7 +514,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <GlassCard className="p-5 space-y-3 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2 text-ink">
-                      <Upload className="w-4 h-4 text-[var(--color-accent)] stroke-[1.75]" />
+                      <Upload className="w-4 h-4 text-[var(--accent)] stroke-[1.75]" />
                       <span className="text-xs font-bold">{t('settings.restoreBackup')}</span>
                     </div>
                     <p className="text-[11px] text-ink3 leading-relaxed">{t('settings.restoreBackupSub')}</p>
@@ -540,7 +540,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <GlassCard
                   className={`p-4 cursor-pointer text-center space-y-1 ${
                     currentLang === 'fa'
-                      ? 'border-[var(--color-accent)] bg-white/[0.06] shadow-sm'
+                      ? 'border-[var(--accent)] bg-white/[0.06] shadow-sm'
                       : 'hover:border-white/20'
                   }`}
                   onClick={() => handleLanguageToggle('fa')}
@@ -552,7 +552,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <GlassCard
                   className={`p-4 cursor-pointer text-center space-y-1 ${
                     currentLang === 'en'
-                      ? 'border-[var(--color-accent)] bg-white/[0.06] shadow-sm'
+                      ? 'border-[var(--accent)] bg-white/[0.06] shadow-sm'
                       : 'hover:border-white/20'
                   }`}
                   onClick={() => handleLanguageToggle('en')}

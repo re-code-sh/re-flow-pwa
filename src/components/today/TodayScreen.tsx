@@ -142,7 +142,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
                 className={`absolute -top-8 -start-6 w-56 h-44 rounded-full blur-3xl pointer-events-none transition-opacity duration-1000 ${
                   boulderDone ? 'opacity-5' : 'animate-breathe-glow'
                 }`}
-                style={{ backgroundColor: 'var(--color-accent)' }}
+                style={{ backgroundColor: 'var(--accent)' }}
               />
 
               <GlassCard
@@ -154,13 +154,13 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
                 <div className="relative space-y-3.5">
                   {/* Ember Tag & Reminder chip */}
                   <div className="flex items-center gap-2">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/25 text-[var(--color-accent)] text-[11px] font-bold">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/25 text-[var(--accent)] text-[11px] font-bold">
                       <Flame className="w-3 h-3 fill-current" />
                       <span>{t('today.boulderTitle')}</span>
                     </div>
 
                     {boulderTask.reminder_time !== null && !boulderDone && (
-                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 text-[var(--color-accent)] text-[11px] font-semibold">
+                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/30 text-[var(--accent)] text-[11px] font-semibold">
                         <Bell className="w-2.5 h-2.5" />
                         <span>{fmtTime(boulderTask.reminder_time, currentLang)}</span>
                       </div>
@@ -184,7 +184,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
                         : `Morning prediction: ${dayPlan.prediction ?? 80}%`}
                     </span>
                     {boulderDone && (
-                      <span className="font-bold text-[var(--color-accent)]">
+                      <span className="font-bold text-[var(--accent)]">
                         {currentLang === 'fa' ? '— انجام شد' : '— Done'}
                       </span>
                     )}
@@ -220,7 +220,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
               emberRing
               className="p-5 sm:p-6 space-y-3.5"
             >
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/25 text-[var(--color-accent)] text-[11px] font-bold">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/25 text-[var(--accent)] text-[11px] font-bold">
                 <Flame className="w-3 h-3 fill-current" />
                 <span>{currentLang === 'fa' ? 'یک نقطهٔ داغ' : 'One Hot Spot'}</span>
               </div>
@@ -284,7 +284,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
 
                         {isPebble && (
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-[var(--color-accent-soft)] text-[var(--color-accent)]">
+                            <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-[var(--accent-soft)] text-[var(--accent)]">
                               {t('today.pebbleTag')}
                             </span>
                             <span className="text-[10.5px] text-ink3">
@@ -305,7 +305,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
                       <button
                         type="button"
                         onClick={() => handleTaskFocusClick(task)}
-                        className="pressable flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-[var(--color-accent)]/12 border border-glass-line text-[var(--color-accent)] text-[11.5px] font-bold"
+                        className="pressable flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-[var(--accent)]/12 border border-glass-line text-[var(--accent)] text-[11.5px] font-bold"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                         <span>{t('today.focusButton')}</span>
@@ -323,7 +323,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onStartFocus }) => {
       <Reveal order={3}>
         <GlassCard className="px-3.5 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <Bolt className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+            <Bolt className="w-4 h-4 text-[var(--accent)] shrink-0" />
             <span className="text-[12.5px] font-semibold text-ink2 truncate">
               {currentLang === 'fa' ? 'انرژی الان؟' : 'Energy right now?'}
             </span>

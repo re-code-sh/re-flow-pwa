@@ -168,7 +168,7 @@ export const MorningWizardModal: React.FC<MorningWizardModalProps> = ({
                       <div
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
                           isSelected
-                            ? 'bg-[var(--color-accent)] border-none text-[var(--color-accent-ink)]'
+                            ? 'bg-[var(--accent)] border-none text-[var(--accent-ink)]'
                             : 'border-white/20'
                         }`}
                       >
@@ -187,7 +187,7 @@ export const MorningWizardModal: React.FC<MorningWizardModalProps> = ({
                         }}
                         className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all ${
                           isBoulder
-                            ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/40 shadow-sm'
+                            ? 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/40 shadow-sm'
                             : 'bg-white/5 text-ink3 hover:text-ink hover:bg-white/10'
                         }`}
                       >
@@ -208,10 +208,10 @@ export const MorningWizardModal: React.FC<MorningWizardModalProps> = ({
         <div className="space-y-2.5 p-4 rounded-2xl bg-white/[0.03] border border-glass-line">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-ink2 flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+              <Flame className="w-3.5 h-3.5 text-[var(--accent)]" />
               {t('wizard.predictionSliderLabel')}
             </span>
-            <span className="text-sm font-bold font-mono text-[var(--color-accent)]">
+            <span className="text-sm font-bold font-mono text-[var(--accent)]">
               {currentLang === 'fa' ? faNum(prediction) : prediction}%
             </span>
           </div>
@@ -223,7 +223,7 @@ export const MorningWizardModal: React.FC<MorningWizardModalProps> = ({
             step="5"
             value={prediction}
             onChange={(e) => setPrediction(parseInt(e.target.value, 10))}
-            className="w-full accent-[var(--color-accent)] cursor-pointer"
+            className="w-full accent-[var(--accent)] cursor-pointer"
           />
 
           <p className="text-[11px] text-ink3 leading-relaxed">

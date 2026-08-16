@@ -114,7 +114,7 @@ export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) =>
               <span
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold border ${
                   isBoulderDone
-                    ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border-[var(--color-accent)]/30'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30'
                     : 'bg-white/5 text-ink3 border-glass-line'
                 }`}
               >
@@ -132,7 +132,7 @@ export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) =>
               </span>
 
               <span className="text-[12px] font-mono font-bold text-ink2 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                <Clock className="w-3.5 h-3.5 text-[var(--accent)]" />
                 {currentLang === 'fa' ? faNum(activeMinutes) : activeMinutes} {t('leisure.durationMinutes')}
               </span>
             </div>
@@ -165,7 +165,7 @@ export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) =>
       {/* 3. Philosophy Banner: Antidote to Parkinson's Law */}
       <Reveal order={2}>
         <GlassCard className="p-5 space-y-2 bg-white/[0.03]">
-          <div className="flex items-center gap-2 text-[var(--color-accent)]">
+          <div className="flex items-center gap-2 text-[var(--accent)]">
             <Info className="w-4 h-4" />
             <h3 className="text-[13.5px] font-bold">
               {t('leisure.leisurePhilosophyTitle')}

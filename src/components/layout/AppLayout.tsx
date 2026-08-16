@@ -65,37 +65,37 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#060608] text-[#F5F5F7] selection:bg-[var(--color-accent)]/30 selection:text-ink overflow-x-hidden relative">
-      {/* Exact Flutter _Ambient Background Radial Glows */}
+    <div className="min-h-screen bg-[#060608] text-[#F5F5F7] selection:bg-[var(--accent-soft)] selection:text-ink overflow-x-hidden relative flex flex-col justify-between">
+      {/* Background Ambient Radial Glows */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        {/* Top Right Blob */}
+        {/* Top-Right Ambient Blob */}
         <div
-          className="absolute -top-[22vh] -right-[18vw] w-[75vw] max-w-[600px] h-[75vw] max-h-[600px] rounded-full blur-[110px] pointer-events-none opacity-90"
+          className="absolute -top-[20vh] -right-[15vw] w-[70vw] max-w-[600px] h-[70vw] max-h-[600px] rounded-full blur-[110px] pointer-events-none opacity-80"
           style={{
             background:
               'radial-gradient(circle, rgba(120, 140, 190, 0.12) 0%, rgba(120, 140, 190, 0) 70%)',
           }}
         />
-        {/* Bottom Left Blob */}
+        {/* Bottom-Left Accent Dynamic Blob */}
         <div
-          className="absolute -bottom-[25vh] -left-[20vw] w-[80vw] max-w-[650px] h-[80vw] max-h-[650px] rounded-full blur-[120px] pointer-events-none transition-all duration-700 opacity-90"
+          className="absolute -bottom-[20vh] -left-[15vw] w-[75vw] max-w-[650px] h-[75vw] max-h-[650px] rounded-full blur-[120px] pointer-events-none transition-all duration-700 opacity-80"
           style={{
-            background: `radial-gradient(circle, var(--color-accent-soft) 0%, rgba(0, 0, 0, 0) 70%)`,
+            background: `radial-gradient(circle, var(--accent-soft) 0%, rgba(0, 0, 0, 0) 70%)`,
           }}
         />
       </div>
 
       <div className="flex w-full min-h-screen relative z-10">
-        {/* Desktop / Tablet Floating Glass Navigation Rail */}
-        <aside className="hidden md:flex flex-col justify-between w-20 lg:w-64 my-4 ms-4 p-3 lg:p-5 rounded-3xl bg-[#0D0D12]/80 border border-white/[0.09] backdrop-blur-2xl shadow-2xl shrink-0 sticky top-4 h-[calc(100vh-2rem)] z-30 transition-all duration-300">
+        {/* Desktop / Tablet Floating Glass Navigation Rail (>= 768px) */}
+        <aside className="hidden md:flex flex-col justify-between w-20 lg:w-64 my-4 ms-4 p-3 lg:p-5 rounded-3xl bg-[#0D0D12]/85 border border-white/[0.08] backdrop-blur-2xl shadow-2xl shrink-0 sticky top-4 h-[calc(100vh-2rem)] z-30 transition-all duration-300">
           <div className="space-y-6">
             {/* App Branding */}
             <div className="flex items-center gap-3 px-1 lg:px-2">
-              <div className="w-10 h-10 rounded-2xl bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-center justify-center text-[var(--color-accent)] shadow-[0_0_18px_var(--color-accent-glow)] shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent)] shadow-[0_0_18px_var(--accent-glow)] shrink-0">
                 <Flame className="w-5 h-5 fill-current" />
               </div>
               <div className="hidden lg:flex flex-col">
-                <span className="text-base font-extrabold tracking-tight text-ink">{t('app.title')}</span>
+                <span className="text-base font-black tracking-tight text-ink">{t('app.title')}</span>
                 <span className="text-[10px] font-mono text-ink3">re.flow • pwa</span>
               </div>
             </div>
@@ -113,7 +113,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                     onClick={() => onTabChange(item.id)}
                     className={`flex items-center justify-center lg:justify-start gap-3 w-full p-3 lg:px-4 lg:py-3 rounded-2xl text-xs font-semibold transition-all ${
                       isSelected
-                        ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/35 shadow-[0_0_16px_var(--color-accent-soft)]'
+                        ? 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent-border)] shadow-[0_0_16px_var(--accent-soft)]'
                         : 'text-ink2 hover:text-ink hover:bg-white/5 border border-transparent'
                     }`}
                     title={item.label}
@@ -133,7 +133,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               title={t('vault.brainVaultTitle')}
             >
               <div className="flex items-center gap-2.5">
-                <Brain className="w-5 h-5 lg:w-4 lg:h-4 text-[var(--color-accent)] stroke-[1.75]" />
+                <Brain className="w-5 h-5 lg:w-4 lg:h-4 text-[var(--accent)] stroke-[1.75]" />
                 <span className="hidden lg:inline">{t('vault.brainVaultTitle')}</span>
               </div>
               <span className="hidden lg:inline text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-ink3 font-mono">
@@ -191,7 +191,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </div>
         </aside>
 
-        {/* Main View Area with Balanced Desktop Canvas */}
+        {/* Main View Area with Balanced Desktop Canvas (< 768px is mobile full width, >= 768px is centered ergonomic workstation) */}
         <main className="flex-1 max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 w-full">
           <div key={currentTab} className="animate-tab-fade">
             {children}
@@ -199,7 +199,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </main>
       </div>
 
-      {/* Floating Action Button (_VaultFab at startFloat, elevated above bottom navbar on mobile) */}
+      {/* Mobile Floating Action Button (_VaultFab at startFloat, elevated safely above bottom navbar) */}
       <div className="md:hidden fixed start-4 bottom-[88px] z-30">
         <button
           type="button"
@@ -214,7 +214,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </button>
       </div>
 
-      {/* Floating Bottom Navigation Bar (maxWidth 440 on mobile) */}
+      {/* Mobile Floating Bottom Navigation Bar (maxWidth 440, floating at bottom with safe-area spacing) */}
       <div className="md:hidden fixed inset-x-0 bottom-0 z-40 pb-[calc(env(safe-area-inset-bottom,0px)+10px)] px-4 pointer-events-none">
         <div className="max-w-[440px] mx-auto pointer-events-auto">
           <GlassCard
@@ -233,7 +233,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                     onClick={() => onTabChange(item.id)}
                     className={`pressable flex flex-col items-center justify-center py-2 px-3 rounded-[16px] flex-1 transition-all ${
                       isSelected
-                        ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/35 shadow-sm'
+                        ? 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent-border)] shadow-sm'
                         : 'text-ink3 hover:text-ink border border-transparent'
                     }`}
                   >

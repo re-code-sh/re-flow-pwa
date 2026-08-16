@@ -95,7 +95,7 @@ export const VaultDrawer: React.FC<VaultDrawerProps> = ({ isOpen, onClose }) => 
                 onClick={() => setCategory(cat)}
                 className={`flex-1 py-2 px-3 rounded-pill text-xs font-semibold border transition-all ${
                   category === cat
-                    ? 'bg-[var(--color-accent-soft)] border-[var(--color-accent)] text-[var(--color-accent)]'
+                    ? 'bg-[var(--accent-soft)] border-[var(--accent)] text-[var(--accent)]'
                     : 'border-glass-line text-ink3 hover:text-ink hover:border-white/20'
                 }`}
               >
@@ -146,7 +146,7 @@ export const VaultDrawer: React.FC<VaultDrawerProps> = ({ isOpen, onClose }) => 
                   <button
                     type="button"
                     onClick={() => handlePromote(th)}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-pill bg-[var(--color-accent-soft)] text-[var(--color-accent)] text-xs font-bold hover:brightness-110 active:scale-95 transition-all"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-pill bg-[var(--accent-soft)] text-[var(--accent)] text-xs font-bold hover:brightness-110 active:scale-95 transition-all"
                     title={t('vault.promoteToTodayAction')}
                   >
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -165,7 +165,7 @@ export const VaultDrawer: React.FC<VaultDrawerProps> = ({ isOpen, onClose }) => 
             ))
           ) : (
             <div className="py-8 text-center text-ink3 text-xs space-y-2">
-              <Brain className="w-8 h-8 mx-auto opacity-30 text-[var(--color-accent)]" />
+              <Brain className="w-8 h-8 mx-auto opacity-30 text-[var(--accent)]" />
               <p>{searchQuery ? t('vault.noResultsFound') : t('vault.emptyVaultSub')}</p>
             </div>
           )}

@@ -6,6 +6,7 @@ export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   radius?: 'card' | 'small' | 'pill' | 'sheet';
   emberRing?: boolean;
+  elevated?: boolean;
   onClick?: () => void;
   clickable?: boolean;
 }
@@ -15,6 +16,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   className,
   radius = 'small',
   emberRing = false,
+  elevated = false,
   onClick,
   clickable = false,
   ...rest
@@ -34,9 +36,13 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       className={cn(
         'relative overflow-hidden p-4 shadow-glass-card',
         radiusClasses,
-        isInteractive ? 'glass-surface-interactive cursor-pointer select-none' : 'glass-surface',
+        elevated
+          ? 'glass-surface-elevated'
+          : isInteractive
+          ? 'glass-surface-interactive cursor-pointer select-none'
+          : 'glass-surface',
         emberRing
-          ? 'border-[var(--color-accent)]/40 shadow-[0_0_24px_var(--color-accent-soft)]'
+          ? 'border-[var(--accent-border)] shadow-[0_0_24px_var(--accent-soft)]'
           : 'border-glass-line',
         className
       )}

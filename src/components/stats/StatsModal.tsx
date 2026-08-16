@@ -56,7 +56,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
         <div className="grid grid-cols-3 gap-2">
           {/* Win Rate */}
           <GlassCard className="p-3 text-center space-y-1">
-            <span className="text-xl font-bold font-mono text-[var(--color-accent)]">
+            <span className="text-xl font-bold font-mono text-[var(--accent)]">
               {currentLang === 'fa' ? faNum(winRate) : winRate}٪
             </span>
             <span className="text-[11px] font-semibold text-ink3 block">
@@ -77,7 +77,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
 
           {/* Recovery Rate / Streak */}
           <GlassCard className="p-3 text-center space-y-1">
-            <span className="text-xl font-bold font-mono text-[var(--color-accent)]">
+            <span className="text-xl font-bold font-mono text-[var(--accent)]">
               {currentLang === 'fa' ? faNum(winCount) : winCount}
             </span>
             <span className="text-[11px] font-semibold text-ink3 block">
@@ -88,11 +88,11 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
 
         {/* Golden Hour Banner */}
         <GlassCard className="p-4 flex items-start gap-3 bg-white/[0.04] border-glass-line">
-          <div className="p-2 rounded-xl bg-[var(--color-accent-soft)] text-[var(--color-accent)] shrink-0">
+          <div className="p-2 rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] shrink-0">
             <Bolt className="w-5 h-5" />
           </div>
           <div className="space-y-1 flex-1">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent)]">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--accent)]">
               {t('stats.goldenHour')}
             </h4>
             <p className="text-xs text-ink leading-relaxed">
@@ -113,7 +113,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
               {currentLang === 'fa' ? faNum(focusHours) : focusHours} {currentLang === 'fa' ? 'ساعت تمرکز عمیق' : 'Hours Deep Focus'}
             </h4>
           </div>
-          <div className="p-2.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)]">
+          <div className="p-2.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">
             <TrendingUp className="w-5 h-5" />
           </div>
         </GlassCard>
@@ -145,7 +145,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
                   <span
                     className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       d.outcome
-                        ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30'
+                        ? 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30'
                         : 'bg-warn/10 text-warn'
                     }`}
                   >

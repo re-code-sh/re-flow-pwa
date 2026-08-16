@@ -117,8 +117,8 @@ export const FrictionModal: React.FC<FrictionModalProps> = ({
 
         {/* Positive replacement behavior */}
         {habit.replacement && (
-          <GlassCard className="p-4 text-start bg-[var(--color-accent-soft)] border-[var(--color-accent)]/30 space-y-1">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[var(--color-accent)] flex items-center gap-1.5">
+          <GlassCard className="p-4 text-start bg-[var(--accent-soft)] border-[var(--accent)]/30 space-y-1">
+            <span className="text-[11px] uppercase tracking-wider font-bold text-[var(--accent)] flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" />
               {t('friction.replacementLabel')}
             </span>

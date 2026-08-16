@@ -88,7 +88,7 @@ export const HabitEditorModal: React.FC<HabitEditorModalProps> = ({
             onClick={() => setIsBad(false)}
             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
               !isBad
-                ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] shadow-sm'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-sm'
                 : 'text-ink3 hover:text-ink'
             }`}
           >

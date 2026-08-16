@@ -58,7 +58,7 @@ export const HabitsScreen: React.FC = () => {
           currentLang === 'fa'
             ? 'دیروز جا ماند — امروز برگرد، زنجیره سالم می‌ماند'
             : 'Missed yesterday — return today, the chain stays healthy',
-        color: 'text-[var(--color-accent)]',
+        color: 'text-[var(--accent)]',
       };
     }
     return null;
@@ -99,7 +99,7 @@ export const HabitsScreen: React.FC = () => {
       {habits && habits.length === 0 ? (
         <Reveal order={2}>
           <GlassCard className="p-8 text-center space-y-4">
-            <div className="w-[52px] h-[52px] mx-auto rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-center justify-center text-[var(--color-accent)]">
+            <div className="w-[52px] h-[52px] mx-auto rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/30 flex items-center justify-center text-[var(--accent)]">
               <Repeat className="w-6 h-6" />
             </div>
             <div className="space-y-1.5">
@@ -171,7 +171,7 @@ export const HabitsScreen: React.FC = () => {
                         </div>
 
                         {h.reminder_minutes !== null && (
-                          <div className="p-1.5 rounded-full bg-white/5 text-[var(--color-accent)] shrink-0">
+                          <div className="p-1.5 rounded-full bg-white/5 text-[var(--accent)] shrink-0">
                             <Bell className="w-3.5 h-3.5" />
                           </div>
                         )}
@@ -224,7 +224,7 @@ export const HabitsScreen: React.FC = () => {
                               </span>
                             )}
                             {logStatus === 'resisted' && (
-                              <span className="text-[11px] font-bold text-[var(--color-accent)] mt-1">
+                              <span className="text-[11px] font-bold text-[var(--accent)] mt-1">
                                 {currentLang === 'fa' ? 'امروز مقاومت کردی ✓' : 'Resisted today ✓'}
                               </span>
                             )}

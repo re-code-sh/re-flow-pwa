@@ -47,7 +47,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   toast.onAction?.();
                   setVisible(false);
                 }}
-                className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-[12px] font-bold text-[var(--color-accent)] hover:brightness-110 active:scale-95 transition-transform"
+                className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-[12px] font-bold text-[var(--accent)] hover:brightness-110 active:scale-95 transition-transform"
               >
                 {toast.actionLabel}
               </button>
