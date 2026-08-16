@@ -7,10 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 directory = "./dist"
 binding = "ASSETS"
 
-# To enable Cloudflare D1 Cloud Sync:
-# 1. Create database: npx wrangler d1 create flow-db
-# 2. Uncomment the binding below with your actual database_id:
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "flow-db"
-# database_id = "<your-d1-database-id>"
+[[d1_databases]]
+binding = "DB"
+database_name = "flow-db"
+database_id = "1b45fafe-4e2c-463a-b1c7-74035400e188"
