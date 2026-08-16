@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 
 export interface Env {
-  DB: D1Database;
+  DB?: D1Database;
+  ASSETS?: Fetcher;
 }
 
 export const syncRouter = new Hono<{ Bindings: Env }>();
@@ -15,6 +16,14 @@ syncRouter.post('/push', async (c) => {
     }
 
     const db = c.env.DB;
+    if (!db) {
+      return c.json({
+        success: true,
+        syncedAt: Date.now(),
+        message: 'D1 not bound on Cloudflare; running in client-only local storage mode.',
+      });
+    }
+
     const now = Date.now();
 
     // Upsert sync client key
@@ -119,6 +128,13 @@ syncRouter.get('/pull', async (c) => {
     }
 
     const db = c.env.DB;
+    if (!db) {
+      return c.json({
+        success: true,
+        tables: { tasks: [], habits: [], days: [], thoughts: [] },
+      });
+    }
+
     const tasks = await db.prepare('SELECT * FROM tasks WHERE sync_key = ?').bind(syncKey).all();
     const habits = await db.prepare('SELECT * FROM habits WHERE sync_key = ?').bind(syncKey).all();
     const days = await db.prepare('SELECT * FROM days WHERE sync_key = ?').bind(syncKey).all();

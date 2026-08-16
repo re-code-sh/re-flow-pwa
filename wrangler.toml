@@ -1,4 +1,4 @@
-name = "re-flow-pwa"
+name = "flow"
 main = "worker/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
@@ -7,8 +7,10 @@ compatibility_flags = ["nodejs_compat"]
 directory = "./dist"
 binding = "ASSETS"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "re_flow_db"
-database_id = "re_flow_db_id"
-migrations_dir = "worker/migrations"
+# To enable Cloudflare D1 Cloud Sync:
+# 1. Create database: npx wrangler d1 create flow-db
+# 2. Uncomment the binding below with your actual database_id:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "flow-db"
+# database_id = "<your-d1-database-id>"

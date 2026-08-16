@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 
 export interface Env {
-  DB: D1Database;
+  DB?: D1Database;
+  ASSETS?: Fetcher;
 }
 
 export const authRouter = new Hono<{ Bindings: Env }>();
@@ -15,12 +16,14 @@ authRouter.post('/pair', async (c) => {
 
     const finalKey = key || 'flw_' + Math.random().toString(36).substring(2, 12);
 
-    await db
-      .prepare(
-        'INSERT INTO sync_clients (key, created_at, last_synced_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET last_synced_at = ?'
-      )
-      .bind(finalKey, now, now, now)
-      .run();
+    if (db) {
+      await db
+        .prepare(
+          'INSERT INTO sync_clients (key, created_at, last_synced_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET last_synced_at = ?'
+        )
+        .bind(finalKey, now, now, now)
+        .run();
+    }
 
     return c.json({
       success: true,
