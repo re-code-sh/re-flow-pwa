@@ -7,6 +7,7 @@ import {
   Moon,
   Sparkles,
   Layers,
+  Plus,
 } from 'lucide-react';
 import { DayPlan } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -82,16 +83,14 @@ export const TodayScreen: React.FC = () => {
 
         {/* Header Quick Action Icons */}
         <div className="flex items-center gap-2">
-          {plan.planned && (
-            <button
-              type="button"
-              onClick={() => appActions.openMorningWizard()}
-              title={t('planToday')}
-              className="w-10 h-10 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition-all pressable"
-            >
-              <Edit3 className="w-4 h-4" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => appActions.openMorningWizard()}
+            title={t('planToday')}
+            className="w-10 h-10 rounded-2xl bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--accent-ink)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent)] transition-all pressable"
+          >
+            <Plus className="w-4.5 h-4.5" />
+          </button>
 
           <button
             type="button"

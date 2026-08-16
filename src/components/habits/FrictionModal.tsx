@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, Check, ArrowRight } from 'lucide-react';
+import { ShieldAlert, Check } from 'lucide-react';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { todayKey, fmtNum } from '../../core/jalali';
 import { Pill } from '../ui/Pill';
+import { GlassSheet } from '../ui/GlassSheet';
 
 export interface FrictionModalProps {
   onRefresh: () => void;
@@ -51,16 +52,17 @@ export const FrictionModal: React.FC<FrictionModalProps> = ({ onRefresh }) => {
   const strokeDashoffset = 125.6 * (1 - progress);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/75 backdrop-blur-lg animate-fadeIn">
-      <div
-        className="w-full max-w-lg bg-[#16161A] border border-white/[0.085] rounded-t-[32px] md:rounded-[32px] p-6 shadow-2xl flex flex-col gap-5 text-start"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-10 h-1.5 bg-white/15 rounded-full mx-auto md:hidden -mt-2 mb-1" />
-
-        {/* Header with Circular Countdown */}
-        <div className="flex items-center gap-4">
-          <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+    <GlassSheet
+      isOpen={isFrictionModalOpen}
+      onClose={() => appActions.closeFrictionModal()}
+      title={t('pauseSheetTitle')}
+      sub={t('pauseSheetSub')}
+      maxWidth="md"
+    >
+      <div className="flex flex-col gap-4">
+        {/* Circular Countdown Header */}
+        <div className="flex items-center justify-center py-2">
+          <div className="relative w-16 h-16 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 44 44">
               <circle
                 cx="22"
@@ -80,16 +82,9 @@ export const FrictionModal: React.FC<FrictionModalProps> = ({ onRefresh }) => {
                 strokeLinecap="round"
               />
             </svg>
-            <span className="absolute text-[16px] font-extrabold text-red-400">
+            <span className="absolute text-[18px] font-extrabold text-red-400 tabular-nums">
               {fmtNum(secondsLeft, lang)}
             </span>
-          </div>
-
-          <div>
-            <h3 className="text-[19px] font-extrabold text-[#F5F5F7]">
-              {t('pauseSheetTitle')}
-            </h3>
-            <p className="text-[12px] text-white/55 mt-0.5">{t('pauseSheetSub')}</p>
           </div>
         </div>
 
@@ -97,7 +92,7 @@ export const FrictionModal: React.FC<FrictionModalProps> = ({ onRefresh }) => {
         {frictionHabit.bad_cost && (
           <div className="p-4 rounded-[20px] bg-red-500/[0.08] border border-red-500/20 flex flex-col gap-1.5">
             <div className="flex items-center gap-2 text-red-400 text-[12.5px] font-bold">
-              <ShieldAlert className="w-4 h-4" />
+              <ShieldAlert className="w-4 h-4 shrink-0" />
               <span>{t('longTermCostTitle', { title: frictionHabit.title })}</span>
             </div>
             <p className="text-[13.5px] text-white/85 font-medium leading-relaxed">
@@ -134,6 +129,6 @@ export const FrictionModal: React.FC<FrictionModalProps> = ({ onRefresh }) => {
           />
         </div>
       </div>
-    </div>
+    </GlassSheet>
   );
 };

@@ -6,6 +6,7 @@ import { repo } from '../../db/repo';
 import { fmtTime } from '../../core/jalali';
 import { GlassField } from '../ui/GlassField';
 import { Pill } from '../ui/Pill';
+import { GlassSheet } from '../ui/GlassSheet';
 import { TimePickerModal } from '../ui/TimePickerModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { clsx } from 'clsx';
@@ -85,147 +86,140 @@ export const HabitEditorModal: React.FC<HabitEditorModalProps> = ({ onRefresh })
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/65 backdrop-blur-md animate-fadeIn">
-        <div
-          className="w-full max-w-lg bg-[#16161A] border border-white/[0.085] rounded-t-[32px] md:rounded-[32px] p-6 max-h-[90vh] overflow-y-auto scrollbar-none shadow-2xl flex flex-col gap-5 text-start"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="w-10 h-1.5 bg-white/15 rounded-full mx-auto md:hidden -mt-2 mb-1" />
-
-          {/* Header & Toggle */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-[20px] font-extrabold text-[#F5F5F7]">
-              {editingHabit ? t('editHabitTitle') : t('newHabitTitle')}
-            </h3>
-
-            {/* Type selector tab */}
-            <div className="flex p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-              <button
-                type="button"
-                onClick={() => setIsBad(false)}
-                className={clsx(
-                  'flex-1 py-2 rounded-xl text-[12.5px] font-bold transition-all',
-                  !isBad ? 'bg-[var(--accent)] text-[var(--accent-ink)]' : 'text-white/45'
-                )}
-              >
-                {t('positiveHabitType')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsBad(true)}
-                className={clsx(
-                  'flex-1 py-2 rounded-xl text-[12.5px] font-bold transition-all',
-                  isBad ? 'bg-red-500/80 text-white' : 'text-white/45'
-                )}
-              >
-                {t('badHabitType')}
-              </button>
-            </div>
+      <GlassSheet
+        isOpen={isHabitEditorOpen}
+        onClose={() => appActions.closeHabitEditor()}
+        title={
+          editingHabit
+            ? (lang === 'fa' ? 'ویرایش عادت' : 'Edit Habit')
+            : t('newHabitHeader')
+        }
+        sub={t('habitEditorSub')}
+        maxWidth="lg"
+      >
+        <div className="flex flex-col gap-4">
+          {/* Good vs Bad Habit Toggle */}
+          <div className="grid grid-cols-2 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
+            <button
+              type="button"
+              onClick={() => setIsBad(false)}
+              className={clsx(
+                'py-2.5 rounded-xl font-bold text-[13px] transition-all pressable',
+                !isBad
+                  ? 'bg-[var(--accent)] text-[var(--accent-ink)] shadow-[0_2px_10px_var(--accent-glow)]'
+                  : 'text-white/45 hover:text-white'
+              )}
+            >
+              {t('goodHabitType')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsBad(true)}
+              className={clsx(
+                'py-2.5 rounded-xl font-bold text-[13px] transition-all pressable',
+                isBad
+                  ? 'bg-red-500 text-white shadow-[0_2px_10px_rgba(239,68,68,0.3)]'
+                  : 'text-white/45 hover:text-white'
+              )}
+            >
+              {t('badHabitType')}
+            </button>
           </div>
 
+          {/* Form Fields */}
           <GlassField
             label={t('habitTitleLabel')}
-            hint={t('habitTitleHint')}
+            hint={isBad ? t('badHabitTitleHint') : t('goodHabitTitleHint')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            autofocus
           />
 
-          <GlassField
-            label={t('cueLabel')}
-            hint={t('cueHint')}
-            value={cue}
-            onChange={(e) => setCue(e.target.value)}
-          />
-
-          {isBad && (
+          {!isBad ? (
+            <GlassField
+              label={t('anchorCueLabel')}
+              hint={t('anchorCueHint')}
+              value={cue}
+              onChange={(e) => setCue(e.target.value)}
+            />
+          ) : (
             <>
               <GlassField
-                label={t('badCostLabel')}
-                hint={t('badCostHint')}
+                label={t('costOfRelapseLabel')}
+                hint={t('costOfRelapseHint')}
                 value={badCost}
                 onChange={(e) => setBadCost(e.target.value)}
-                maxLines={2}
               />
               <GlassField
-                label={t('replacementInputLabel')}
-                hint={t('replacementInputHint')}
+                label={t('replacementActionLabel')}
+                hint={t('replacementActionHint')}
                 value={replacement}
                 onChange={(e) => setReplacement(e.target.value)}
               />
             </>
           )}
 
-          {/* Reminder row */}
-          <div className="flex items-center justify-between p-3.5 rounded-[18px] bg-white/[0.04] border border-white/[0.06]">
-            <div className="flex items-center gap-2.5">
-              <Bell className="w-4 h-4 text-white/55" />
-              <span className="text-[13.5px] font-medium text-white/70">
-                {reminderMinutes !== null
-                  ? t('reminderTimeLabel', { time: fmtTime(reminderMinutes, lang) })
-                  : t('noReminder')}
-              </span>
+          {/* Reminder Time Picker Toggle */}
+          <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Bell className="w-4.5 h-4.5 text-white/40" />
+              <div className="flex flex-col">
+                <span className="text-[13px] font-semibold text-white">
+                  {t('habitReminderLabel')}
+                </span>
+                <span className="text-[11px] text-white/40">
+                  {reminderMinutes !== null
+                    ? fmtTime(reminderMinutes, lang)
+                    : t('off')}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {reminderMinutes !== null && (
-                <button
-                  type="button"
-                  onClick={() => setReminderMinutes(null)}
-                  className="text-[12px] text-red-400 font-semibold px-2 py-1 hover:underline"
-                >
-                  {t('clearReminder')}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setShowTimePicker(true)}
-                className="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[12.5px] font-bold text-white transition-all"
-              >
-                {reminderMinutes !== null ? t('edit') : t('setReminderTime')}
-              </button>
-            </div>
-          </div>
-
-          {editingHabit && (
             <button
               type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center justify-center gap-2 py-3 rounded-2xl text-red-400/80 hover:text-red-400 bg-red-500/[0.06] hover:bg-red-500/[0.1] transition-all font-semibold text-[13.5px]"
+              onClick={() => setShowTimePicker(true)}
+              className="text-[12.5px] font-bold text-[var(--accent)] hover:underline pressable"
             >
-              <Trash2 className="w-4 h-4" />
-              <span>{t('deleteHabitAction')}</span>
+              {reminderMinutes !== null ? t('change') : t('turnOn')}
             </button>
-          )}
+          </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="flex items-center gap-3 pt-2">
-            <Pill
-              label={t('cancel')}
-              style="quiet"
-              onTap={() => appActions.closeHabitEditor()}
-            />
+            {editingHabit && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-12 h-[50px] rounded-[17px] bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center justify-center pressable shrink-0"
+              >
+                <Trash2 className="w-4.5 h-4.5" />
+              </button>
+            )}
+
             <Pill
               label={t('save')}
               style="ember"
+              disabled={!title.trim()}
               onTap={handleSave}
             />
           </div>
         </div>
-      </div>
+      </GlassSheet>
 
       <TimePickerModal
         isOpen={showTimePicker}
         initialMinutes={reminderMinutes || 8 * 60}
-        title={t('setReminderTime')}
+        title={t('habitReminderLabel')}
         onClose={() => setShowTimePicker(false)}
-        onConfirm={(m) => setReminderMinutes(m)}
+        onConfirm={(min) => {
+          setReminderMinutes(min);
+          setShowTimePicker(false);
+        }}
       />
 
       <ConfirmModal
         isOpen={showDeleteConfirm}
-        title={t('deleteHabitAction')}
-        sub="این عادت برای همیشه حذف خواهد شد."
+        title={t('confirmDeleteHabitTitle')}
+        sub={t('confirmDeleteHabitSub')}
         yesLabel={t('delete')}
         noLabel={t('cancel')}
         emberYes={false}

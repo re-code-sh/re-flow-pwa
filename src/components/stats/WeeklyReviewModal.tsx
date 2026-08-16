@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Check, Trash2, X } from 'lucide-react';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { fmtNum } from '../../core/jalali';
 import { GlassCard } from '../ui/GlassCard';
+import { GlassSheet } from '../ui/GlassSheet';
 import { Pill } from '../ui/Pill';
 
 interface ReviewItem {
@@ -78,7 +78,6 @@ export const WeeklyReviewModal: React.FC = () => {
     setIndex(nextIdx);
 
     if (nextIdx >= items.length) {
-      // Bulk commit all deletions at the end
       for (const cutItem of nextCut) {
         if (cutItem.isHabit) {
           await repo.deleteHabit(cutItem.id);
@@ -93,35 +92,17 @@ export const WeeklyReviewModal: React.FC = () => {
   const isFinished = items.length > 0 && index >= items.length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/75 backdrop-blur-lg animate-fadeIn">
-      <div
-        className="w-full max-w-lg bg-[#16161A] border border-white/[0.085] rounded-t-[32px] md:rounded-[32px] p-6 max-h-[90vh] overflow-y-auto scrollbar-none shadow-2xl flex flex-col gap-5 text-start"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-10 h-1.5 bg-white/15 rounded-full mx-auto md:hidden -mt-2 mb-1" />
-
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-[20px] font-extrabold text-[#F5F5F7]">
-              {t('weeklyReviewTitle')}
-            </h3>
-            <p className="text-[12.5px] text-white/55 mt-0.5 leading-relaxed">
-              {t('weeklyReviewSub')}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => appActions.closeWeeklyReviewModal()}
-            className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center text-white/50 hover:text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <GlassSheet
+      isOpen={isWeeklyReviewModalOpen}
+      onClose={() => appActions.closeWeeklyReviewModal()}
+      title={t('weeklyReviewTitle')}
+      sub={t('weeklyReviewSub')}
+      maxWidth="lg"
+    >
+      <div className="flex flex-col gap-4">
         {/* Zero-Based Principle prompt */}
         <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] text-center">
-          <p className="text-[13px] text-white/60 leading-relaxed">
+          <p className="text-[12.5px] text-white/60 leading-relaxed">
             {t('weeklyReviewQuestionPrompt')}
           </p>
         </div>
@@ -202,6 +183,6 @@ export const WeeklyReviewModal: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </GlassSheet>
   );
 };
