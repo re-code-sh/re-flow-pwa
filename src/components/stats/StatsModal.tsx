@@ -77,7 +77,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
 
           {/* Recovery Rate / Streak */}
           <GlassCard className="p-3 text-center space-y-1">
-            <span className="text-xl font-bold font-mono text-emerald-400">
+            <span className="text-xl font-bold font-mono text-[var(--color-accent)]">
               {currentLang === 'fa' ? faNum(winCount) : winCount}
             </span>
             <span className="text-[11px] font-semibold text-ink3 block">
@@ -145,7 +145,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose }) => {
                   <span
                     className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       d.outcome
-                        ? 'bg-emerald-500/10 text-emerald-400'
+                        ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30'
                         : 'bg-warn/10 text-warn'
                     }`}
                   >

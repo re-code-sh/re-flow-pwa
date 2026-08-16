@@ -197,6 +197,7 @@ export const FocusArena: React.FC<FocusArenaProps> = ({ config, onClose, onTaskC
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="transparent"
+              style={{ filter: 'drop-shadow(0 0 10px var(--color-accent-glow))' }}
               className="transition-all duration-300 ease-liquid"
             />
           </svg>

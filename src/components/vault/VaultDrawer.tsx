@@ -165,7 +165,7 @@ export const VaultDrawer: React.FC<VaultDrawerProps> = ({ isOpen, onClose }) => 
             ))
           ) : (
             <div className="py-8 text-center text-ink3 text-xs space-y-2">
-              <Brain className="w-8 h-8 mx-auto opacity-30 text-purple-400" />
+              <Brain className="w-8 h-8 mx-auto opacity-30 text-[var(--color-accent)]" />
               <p>{searchQuery ? t('vault.noResultsFound') : t('vault.emptyVaultSub')}</p>
             </div>
           )}

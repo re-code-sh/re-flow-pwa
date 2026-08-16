@@ -42,7 +42,7 @@ export const CheckCircle: React.FC<CheckCircleProps> = ({
             : 'border-[1.5px] border-white/20 bg-white/[0.02] hover:border-white/40'
         )}
       >
-        {checked && <Check className="h-4 w-4 stroke-[3] text-emberInk" />}
+        {checked && <Check className="h-4 w-4 stroke-[3] text-[var(--color-accent-ink)]" />}
       </div>
     </button>
   );

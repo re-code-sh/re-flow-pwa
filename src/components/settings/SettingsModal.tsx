@@ -13,9 +13,9 @@ import {
   BatteryCharging,
   PlusCircle,
   XCircle,
-  ChevronLeft,
-  ChevronRight,
   Sparkles,
+  Copy,
+  ShieldCheck,
 } from 'lucide-react';
 import { repo } from '../../db/repo';
 import { useTheme } from '../ThemeProvider';
@@ -31,14 +31,16 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
+type SettingsSection = 'theme' | 'reminders' | 'sync' | 'backup' | 'language';
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation();
   const { accent, setAccent } = useTheme();
   const { showToast } = useToast();
   const currentLang = (i18n.language || 'fa').startsWith('en') ? 'en' : 'fa';
-  const isRtl = currentLang === 'fa';
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeSection, setActiveSection] = useState<SettingsSection>('theme');
 
   const [morningEnabled, setMorningEnabled] = useState(true);
   const [morningTime, setMorningTime] = useState('08:30');
@@ -84,12 +86,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     showToast(next ? t('settings.turnOn') : t('settings.turnOff'));
   };
 
-  const handleLanguageToggle = () => {
-    const nextLang = currentLang === 'fa' ? 'en' : 'fa';
-    i18n.changeLanguage(nextLang);
-    document.documentElement.dir = nextLang === 'fa' ? 'rtl' : 'ltr';
-    document.documentElement.lang = nextLang;
-    showToast(nextLang === 'fa' ? 'زبان به فارسی تغییر کرد' : 'Language changed to English');
+  const handleLanguageToggle = (lang: 'fa' | 'en') => {
+    i18n.changeLanguage(lang);
+    document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    showToast(lang === 'fa' ? 'زبان به فارسی تغییر کرد' : 'Language changed to English');
   };
 
   const handlePair = async () => {
@@ -140,6 +141,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     }
   };
 
+  const handleCopySyncKey = () => {
+    if (!syncKey) return;
+    navigator.clipboard.writeText(syncKey);
+    showToast('کلید در حافظه کپی شد ✓');
+  };
+
   const handleExportBackup = async () => {
     const json = await repo.exportJson();
     const blob = new Blob([json], { type: 'application/json' });
@@ -167,7 +174,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         showToast(t('settings.invalidBackupFile'));
         return;
       }
-      // Simple validation and message
       showToast(t('settings.restoreSuccess'));
       setTimeout(() => {
         window.location.reload();
@@ -177,7 +183,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     }
   };
 
-  const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
+  const navCategories: Array<{ id: SettingsSection; label: string; icon: React.FC<{ className?: string }> }> = [
+    { id: 'theme', label: t('settings.accentColorTitle'), icon: Palette },
+    { id: 'reminders', label: 'یادآورها', icon: Sun },
+    { id: 'sync', label: 'همگام‌سازی D1', icon: Cloud },
+    { id: 'backup', label: 'پشتیبان‌گیری', icon: Download },
+    { id: 'language', label: 'زبان و قلم', icon: Globe },
+  ];
 
   return (
     <Modal
@@ -185,309 +197,372 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       onClose={onClose}
       title={t('settings.settingsHeader')}
       subtitle={t('settings.settingsSub')}
-      maxWidth="max-w-lg"
+      maxWidth="max-w-3xl"
+      className="p-0"
     >
-      <div className="space-y-4 pb-2">
-        {/* Hidden file input for restore */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleFileChange}
-          className="hidden"
-        />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleFileChange}
+        className="hidden"
+      />
 
-        {/* 1. Daily Reminders (Matching Flutter _timeRow) */}
-        <div className="space-y-2">
-          {/* Morning Reminder */}
-          <GlassCard
-            className="p-3.5 flex items-center justify-between"
-            onClick={morningEnabled ? undefined : handleToggleMorning}
-          >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <Sun className="w-4 h-4 text-[var(--color-accent)] shrink-0 stroke-[1.75]" />
-              <div className="flex flex-col min-w-0">
-                <span className="text-[13.5px] font-semibold text-ink">
-                  {t('settings.morningReminder')}
-                </span>
-                <span className="text-[11px] text-ink3 truncate">
-                  {t('settings.morningReminderSub')}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {morningEnabled ? (
-                <input
-                  type="time"
-                  value={morningTime}
-                  onChange={(e) => {
-                    setMorningTime(e.target.value);
-                    repo.setSetting('rem_morning', e.target.value);
-                  }}
-                  className="bg-white/5 border border-glass-line rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-ink outline-none"
-                />
-              ) : (
-                <span className="text-xs font-bold text-ink3">{t('settings.off')}</span>
-              )}
-
+      <div className="flex flex-col md:flex-row min-h-[460px] max-h-[75vh]">
+        {/* Left Category Rail / Tabs */}
+        <div className="w-full md:w-56 p-4 border-b md:border-b-0 md:border-r border-glass-line/40 bg-black/20 flex md:flex-col gap-1.5 shrink-0 overflow-x-auto custom-scrollbar">
+          {navCategories.map((item) => {
+            const Icon = item.icon;
+            const isSelected = activeSection === item.id;
+            return (
               <button
+                key={item.id}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleMorning();
-                }}
-                className="p-1 rounded-full text-ink3 hover:text-ink transition-colors"
-                title={morningEnabled ? t('settings.turnOff') : t('settings.turnOn')}
+                onClick={() => setActiveSection(item.id)}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                  isSelected
+                    ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/35 shadow-sm'
+                    : 'text-ink2 hover:text-ink hover:bg-white/5 border border-transparent'
+                }`}
               >
-                {morningEnabled ? (
-                  <XCircle className="w-4 h-4 text-warn/80 hover:text-warn" />
-                ) : (
-                  <PlusCircle className="w-4 h-4 text-ink3 hover:text-ink" />
-                )}
+                <Icon className="w-4 h-4 shrink-0 stroke-[1.75]" />
+                <span>{item.label}</span>
               </button>
-            </div>
-          </GlassCard>
+            );
+          })}
 
-          {/* Evening Reminder */}
-          <GlassCard
-            className="p-3.5 flex items-center justify-between"
-            onClick={eveningEnabled ? undefined : handleToggleEvening}
-          >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <Moon className="w-4 h-4 text-purple-400 shrink-0 stroke-[1.75]" />
-              <div className="flex flex-col min-w-0">
-                <span className="text-[13.5px] font-semibold text-ink">
-                  {t('settings.eveningReminder')}
-                </span>
-                <span className="text-[11px] text-ink3 truncate">
-                  {t('settings.eveningReminderSub')}
-                </span>
-              </div>
+          <div className="mt-auto hidden md:block pt-4 border-t border-glass-line/30">
+            <div className="flex items-center gap-2 text-ink3 text-[11px] font-mono px-2">
+              <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+              <span>v1.0.0 • Liquid Glass</span>
             </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {eveningEnabled ? (
-                <input
-                  type="time"
-                  value={eveningTime}
-                  onChange={(e) => {
-                    setEveningTime(e.target.value);
-                    repo.setSetting('rem_evening', e.target.value);
-                  }}
-                  className="bg-white/5 border border-glass-line rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-ink outline-none"
-                />
-              ) : (
-                <span className="text-xs font-bold text-ink3">{t('settings.off')}</span>
-              )}
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleEvening();
-                }}
-                className="p-1 rounded-full text-ink3 hover:text-ink transition-colors"
-                title={eveningEnabled ? t('settings.turnOff') : t('settings.turnOn')}
-              >
-                {eveningEnabled ? (
-                  <XCircle className="w-4 h-4 text-warn/80 hover:text-warn" />
-                ) : (
-                  <PlusCircle className="w-4 h-4 text-ink3 hover:text-ink" />
-                )}
-              </button>
-            </div>
-          </GlassCard>
+          </div>
         </div>
 
-        {/* 2. 6-Accent Dynamic Palette Picker (Matching Flutter _accentPicker) */}
-        <GlassCard className="p-4 space-y-3">
-          <div className="flex items-center gap-2.5">
-            <Palette className="w-4 h-4 text-ink2 stroke-[1.75]" />
-            <div className="flex flex-col">
-              <span className="text-[13.5px] font-semibold text-ink">
-                {t('settings.accentColorTitle')}
-              </span>
-              <span className="text-[11px] text-ink3">
-                {t('settings.accentColorSub')}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-1">
-            {(Object.keys(APP_ACCENTS) as AccentCode[]).map((key) => {
-              const item = APP_ACCENTS[key];
-              const isSelected = accent === key;
-
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setAccent(key)}
-                  className={`pressable flex flex-col items-center justify-center p-2.5 rounded-pill border transition-all ${
-                    isSelected
-                      ? 'bg-[var(--color-accent-soft)] border-[var(--color-accent)] shadow-sm scale-105'
-                      : 'bg-white/[0.03] border-glass-line text-ink2 hover:text-ink hover:border-white/20'
-                  }`}
-                >
-                  <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center transition-transform"
-                    style={{
-                      backgroundColor: item.color,
-                      boxShadow: isSelected ? `0 0 10px ${item.color}80` : 'none',
-                    }}
-                  >
-                    {isSelected && <Check className="w-3 h-3 text-emberInk stroke-[3]" />}
-                  </div>
-                  <span className="text-[11px] mt-1.5 font-semibold">
-                    {currentLang === 'fa' ? item.labelFa : item.labelEn}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </GlassCard>
-
-        {/* 3. Action Rows: Language, Export, Restore */}
-        <div className="space-y-2">
-          {/* Language Switch */}
-          <GlassCard
-            className="p-3.5 flex items-center justify-between cursor-pointer"
-            onClick={handleLanguageToggle}
-          >
-            <div className="flex items-center gap-3">
-              <Globe className="w-4 h-4 text-ink2 stroke-[1.75]" />
-              <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-ink">
-                  {t('settings.appLanguage')}
-                </span>
-                <span className="text-[11px] text-ink3">
-                  {currentLang === 'fa' ? 'فارسی (RTL)' : 'English (LTR)'}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-accent)]">
-              <span>{currentLang === 'fa' ? 'FA' : 'EN'}</span>
-              <ChevronIcon className="w-4 h-4 text-ink3" />
-            </div>
-          </GlassCard>
-
-          {/* Export JSON */}
-          <GlassCard
-            className="p-3.5 flex items-center justify-between cursor-pointer"
-            onClick={handleExportBackup}
-          >
-            <div className="flex items-center gap-3">
-              <Download className="w-4 h-4 text-ink2 stroke-[1.75]" />
-              <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-ink">
-                  {t('settings.exportBackup')}
-                </span>
-                <span className="text-[11px] text-ink3">
-                  {t('settings.exportBackupSub')}
-                </span>
-              </div>
-            </div>
-
-            <ChevronIcon className="w-4 h-4 text-ink3" />
-          </GlassCard>
-
-          {/* Restore JSON */}
-          <GlassCard
-            className="p-3.5 flex items-center justify-between cursor-pointer"
-            onClick={handleImportClick}
-          >
-            <div className="flex items-center gap-3">
-              <Upload className="w-4 h-4 text-ink2 stroke-[1.75]" />
-              <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-ink">
-                  {t('settings.restoreBackup')}
-                </span>
-                <span className="text-[11px] text-ink3">
-                  {t('settings.restoreBackupSub')}
-                </span>
-              </div>
-            </div>
-
-            <ChevronIcon className="w-4 h-4 text-ink3" />
-          </GlassCard>
-        </div>
-
-        {/* 4. Cloudflare D1 Cloud Sync */}
-        <GlassCard className="p-4 space-y-3 bg-white/[0.03]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Cloud className="w-4 h-4 text-sky-400 stroke-[1.75]" />
-              <span className="text-xs font-bold text-ink">همگام‌سازی ابری (Cloudflare D1)</span>
-            </div>
-
-            {syncKey && (
-              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30">
-                {syncKey}
-              </span>
-            )}
-          </div>
-
-          {syncKey ? (
-            <p className="text-[11px] text-ink3 leading-relaxed">
-              دستگاه‌های دیگر با وارد کردن این کد ۶ حرفی، با این نسخه همگام می‌شوند.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <GlassField
-                  hint="کد ۶ حرفی (مثلاً 7K9M2P)"
-                  value={inputSyncKey}
-                  onChange={setInputSyncKey}
-                  className="flex-1"
-                />
-                <Pill
-                  pillStyle="glass"
-                  expanded={false}
-                  disabled={isPairing || inputSyncKey.trim().length !== 6}
-                  onClick={handlePair}
-                  className="h-[46px] px-4 text-xs font-bold"
-                >
-                  اتصال
-                </Pill>
+        {/* Right Detail Pane */}
+        <div className="flex-1 p-5 md:p-6 overflow-y-auto custom-scrollbar space-y-5">
+          {/* 1. Theme Palette Section */}
+          {activeSection === 'theme' && (
+            <div className="space-y-4 animate-tab-fade">
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-ink">{t('settings.accentColorTitle')}</h4>
+                <p className="text-xs text-ink3 leading-relaxed">{t('settings.accentColorSub')}</p>
               </div>
 
-              <button
-                type="button"
-                onClick={handleGenerateNewKey}
-                disabled={isPairing}
-                className="text-xs text-[var(--color-accent)] font-semibold flex items-center gap-1 hover:underline"
-              >
-                <RefreshCw className="w-3 h-3" />
-                صدور کلید جدید برای این دستگاه
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(Object.keys(APP_ACCENTS) as AccentCode[]).map((key) => {
+                  const item = APP_ACCENTS[key];
+                  const isSelected = accent === key;
+
+                  return (
+                    <GlassCard
+                      key={key}
+                      className={`p-4 cursor-pointer transition-all ${
+                        isSelected
+                          ? 'border-[var(--color-accent)] shadow-[0_0_20px_var(--color-accent-soft)] bg-white/[0.06]'
+                          : 'hover:border-white/20'
+                      }`}
+                      onClick={() => setAccent(key)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center transition-transform shadow-md"
+                            style={{
+                              backgroundColor: item.color,
+                              boxShadow: isSelected ? `0 0 14px ${item.color}90` : 'none',
+                            }}
+                          >
+                            {isSelected && <Check className="w-4 h-4 text-emberInk stroke-[3]" />}
+                          </div>
+
+                          <div className="flex flex-col">
+                            <span className="text-[13.5px] font-bold text-ink">
+                              {currentLang === 'fa' ? item.labelFa : item.labelEn}
+                            </span>
+                            <span className="text-[11px] text-ink3">
+                              {currentLang === 'fa' ? item.descFa : item.descEn}
+                            </span>
+                          </div>
+                        </div>
+
+                        {isSelected && (
+                          <span className="text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                    </GlassCard>
+                  );
+                })}
+              </div>
             </div>
           )}
-        </GlassCard>
 
-        {/* 5. Battery Optimization Notice */}
-        <GlassCard className="p-3.5 flex items-center gap-3 bg-white/[0.02]">
-          <BatteryCharging className="w-4 h-4 text-ink3 shrink-0 stroke-[1.75]" />
-          <div className="space-y-0.5 text-ink3">
-            <span className="text-[12px] font-semibold block text-ink2">
-              {t('settings.batterySettings')}
-            </span>
-            <p className="text-[11px] leading-relaxed">
-              {t('settings.batterySettingsSub')}
-            </p>
-          </div>
-        </GlassCard>
+          {/* 2. Reminders Section */}
+          {activeSection === 'reminders' && (
+            <div className="space-y-4 animate-tab-fade">
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-ink">یادآورهای هوشمند روزانه</h4>
+                <p className="text-xs text-ink3 leading-relaxed">
+                  تنظیم زمان‌بندی پیام‌های آغاز روز و بازبینی شبانگاهی.
+                </p>
+              </div>
 
-        {/* 6. Footer / App Info */}
-        <div className="text-center pt-2 pb-1 space-y-1">
-          <div className="flex items-center justify-center gap-1.5 text-xs text-ink3 font-mono">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-            <span>re.flow pwa • v1.0.0</span>
-          </div>
-          <p className="text-[10px] text-ink3/70">
-            Powered by Cloudflare Workers + D1 + Dexie.js
-          </p>
+              <div className="space-y-3">
+                {/* Morning Reminder */}
+                <GlassCard className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <Sun className="w-5 h-5 text-[var(--color-accent)] shrink-0 stroke-[1.75]" />
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[13.5px] font-semibold text-ink">
+                        {t('settings.morningReminder')}
+                      </span>
+                      <span className="text-[11px] text-ink3">
+                        {t('settings.morningReminderSub')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    {morningEnabled ? (
+                      <input
+                        type="time"
+                        value={morningTime}
+                        onChange={(e) => {
+                          setMorningTime(e.target.value);
+                          repo.setSetting('rem_morning', e.target.value);
+                        }}
+                        className="bg-white/5 border border-glass-line rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-ink outline-none"
+                      />
+                    ) : (
+                      <span className="text-xs font-bold text-ink3">{t('settings.off')}</span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleToggleMorning}
+                      className="p-1 rounded-full text-ink3 hover:text-ink transition-colors"
+                    >
+                      {morningEnabled ? (
+                        <XCircle className="w-5 h-5 text-warn/80 hover:text-warn" />
+                      ) : (
+                        <PlusCircle className="w-5 h-5 text-ink3 hover:text-ink" />
+                      )}
+                    </button>
+                  </div>
+                </GlassCard>
+
+                {/* Evening Reminder */}
+                <GlassCard className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <Moon className="w-5 h-5 text-[var(--color-accent)] shrink-0 stroke-[1.75]" />
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[13.5px] font-semibold text-ink">
+                        {t('settings.eveningReminder')}
+                      </span>
+                      <span className="text-[11px] text-ink3">
+                        {t('settings.eveningReminderSub')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    {eveningEnabled ? (
+                      <input
+                        type="time"
+                        value={eveningTime}
+                        onChange={(e) => {
+                          setEveningTime(e.target.value);
+                          repo.setSetting('rem_evening', e.target.value);
+                        }}
+                        className="bg-white/5 border border-glass-line rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-ink outline-none"
+                      />
+                    ) : (
+                      <span className="text-xs font-bold text-ink3">{t('settings.off')}</span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleToggleEvening}
+                      className="p-1 rounded-full text-ink3 hover:text-ink transition-colors"
+                    >
+                      {eveningEnabled ? (
+                        <XCircle className="w-5 h-5 text-warn/80 hover:text-warn" />
+                      ) : (
+                        <PlusCircle className="w-5 h-5 text-ink3 hover:text-ink" />
+                      )}
+                    </button>
+                  </div>
+                </GlassCard>
+              </div>
+
+              {/* Battery optimization */}
+              <GlassCard className="p-4 flex items-start gap-3 bg-white/[0.02]">
+                <BatteryCharging className="w-5 h-5 text-ink3 shrink-0 mt-0.5 stroke-[1.75]" />
+                <div className="space-y-1 text-ink3">
+                  <span className="text-xs font-semibold block text-ink2">
+                    {t('settings.batterySettings')}
+                  </span>
+                  <p className="text-[11px] leading-relaxed">
+                    {t('settings.batterySettingsSub')}
+                  </p>
+                </div>
+              </GlassCard>
+            </div>
+          )}
+
+          {/* 3. Cloudflare Sync Section */}
+          {activeSection === 'sync' && (
+            <div className="space-y-4 animate-tab-fade">
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-ink">همگام‌سازی با سرور ابری Cloudflare D1</h4>
+                <p className="text-xs text-ink3 leading-relaxed">
+                  اتصال چند دستگاه با حفظ معماری Local-First و تفکیک کاربر با کد ۶ رقمی.
+                </p>
+              </div>
+
+              <GlassCard className="p-5 space-y-4 bg-white/[0.03]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Cloud className="w-5 h-5 text-sky-400 stroke-[1.75]" />
+                    <span className="text-sm font-bold text-ink">کلید همگام‌سازی (Sync Key)</span>
+                  </div>
+
+                  {syncKey && (
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold px-3 py-1 rounded-lg bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30">
+                        {syncKey}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCopySyncKey}
+                        className="p-1.5 rounded-lg text-ink3 hover:text-ink hover:bg-white/10 transition-colors"
+                        title="کپی کلید"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {syncKey ? (
+                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 shrink-0" />
+                    <span>دستگاه متصل است — داده‌ها به‌طور خودکار بین مرورگر و دیتابیس ابری D1 همگام می‌شوند.</span>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <GlassField
+                        hint="کد ۶ حرفی دستگاه دیگر (مثلاً 7K9M2P)"
+                        value={inputSyncKey}
+                        onChange={setInputSyncKey}
+                        className="flex-1"
+                      />
+                      <Pill
+                        pillStyle="glass"
+                        expanded={false}
+                        disabled={isPairing || inputSyncKey.trim().length !== 6}
+                        onClick={handlePair}
+                        className="h-[46px] px-5 text-xs font-bold"
+                      >
+                        اتصال
+                      </Pill>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleGenerateNewKey}
+                      disabled={isPairing}
+                      className="text-xs text-[var(--color-accent)] font-semibold flex items-center gap-1.5 hover:underline"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      صدور کلید جدید برای این کلاستر
+                    </button>
+                  </div>
+                )}
+              </GlassCard>
+            </div>
+          )}
+
+          {/* 4. Backup & Restore Section */}
+          {activeSection === 'backup' && (
+            <div className="space-y-4 animate-tab-fade">
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-ink">پشتیبان‌گیری محلی و بازیابی داده</h4>
+                <p className="text-xs text-ink3 leading-relaxed">
+                  خروجی استاندارد JSON از تمامی جداول تسک‌ها، عادت‌ها، تمرکز و تنظیمات.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <GlassCard className="p-5 space-y-3 flex flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-ink">
+                      <Download className="w-4 h-4 text-[var(--color-accent)] stroke-[1.75]" />
+                      <span className="text-xs font-bold">{t('settings.exportBackup')}</span>
+                    </div>
+                    <p className="text-[11px] text-ink3 leading-relaxed">{t('settings.exportBackupSub')}</p>
+                  </div>
+
+                  <Pill pillStyle="ember" onClick={handleExportBackup} className="h-11 text-xs">
+                    دانلود فایل پشتیبان
+                  </Pill>
+                </GlassCard>
+
+                <GlassCard className="p-5 space-y-3 flex flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-ink">
+                      <Upload className="w-4 h-4 text-[var(--color-accent)] stroke-[1.75]" />
+                      <span className="text-xs font-bold">{t('settings.restoreBackup')}</span>
+                    </div>
+                    <p className="text-[11px] text-ink3 leading-relaxed">{t('settings.restoreBackupSub')}</p>
+                  </div>
+
+                  <Pill pillStyle="glass" onClick={handleImportClick} className="h-11 text-xs">
+                    انتخاب فایل و بازیابی
+                  </Pill>
+                </GlassCard>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Language & Typography Section */}
+          {activeSection === 'language' && (
+            <div className="space-y-4 animate-tab-fade">
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-ink">{t('settings.appLanguage')}</h4>
+                <p className="text-xs text-ink3 leading-relaxed">{t('settings.appLanguageSub')}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <GlassCard
+                  className={`p-4 cursor-pointer text-center space-y-1 ${
+                    currentLang === 'fa'
+                      ? 'border-[var(--color-accent)] bg-white/[0.06] shadow-sm'
+                      : 'hover:border-white/20'
+                  }`}
+                  onClick={() => handleLanguageToggle('fa')}
+                >
+                  <span className="text-base font-bold text-ink block">فارسی</span>
+                  <span className="text-[11px] text-ink3 block">چپ‌به‌راست و قلم وزیرمتن</span>
+                </GlassCard>
+
+                <GlassCard
+                  className={`p-4 cursor-pointer text-center space-y-1 ${
+                    currentLang === 'en'
+                      ? 'border-[var(--color-accent)] bg-white/[0.06] shadow-sm'
+                      : 'hover:border-white/20'
+                  }`}
+                  onClick={() => handleLanguageToggle('en')}
+                >
+                  <span className="text-base font-bold text-ink block">English</span>
+                  <span className="text-[11px] text-ink3 block">LTR Layout & Standard Font</span>
+                </GlassCard>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Modal>

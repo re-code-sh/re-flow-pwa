@@ -36,7 +36,7 @@ export const Pill: React.FC<PillProps> = ({
 
   const styleClasses = {
     ember:
-      'bg-gradient-to-b from-[var(--color-accent-light)] to-[var(--color-accent-dark)] text-emberInk font-bold shadow-accent-glow border-none active:brightness-95',
+      'bg-gradient-to-b from-[var(--color-accent-light)] to-[var(--color-accent-dark)] text-[var(--color-accent-ink)] font-bold shadow-[0_0_20px_var(--color-accent-glow)] border-none active:brightness-95',
     glass:
       'glass-surface text-ink font-semibold border-glass-line hover:border-white/20 active:bg-white/10',
     quiet:

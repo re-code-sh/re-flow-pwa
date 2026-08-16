@@ -168,7 +168,7 @@ export const MorningWizardModal: React.FC<MorningWizardModalProps> = ({
                       <div
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
                           isSelected
-                            ? 'bg-[var(--color-accent)] border-none text-emberInk'
+                            ? 'bg-[var(--color-accent)] border-none text-[var(--color-accent-ink)]'
                             : 'border-white/20'
                         }`}
                       >

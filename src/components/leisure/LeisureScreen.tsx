@@ -114,7 +114,7 @@ export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) =>
               <span
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold border ${
                   isBoulderDone
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                    ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border-[var(--color-accent)]/30'
                     : 'bg-white/5 text-ink3 border-glass-line'
                 }`}
               >

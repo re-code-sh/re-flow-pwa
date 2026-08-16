@@ -85,7 +85,7 @@ export const EveningReviewModal: React.FC<EveningReviewModalProps> = ({
                 onClick={() => setOutcome(true)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                   outcome
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                    ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/40 shadow-sm'
                     : 'border border-glass-line text-ink3 hover:text-ink'
                 }`}
               >

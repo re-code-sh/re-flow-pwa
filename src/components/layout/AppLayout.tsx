@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CheckCircle2,
@@ -7,11 +7,13 @@ import {
   Brain,
   Globe,
   Flame,
+  Sliders,
 } from 'lucide-react';
 import { useTheme } from '../ThemeProvider';
 import { APP_ACCENTS, type AccentCode } from '../../lib/theme';
 import { GlassCard } from '../ui/GlassCard';
 import { VaultDrawer } from '../vault/VaultDrawer';
+import { SettingsModal } from '../settings/SettingsModal';
 
 export type ActiveTab = 'tasks' | 'habits' | 'leisure';
 
@@ -31,6 +33,19 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const currentLang = (i18n.language || 'fa').startsWith('en') ? 'en' : 'fa';
 
   const [isVaultOpen, setIsVaultOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Global ⌘K / Ctrl+K shortcut to toggle Brain Vault
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsVaultOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleToggleLang = () => {
     const nextLang = currentLang === 'fa' ? 'en' : 'fa';
@@ -55,7 +70,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         {/* Top Right Blob */}
         <div
-          className="absolute -top-[22vh] -right-[18vw] w-[75vw] max-w-[600px] h-[75vw] max-h-[600px] rounded-full blur-[100px] pointer-events-none opacity-90"
+          className="absolute -top-[22vh] -right-[18vw] w-[75vw] max-w-[600px] h-[75vw] max-h-[600px] rounded-full blur-[110px] pointer-events-none opacity-90"
           style={{
             background:
               'radial-gradient(circle, rgba(120, 140, 190, 0.12) 0%, rgba(120, 140, 190, 0) 70%)',
@@ -63,7 +78,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         />
         {/* Bottom Left Blob */}
         <div
-          className="absolute -bottom-[25vh] -left-[20vw] w-[80vw] max-w-[650px] h-[80vw] max-h-[650px] rounded-full blur-[110px] pointer-events-none transition-all duration-700 opacity-90"
+          className="absolute -bottom-[25vh] -left-[20vw] w-[80vw] max-w-[650px] h-[80vw] max-h-[650px] rounded-full blur-[120px] pointer-events-none transition-all duration-700 opacity-90"
           style={{
             background: `radial-gradient(circle, var(--color-accent-soft) 0%, rgba(0, 0, 0, 0) 70%)`,
           }}
@@ -71,22 +86,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       </div>
 
       <div className="flex w-full min-h-screen relative z-10">
-        {/* Desktop / Tablet Sidebar (hidden on mobile) */}
-        <aside className="hidden md:flex flex-col justify-between w-64 p-6 border-r border-glass-line/40 bg-[#060608]/85 backdrop-blur-2xl shrink-0 sticky top-0 h-screen z-30">
-          <div className="space-y-8">
+        {/* Desktop / Tablet Floating Glass Navigation Rail */}
+        <aside className="hidden md:flex flex-col justify-between w-20 lg:w-64 my-4 ms-4 p-3 lg:p-5 rounded-3xl bg-[#0D0D12]/80 border border-white/[0.09] backdrop-blur-2xl shadow-2xl shrink-0 sticky top-4 h-[calc(100vh-2rem)] z-30 transition-all duration-300">
+          <div className="space-y-6">
             {/* App Branding */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-9 h-9 rounded-xl bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-center justify-center text-[var(--color-accent)] shadow-[0_0_18px_var(--color-accent-glow)]">
+            <div className="flex items-center gap-3 px-1 lg:px-2">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-center justify-center text-[var(--color-accent)] shadow-[0_0_18px_var(--color-accent-glow)] shrink-0">
                 <Flame className="w-5 h-5 fill-current" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-base font-black tracking-tight text-ink">{t('app.title')}</span>
-                <span className="text-[10.5px] font-mono text-ink3">re.flow • pwa</span>
+              <div className="hidden lg:flex flex-col">
+                <span className="text-base font-extrabold tracking-tight text-ink">{t('app.title')}</span>
+                <span className="text-[10px] font-mono text-ink3">re.flow • pwa</span>
               </div>
             </div>
 
             {/* Navigation Tabs */}
-            <nav className="space-y-1.5">
+            <nav className="space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isSelected = currentTab === item.id;
@@ -96,14 +111,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                     key={item.id}
                     type="button"
                     onClick={() => onTabChange(item.id)}
-                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-xs font-semibold transition-all ${
+                    className={`flex items-center justify-center lg:justify-start gap-3 w-full p-3 lg:px-4 lg:py-3 rounded-2xl text-xs font-semibold transition-all ${
                       isSelected
-                        ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/35 shadow-sm'
+                        ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/35 shadow-[0_0_16px_var(--color-accent-soft)]'
                         : 'text-ink2 hover:text-ink hover:bg-white/5 border border-transparent'
                     }`}
+                    title={item.label}
                   >
-                    <Icon className="w-4 h-4 shrink-0 stroke-[1.75]" />
-                    <span>{item.label}</span>
+                    <Icon className={`w-5 h-5 shrink-0 stroke-[1.75] transition-transform ${isSelected ? 'scale-110' : ''}`} />
+                    <span className="hidden lg:inline">{item.label}</span>
                   </button>
                 );
               })}
@@ -113,22 +129,23 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             <button
               type="button"
               onClick={() => setIsVaultOpen(true)}
-              className="flex items-center justify-between w-full px-4 py-3 rounded-2xl glass-surface text-ink hover:border-white/25 active:scale-95 transition-all text-xs font-semibold"
+              className="flex items-center justify-center lg:justify-between w-full p-3 lg:px-4 lg:py-3 rounded-2xl glass-surface text-ink hover:border-white/25 active:scale-95 transition-all text-xs font-semibold"
+              title={t('vault.brainVaultTitle')}
             >
               <div className="flex items-center gap-2.5">
-                <Brain className="w-4 h-4 text-purple-300 stroke-[1.75]" />
-                <span>{t('vault.brainVaultTitle')}</span>
+                <Brain className="w-5 h-5 lg:w-4 lg:h-4 text-[var(--color-accent)] stroke-[1.75]" />
+                <span className="hidden lg:inline">{t('vault.brainVaultTitle')}</span>
               </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-ink3 font-mono">
+              <span className="hidden lg:inline text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-ink3 font-mono">
                 ⌘K
               </span>
             </button>
           </div>
 
-          {/* Bottom Settings & Accents in Sidebar */}
+          {/* Bottom Settings & Accents in Rail */}
           <div className="space-y-4 pt-4 border-t border-glass-line/40">
             {/* Accent Theme Switcher */}
-            <div className="flex items-center justify-between px-1">
+            <div className="hidden lg:flex items-center justify-between px-1">
               <div className="flex items-center gap-1.5">
                 {(Object.keys(APP_ACCENTS) as AccentCode[]).map((key) => {
                   const item = APP_ACCENTS[key];
@@ -139,7 +156,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                       type="button"
                       onClick={() => setAccent(key)}
                       className={`h-5 w-5 rounded-full transition-transform active:scale-90 ${
-                        isActive ? 'scale-125 ring-2 ring-white/60 shadow-sm' : 'opacity-55 hover:opacity-90'
+                        isActive ? 'scale-125 ring-2 ring-white/60 shadow-sm' : 'opacity-50 hover:opacity-90'
                       }`}
                       style={{ backgroundColor: item.color }}
                       title={currentLang === 'fa' ? item.labelFa : item.labelEn}
@@ -147,29 +164,42 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   );
                 })}
               </div>
+            </div>
 
-              {/* Language Switch */}
+            {/* Quick Actions (Language & Settings) */}
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={handleToggleLang}
-                className="flex items-center gap-1 text-xs font-semibold text-ink3 hover:text-ink transition-colors"
+                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold text-ink2 hover:text-ink hover:bg-white/5 transition-colors w-full lg:w-auto"
+                title="تغییر زبان / Toggle Language"
               >
-                <Globe className="w-3.5 h-3.5 stroke-[1.75]" />
-                <span>{currentLang.toUpperCase()}</span>
+                <Globe className="w-4 h-4 stroke-[1.75]" />
+                <span className="hidden lg:inline">{currentLang.toUpperCase()}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold text-ink2 hover:text-ink hover:bg-white/5 transition-colors w-full lg:w-auto"
+                title={t('settings.settingsTitle')}
+              >
+                <Sliders className="w-4 h-4 stroke-[1.75]" />
+                <span className="hidden lg:inline">{t('settings.settingsTitle')}</span>
               </button>
             </div>
           </div>
         </aside>
 
-        {/* Main View Area constrained to exact Flutter 480px width */}
-        <main className="flex-1 max-w-[480px] mx-auto px-4 pt-2 sm:pt-4 w-full">
+        {/* Main View Area with Balanced Desktop Canvas */}
+        <main className="flex-1 max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 w-full">
           <div key={currentTab} className="animate-tab-fade">
             {children}
           </div>
         </main>
       </div>
 
-      {/* Floating Action Button (_VaultFab at startFloat, elevated above bottom navbar) */}
+      {/* Floating Action Button (_VaultFab at startFloat, elevated above bottom navbar on mobile) */}
       <div className="md:hidden fixed start-4 bottom-[88px] z-30">
         <button
           type="button"
@@ -184,7 +214,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </button>
       </div>
 
-      {/* Floating Bottom Navigation Bar (maxWidth 440, floating at bottom with safe-area spacing) */}
+      {/* Floating Bottom Navigation Bar (maxWidth 440 on mobile) */}
       <div className="md:hidden fixed inset-x-0 bottom-0 z-40 pb-[calc(env(safe-area-inset-bottom,0px)+10px)] px-4 pointer-events-none">
         <div className="max-w-[440px] mx-auto pointer-events-auto">
           <GlassCard
@@ -219,8 +249,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </div>
       </div>
 
-      {/* Brain Dump Vault Drawer */}
+      {/* Modals */}
       <VaultDrawer isOpen={isVaultOpen} onClose={() => setIsVaultOpen(false)} />
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 };

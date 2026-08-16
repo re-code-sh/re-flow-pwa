@@ -224,7 +224,7 @@ export const HabitsScreen: React.FC = () => {
                               </span>
                             )}
                             {logStatus === 'resisted' && (
-                              <span className="text-[11px] font-bold text-emerald-400 mt-1">
+                              <span className="text-[11px] font-bold text-[var(--color-accent)] mt-1">
                                 {currentLang === 'fa' ? 'امروز مقاومت کردی ✓' : 'Resisted today ✓'}
                               </span>
                             )}
