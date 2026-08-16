@@ -1,157 +1,237 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check } from 'lucide-react';
+import { Trash2, Bell } from 'lucide-react';
+import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
-import type { Habit } from '../../db/schema';
-import { Modal } from '../ui/Modal';
+import { fmtTime } from '../../core/jalali';
 import { GlassField } from '../ui/GlassField';
 import { Pill } from '../ui/Pill';
-import { useToast } from '../ui/Toast';
+import { TimePickerModal } from '../ui/TimePickerModal';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { clsx } from 'clsx';
 
-interface HabitEditorModalProps {
-  habit: Habit | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onSaved: () => void;
+export interface HabitEditorModalProps {
+  onRefresh: () => void;
 }
 
-export const HabitEditorModal: React.FC<HabitEditorModalProps> = ({
-  habit,
-  isOpen,
-  onClose,
-  onSaved,
-}) => {
+export const HabitEditorModal: React.FC<HabitEditorModalProps> = ({ onRefresh }) => {
   const { t } = useTranslation();
-  const { showToast } = useToast();
+  const { isHabitEditorOpen, editingHabit, lang } = useAppStore();
+  const [isBad, setIsBad] = useState(false);
+  const [title, setTitle] = useState('');
+  const [cue, setCue] = useState('');
+  const [badCost, setBadCost] = useState('');
+  const [replacement, setReplacement] = useState('');
+  const [reminderMinutes, setReminderMinutes] = useState<number | null>(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const [title, setTitle] = useState(habit?.title || '');
-  const [cue, setCue] = useState(habit?.cue || '');
-  const [isBad, setIsBad] = useState(habit?.is_bad || false);
-  const [badCost, setBadCost] = useState(habit?.bad_cost || '');
-  const [replacement, setReplacement] = useState(habit?.replacement || '');
-
-  React.useEffect(() => {
-    if (habit) {
-      setTitle(habit.title);
-      setCue(habit.cue);
-      setIsBad(habit.is_bad);
-      setBadCost(habit.bad_cost);
-      setReplacement(habit.replacement);
+  useEffect(() => {
+    if (editingHabit) {
+      setIsBad(editingHabit.is_bad);
+      setTitle(editingHabit.title);
+      setCue(editingHabit.cue);
+      setBadCost(editingHabit.bad_cost || '');
+      setReplacement(editingHabit.replacement || '');
+      setReminderMinutes(editingHabit.reminder_minutes);
     } else {
+      setIsBad(false);
       setTitle('');
       setCue('');
-      setIsBad(false);
       setBadCost('');
       setReplacement('');
+      setReminderMinutes(null);
     }
-  }, [habit, isOpen]);
+  }, [editingHabit, isHabitEditorOpen]);
+
+  if (!isHabitEditorOpen) return null;
 
   const handleSave = async () => {
-    if (!title.trim()) return;
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) return;
 
-    try {
-      if (habit) {
-        // Update
-        await repo.updateHabit(habit.id, {
-          title: title.trim(),
-          cue: cue.trim(),
-          is_bad: isBad,
-          bad_cost: badCost.trim(),
-          replacement: replacement.trim(),
-        });
-      } else {
-        // Create
-        await repo.addHabit(title.trim(), cue.trim(), isBad, badCost.trim(), replacement.trim());
-      }
+    if (editingHabit) {
+      await repo.updateHabit({
+        id: editingHabit.id,
+        title: trimmedTitle,
+        cue: cue.trim(),
+        isBad,
+        badCost: badCost.trim(),
+        replacement: replacement.trim(),
+        reminderMinutes,
+      });
+    } else {
+      await repo.addHabit({
+        title: trimmedTitle,
+        cue: cue.trim(),
+        isBad,
+        badCost: badCost.trim(),
+        replacement: replacement.trim(),
+        reminderMinutes,
+      });
+    }
 
-      showToast(t('common.save') + ' ✓');
-      onSaved();
-      onClose();
-    } catch {
-      showToast(t('common.errorTitle'));
+    appActions.closeHabitEditor();
+    onRefresh();
+  };
+
+  const handleDelete = async () => {
+    if (editingHabit) {
+      await repo.deleteHabit(editingHabit.id);
+      appActions.closeHabitEditor();
+      onRefresh();
     }
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={habit ? t('habits.editHabitTitle') : t('habits.newHabitTitle')}
-      subtitle={t('habits.habitEditorSub')}
-      maxWidth="max-w-md"
-    >
-      <div className="space-y-4">
-        {/* Habit Type Toggle (Positive vs Bad Habit) */}
-        <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/5 border border-glass-line">
-          <button
-            type="button"
-            onClick={() => setIsBad(false)}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-              !isBad
-                ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-sm'
-                : 'text-ink3 hover:text-ink'
-            }`}
-          >
-            {t('habits.positiveHabitType')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsBad(true)}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-              isBad
-                ? 'bg-warn/20 text-warn shadow-sm'
-                : 'text-ink3 hover:text-ink'
-            }`}
-          >
-            {t('habits.badHabitType')}
-          </button>
-        </div>
+    <>
+      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/65 backdrop-blur-md animate-fadeIn">
+        <div
+          className="w-full max-w-lg bg-[#16161A] border border-white/[0.085] rounded-t-[32px] md:rounded-[32px] p-6 max-h-[90vh] overflow-y-auto scrollbar-none shadow-2xl flex flex-col gap-5 text-start"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-10 h-1.5 bg-white/15 rounded-full mx-auto md:hidden -mt-2 mb-1" />
 
-        {/* Title */}
-        <GlassField
-          label={t('habits.habitTitleLabel')}
-          hint={t('habits.habitTitleHint')}
-          value={title}
-          onChange={setTitle}
-        />
+          {/* Header & Toggle */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-[20px] font-extrabold text-[#F5F5F7]">
+              {editingHabit ? t('editHabitTitle') : t('newHabitTitle')}
+            </h3>
 
-        {/* Anchor Cue */}
-        <GlassField
-          label={t('habits.cueLabel')}
-          hint={t('habits.cueHint')}
-          value={cue}
-          onChange={setCue}
-        />
+            {/* Type selector tab */}
+            <div className="flex p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
+              <button
+                type="button"
+                onClick={() => setIsBad(false)}
+                className={clsx(
+                  'flex-1 py-2 rounded-xl text-[12.5px] font-bold transition-all',
+                  !isBad ? 'bg-[var(--accent)] text-[var(--accent-ink)]' : 'text-white/45'
+                )}
+              >
+                {t('positiveHabitType')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsBad(true)}
+                className={clsx(
+                  'flex-1 py-2 rounded-xl text-[12.5px] font-bold transition-all',
+                  isBad ? 'bg-red-500/80 text-white' : 'text-white/45'
+                )}
+              >
+                {t('badHabitType')}
+              </button>
+            </div>
+          </div>
 
-        {/* Bad Habit Friction Details */}
-        {isBad && (
-          <div className="space-y-3 p-3.5 rounded-2xl bg-warn/[0.04] border border-warn/20">
-            <GlassField
-              label={t('habits.badCostLabel')}
-              hint={t('habits.badCostHint')}
-              value={badCost}
-              onChange={setBadCost}
+          <GlassField
+            label={t('habitTitleLabel')}
+            hint={t('habitTitleHint')}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            autofocus
+          />
+
+          <GlassField
+            label={t('cueLabel')}
+            hint={t('cueHint')}
+            value={cue}
+            onChange={(e) => setCue(e.target.value)}
+          />
+
+          {isBad && (
+            <>
+              <GlassField
+                label={t('badCostLabel')}
+                hint={t('badCostHint')}
+                value={badCost}
+                onChange={(e) => setBadCost(e.target.value)}
+                maxLines={2}
+              />
+              <GlassField
+                label={t('replacementInputLabel')}
+                hint={t('replacementInputHint')}
+                value={replacement}
+                onChange={(e) => setReplacement(e.target.value)}
+              />
+            </>
+          )}
+
+          {/* Reminder row */}
+          <div className="flex items-center justify-between p-3.5 rounded-[18px] bg-white/[0.04] border border-white/[0.06]">
+            <div className="flex items-center gap-2.5">
+              <Bell className="w-4 h-4 text-white/55" />
+              <span className="text-[13.5px] font-medium text-white/70">
+                {reminderMinutes !== null
+                  ? t('reminderTimeLabel', { time: fmtTime(reminderMinutes, lang) })
+                  : t('noReminder')}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {reminderMinutes !== null && (
+                <button
+                  type="button"
+                  onClick={() => setReminderMinutes(null)}
+                  className="text-[12px] text-red-400 font-semibold px-2 py-1 hover:underline"
+                >
+                  {t('clearReminder')}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowTimePicker(true)}
+                className="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[12.5px] font-bold text-white transition-all"
+              >
+                {reminderMinutes !== null ? t('edit') : t('setReminderTime')}
+              </button>
+            </div>
+          </div>
+
+          {editingHabit && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex items-center justify-center gap-2 py-3 rounded-2xl text-red-400/80 hover:text-red-400 bg-red-500/[0.06] hover:bg-red-500/[0.1] transition-all font-semibold text-[13.5px]"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>{t('deleteHabitAction')}</span>
+            </button>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3 pt-2">
+            <Pill
+              label={t('cancel')}
+              style="quiet"
+              onTap={() => appActions.closeHabitEditor()}
             />
-
-            <GlassField
-              label={t('habits.replacementInputLabel')}
-              hint={t('habits.replacementInputHint')}
-              value={replacement}
-              onChange={setReplacement}
+            <Pill
+              label={t('save')}
+              style="ember"
+              onTap={handleSave}
             />
           </div>
-        )}
-
-        <Pill
-          pillStyle="ember"
-          disabled={!title.trim()}
-          onClick={handleSave}
-          className="h-[50px] mt-2"
-          icon={<Check className="w-4 h-4 stroke-[3]" />}
-        >
-          {t('common.save')}
-        </Pill>
+        </div>
       </div>
-    </Modal>
+
+      <TimePickerModal
+        isOpen={showTimePicker}
+        initialMinutes={reminderMinutes || 8 * 60}
+        title={t('setReminderTime')}
+        onClose={() => setShowTimePicker(false)}
+        onConfirm={(m) => setReminderMinutes(m)}
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title={t('deleteHabitAction')}
+        sub="این عادت برای همیشه حذف خواهد شد."
+        yesLabel={t('delete')}
+        noLabel={t('cancel')}
+        emberYes={false}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+      />
+    </>
   );
 };

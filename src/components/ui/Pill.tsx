@@ -1,63 +1,60 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
+import { clsx } from 'clsx';
 
 export type PillStyle = 'ember' | 'glass' | 'quiet';
 
-export interface PillProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  label?: string;
-  pillStyle?: PillStyle;
+export interface PillProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
+  label: string;
+  style?: PillStyle;
   icon?: React.ReactNode;
+  onTap?: () => void;
   expanded?: boolean;
-  children?: React.ReactNode;
+  disabled?: boolean;
+  className?: string;
 }
 
 export const Pill: React.FC<PillProps> = ({
   label,
-  pillStyle = 'glass',
+  style = 'glass',
   icon,
+  onTap,
   expanded = true,
   disabled = false,
   className,
-  children,
-  onClick,
-  ...rest
+  ...props
 }) => {
-  const content = (
-    <div className="flex items-center justify-center gap-2">
-      {icon && <span className="flex items-center justify-center shrink-0">{icon}</span>}
-      {(label || children) && (
-        <span className="truncate text-[14.5px] tracking-tight">
-          {label}
-          {children}
-        </span>
-      )}
-    </div>
-  );
-
-  const styleClasses = {
-    ember:
-      'bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)] font-bold shadow-[0_0_20px_var(--accent-glow)] border-none active:brightness-95',
-    glass:
-      'glass-surface text-ink font-semibold border-glass-line hover:border-white/20 active:bg-white/10',
-    quiet:
-      'bg-transparent text-ink/70 font-medium hover:text-ink active:bg-white/5',
-  }[pillStyle];
+  const isEmber = style === 'ember';
+  const isGlass = style === 'glass';
+  const isQuiet = style === 'quiet';
 
   return (
     <button
       type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={cn(
-        'pressable relative inline-flex h-[50px] items-center justify-center rounded-pill px-5 transition-all outline-none select-none',
+      disabled={disabled || !onTap}
+      onClick={onTap}
+      className={clsx(
+        'h-[50px] px-5 rounded-[17px] inline-flex items-center justify-center font-bold text-[14.5px] transition-all duration-200 ease-apple cursor-pointer select-none',
+        'active:scale-[0.965]',
         expanded ? 'w-full' : 'w-auto',
-        disabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : 'cursor-pointer',
-        styleClasses,
+        disabled || !onTap ? 'opacity-40 cursor-not-allowed pointer-events-none' : 'opacity-100',
+        isEmber && [
+          'bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)]',
+          'shadow-[0_10px_26px_var(--accent-glow)] border-none',
+        ],
+        isGlass && [
+          'bg-gradient-to-b from-white/[0.072] to-white/[0.030] text-[#F5F5F7]',
+          'border border-white/[0.085] shadow-[0_4px_12px_rgba(0,0,0,0.3)]',
+        ],
+        isQuiet && [
+          'bg-white/[0.04] text-white/60 hover:text-white/80 font-semibold',
+          'border border-white/[0.06]',
+        ],
         className
       )}
-      {...rest}
+      {...props}
     >
-      {content}
+      {icon && <span className="inline-flex items-center me-2 text-current">{icon}</span>}
+      <span className="truncate">{label}</span>
     </button>
   );
 };

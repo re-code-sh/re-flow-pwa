@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Default Ember Accent */
+  --accent: #EFA55C;
+  --accent-light: #F4BA83;
+  --accent-dark: #D48C45;
+  --accent-soft: rgba(239, 165, 92, 0.13);
+  --accent-hover: #F2AF6F;
+  --accent-glow: rgba(239, 165, 92, 0.25);
+  --accent-subtle: rgba(239, 165, 92, 0.08);
+  --accent-border: rgba(239, 165, 92, 0.28);
+  --accent-ink: #1C1207;
+
+  /* Glass Surface Tokens */
+  --glass-a: rgba(255, 255, 255, 0.072);
+  --glass-b: rgba(255, 255, 255, 0.030);
+  --line: rgba(255, 255, 255, 0.085);
+  --spec: rgba(255, 255, 255, 0.16);
+
+  /* Tone Inks */
+  --ink: #F5F5F7;
+  --ink2: rgba(245, 245, 247, 0.55);
+  --ink3: rgba(245, 245, 247, 0.38);
+  --warn: #FF7A6E;
+
+  /* Apple-style Easing */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-normal: 420ms;
+}
+
+/* Hide scrollbars across all browsers while preserving touch / wheel scrolling */
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Global scroll behavior & body styling */
+html, body {
+  background-color: #060608;
+  color: #F5F5F7;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Glass card styling */
+.glass-surface {
+  background: linear-gradient(180deg, var(--glass-a) 0%, var(--glass-b) 100%);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-surface-elevated {
+  background: linear-gradient(180deg, rgba(23, 23, 27, 0.88) 0%, rgba(12, 12, 15, 0.95) 100%);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Tactile press physics */
+.pressable {
+  transition: transform 220ms var(--ease-apple), opacity 200ms ease;
+  will-change: transform;
+}
+.pressable:active {
+  transform: scale(0.965);
+}
+
+/* Tabular figures for clocks & counters */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

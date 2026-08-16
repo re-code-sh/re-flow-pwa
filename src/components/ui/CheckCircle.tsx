@@ -1,48 +1,44 @@
 import React from 'react';
+import { clsx } from 'clsx';
 import { Check } from 'lucide-react';
-import { cn } from '../../lib/utils';
 
 export interface CheckCircleProps {
-  checked: boolean;
-  onToggle: () => void;
+  on: boolean;
+  onTap: () => void;
   semanticLabel?: string;
-  disabled?: boolean;
   className?: string;
 }
 
 export const CheckCircle: React.FC<CheckCircleProps> = ({
-  checked,
-  onToggle,
-  semanticLabel = 'علامت انجام',
-  disabled = false,
+  on,
+  onTap,
+  semanticLabel = 'علامتِ انجام',
   className,
 }) => {
   return (
     <button
       type="button"
-      role="checkbox"
-      aria-checked={checked}
       aria-label={semanticLabel}
-      disabled={disabled}
+      aria-checked={on}
+      role="checkbox"
       onClick={(e) => {
         e.stopPropagation();
-        onToggle();
+        onTap();
       }}
-      className={cn(
-        'pressable relative flex h-11 w-11 shrink-0 items-center justify-center cursor-pointer outline-none select-none active:scale-90',
-        disabled && 'opacity-40 cursor-not-allowed pointer-events-none',
+      className={clsx(
+        'w-[44px] h-[44px] flex items-center justify-center cursor-pointer select-none focus:outline-none shrink-0 pressable',
         className
       )}
     >
       <div
-        className={cn(
-          'flex h-[27px] w-[27px] items-center justify-center rounded-full transition-all duration-200',
-          checked
-            ? 'bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] shadow-[0_0_16px_var(--accent-glow)] animate-pop-check'
-            : 'border-[1.5px] border-white/20 bg-white/[0.02] hover:border-white/40'
+        className={clsx(
+          'w-[27px] h-[27px] rounded-full flex items-center justify-center transition-all duration-250 ease-apple',
+          on
+            ? 'bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] shadow-[0_4px_14px_var(--accent-glow)] border-none scale-100'
+            : 'border-[1.5px] border-white/[0.22] bg-transparent hover:border-white/40'
         )}
       >
-        {checked && <Check className="h-4 w-4 stroke-[3] text-[var(--accent-ink)]" />}
+        {on && <Check className="w-4 h-4 text-[var(--accent-ink)] stroke-[2.5]" />}
       </div>
     </button>
   );

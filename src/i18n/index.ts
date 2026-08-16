@@ -1,47 +1,33 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-
-import faTranslations from './locales/fa.json';
-import enTranslations from './locales/en.json';
+import fa from './locales/fa';
+import en from './locales/en';
 
 const resources = {
-  fa: {
-    translation: faTranslations,
-  },
-  en: {
-    translation: enTranslations,
-  },
+  fa: { translation: fa },
+  en: { translation: en },
 };
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    fallbackLng: 'fa',
-    interpolation: {
-      escapeValue: false,
-    },
-    detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
-      lookupLocalStorage: 'reflow_language',
-    },
-  });
+const savedLang = localStorage.getItem('app_language') || 'fa';
 
-export function updateDocumentDirection(lang: string) {
-  const isRtl = lang === 'fa';
-  document.documentElement.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
-  document.documentElement.setAttribute('lang', lang);
+i18n.use(initReactI18next).init({
+  resources,
+  lng: savedLang,
+  fallbackLng: 'fa',
+  interpolation: {
+    escapeValue: false,
+  },
+});
+
+export function setAppLanguage(lang: 'fa' | 'en') {
+  i18n.changeLanguage(lang);
+  localStorage.setItem('app_language', lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
 }
 
-// Set initial direction
-updateDocumentDirection(i18n.language || 'fa');
-
-// Listen for language change events
-i18n.on('languageChanged', (lang) => {
-  updateDocumentDirection(lang);
-});
+// Initial direction setting
+document.documentElement.lang = savedLang;
+document.documentElement.dir = savedLang === 'fa' ? 'rtl' : 'ltr';
 
 export default i18n;

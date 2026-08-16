@@ -1,43 +1,40 @@
 {
   "name": "re-flow-pwa",
   "private": true,
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "worker:dev": "wrangler dev",
-    "worker:deploy": "wrangler deploy",
-    "d1:migrate:local": "wrangler d1 execute reflow-d1 --local --file=worker/db/schema.sql",
-    "d1:migrate:remote": "wrangler d1 execute reflow-d1 --remote --file=worker/db/schema.sql"
+    "worker:dev": "wrangler dev worker/index.ts",
+    "worker:deploy": "wrangler deploy worker/index.ts"
   },
   "dependencies": {
+    "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
-    "hono": "^4.7.2",
-    "i18next": "^24.2.2",
-    "i18next-browser-languagedetector": "^8.0.4",
+    "hono": "^4.7.4",
+    "i18next": "^24.2.3",
     "lucide-react": "^1.16.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.4.1",
-    "tailwind-merge": "^3.0.2",
-    "uuid": "^11.1.0"
+    "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250214.0",
-    "@types/node": "^22.13.4",
+    "@cloudflare/workers-types": "^4.20250224.0",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^22.13.9",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
-    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.2",
+    "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
-    "vite": "^6.1.0",
-    "wrangler": "^3.109.2"
+    "vite": "^6.2.0",
+    "wrangler": "^3.111.0"
   }
 }

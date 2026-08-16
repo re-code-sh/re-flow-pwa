@@ -1,68 +1,35 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { cn } from '../../lib/utils';
+import React from 'react';
+import { useAppStore, appActions } from '../../state/useAppStore';
+import { Pressable } from './Pressable';
 
-export interface ToastOptions {
-  message: string;
-  actionLabel?: string;
-  onAction?: () => void;
-  duration?: number;
-}
+export const ToastContainer: React.FC = () => {
+  const { toasts, lang } = useAppStore();
 
-interface ToastContextType {
-  showToast: (options: ToastOptions | string) => void;
-}
-
-const ToastContext = createContext<ToastContextType | null>(null);
-
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toast, setToast] = useState<ToastOptions | null>(null);
-  const [visible, setVisible] = useState(false);
-
-  const showToast = useCallback((options: ToastOptions | string) => {
-    const opt = typeof options === 'string' ? { message: options } : options;
-    setToast(opt);
-    setVisible(true);
-
-    const duration = opt.duration || (opt.actionLabel ? 5000 : 2600);
-    setTimeout(() => {
-      setVisible(false);
-    }, duration);
-  }, []);
+  if (toasts.length === 0) return null;
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
-      {children}
-      {toast && visible && (
-        <div className="fixed top-6 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
-          <div
-            className={cn(
-              'pointer-events-auto flex items-center gap-3 rounded-full bg-[#1C1C21] border border-glass-line px-5 py-2.5 shadow-toast animate-slide-down-fade max-w-[90vw]'
-            )}
-          >
-            <span className="text-[13px] font-medium text-ink truncate">{toast.message}</span>
-            {toast.actionLabel && (
-              <button
-                type="button"
-                onClick={() => {
-                  toast.onAction?.();
-                  setVisible(false);
-                }}
-                className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-[12px] font-bold text-[var(--accent)] hover:brightness-110 active:scale-95 transition-transform"
-              >
-                {toast.actionLabel}
-              </button>
-            )}
-          </div>
+    <div className="fixed top-4 left-0 right-0 z-50 flex flex-col items-center pointer-events-none px-4 gap-2">
+      {toasts.map((toast) => (
+        <div
+          key={toast.id}
+          className="pointer-events-auto flex items-center gap-3 px-5 py-3 rounded-full bg-[#1C1C21]/95 border border-white/[0.085] shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-float transition-all"
+        >
+          <span className="text-[13px] font-semibold text-[#F5F5F7] text-center">
+            {toast.message}
+          </span>
+          {toast.actionLabel && (
+            <Pressable
+              onTap={() => {
+                toast.onAction?.();
+                appActions.removeToast(toast.id);
+              }}
+              className="px-3 py-1.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] text-[12px] font-bold"
+            >
+              {toast.actionLabel}
+            </Pressable>
+          )}
         </div>
-      )}
-    </ToastContext.Provider>
+      ))}
+    </div>
   );
 };
-
-export function useToast() {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
-}

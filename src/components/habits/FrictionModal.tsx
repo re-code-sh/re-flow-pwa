@@ -1,153 +1,139 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, Check, ArrowRight } from 'lucide-react';
+import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
-import type { Habit } from '../../db/schema';
-import { Modal } from '../ui/Modal';
-import { GlassCard } from '../ui/GlassCard';
+import { todayKey, fmtNum } from '../../core/jalali';
 import { Pill } from '../ui/Pill';
-import { useToast } from '../ui/Toast';
-import { todayKey, faNum } from '../../lib/fa';
 
-interface FrictionModalProps {
-  habit: Habit | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onLogged: () => void;
+export interface FrictionModalProps {
+  onRefresh: () => void;
 }
 
-export const FrictionModal: React.FC<FrictionModalProps> = ({
-  habit,
-  isOpen,
-  onClose,
-  onLogged,
-}) => {
-  const { t, i18n } = useTranslation();
-  const { showToast } = useToast();
-  const currentLang = (i18n.language || 'fa').startsWith('en') ? 'en' : 'fa';
-
-  const [countdown, setCountdown] = useState<number>(10);
+export const FrictionModal: React.FC<FrictionModalProps> = ({ onRefresh }) => {
+  const { t } = useTranslation();
+  const { isFrictionModalOpen, frictionHabit, lang } = useAppStore();
+  const [secondsLeft, setSecondsLeft] = useState(10);
 
   useEffect(() => {
-    if (isOpen) {
-      setCountdown(10);
-      const interval = setInterval(() => {
-        setCountdown((prev) => {
+    if (isFrictionModalOpen) {
+      setSecondsLeft(10);
+      const timer = setInterval(() => {
+        setSecondsLeft((prev) => {
           if (prev <= 1) {
-            clearInterval(interval);
+            clearInterval(timer);
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-
-      return () => clearInterval(interval);
+      return () => clearInterval(timer);
     }
-  }, [isOpen]);
+  }, [isFrictionModalOpen]);
 
-  if (!habit) return null;
+  if (!isFrictionModalOpen || !frictionHabit) return null;
 
-  const handleLog = async (status: 'slip' | 'resisted') => {
-    try {
-      await repo.logHabit(habit.id, todayKey(), status);
-      showToast(status === 'resisted' ? t('friction.toastResisted') : t('friction.toastSlipped'));
-      onLogged();
-      onClose();
-    } catch {
-      showToast(t('common.errorTitle'));
-    }
+  const handleResisted = async () => {
+    await repo.logHabit(frictionHabit.id, todayKey(), 'resisted');
+    appActions.showToast(t('toastResisted'));
+    appActions.closeFrictionModal();
+    onRefresh();
   };
 
+  const handleSlipped = async () => {
+    await repo.logHabit(frictionHabit.id, todayKey(), 'slip');
+    appActions.showToast(t('toastSlipped'));
+    appActions.closeFrictionModal();
+    onRefresh();
+  };
+
+  const progress = (10 - secondsLeft) / 10;
+  const strokeDashoffset = 125.6 * (1 - progress);
+
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={t('friction.frictionTitle')}
-      subtitle={habit.title}
-      maxWidth="max-w-md"
-    >
-      <div className="space-y-4 text-center pt-1">
-        {/* Mindful Pause Countdown Ring */}
-        <div className="flex flex-col items-center justify-center py-3">
-          <div className="relative w-24 h-24 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/75 backdrop-blur-lg animate-fadeIn">
+      <div
+        className="w-full max-w-lg bg-[#16161A] border border-white/[0.085] rounded-t-[32px] md:rounded-[32px] p-6 shadow-2xl flex flex-col gap-5 text-start"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="w-10 h-1.5 bg-white/15 rounded-full mx-auto md:hidden -mt-2 mb-1" />
+
+        {/* Header with Circular Countdown */}
+        <div className="flex items-center gap-4">
+          <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 44 44">
               <circle
-                cx="48"
-                cy="48"
-                r="40"
-                stroke="rgba(255, 255, 255, 0.1)"
-                strokeWidth="6"
-                fill="transparent"
+                cx="22"
+                cy="22"
+                r="20"
+                className="stroke-white/10 fill-none"
+                strokeWidth="3"
               />
               <circle
-                cx="48"
-                cy="48"
-                r="40"
-                stroke="var(--color-warn, #FF7A6E)"
-                strokeWidth="6"
-                strokeDasharray={2 * Math.PI * 40}
-                strokeDashoffset={(2 * Math.PI * 40 * (10 - countdown)) / 10}
+                cx="22"
+                cy="22"
+                r="20"
+                className="stroke-red-400 fill-none transition-all duration-1000 ease-linear"
+                strokeWidth="3"
+                strokeDasharray="125.6"
+                strokeDashoffset={strokeDashoffset}
                 strokeLinecap="round"
-                fill="transparent"
-                className="transition-all duration-1000"
               />
             </svg>
-            <span className="absolute text-2xl font-mono font-bold text-warn">
-              {currentLang === 'fa' ? faNum(countdown) : countdown}
+            <span className="absolute text-[16px] font-extrabold text-red-400">
+              {fmtNum(secondsLeft, lang)}
             </span>
           </div>
 
-          <span className="text-xs font-semibold text-ink3 mt-2">
-            {countdown > 0
-              ? t('friction.mindfulPauseSeconds', { count: countdown })
-              : 'مکث به پایان رسید — آگاهانه انتخاب کن'}
-          </span>
+          <div>
+            <h3 className="text-[19px] font-extrabold text-[#F5F5F7]">
+              {t('pauseSheetTitle')}
+            </h3>
+            <p className="text-[12px] text-white/55 mt-0.5">{t('pauseSheetSub')}</p>
+          </div>
         </div>
 
-        {/* Cost of behavior */}
-        {habit.bad_cost && (
-          <GlassCard className="p-4 text-start bg-warn/[0.06] border-warn/30 space-y-1">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-warn flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              {t('friction.rememberCostSub')}
-            </span>
-            <p className="text-sm font-medium text-ink leading-relaxed">{habit.bad_cost}</p>
-          </GlassCard>
+        {/* Long-term Cost Card */}
+        {frictionHabit.bad_cost && (
+          <div className="p-4 rounded-[20px] bg-red-500/[0.08] border border-red-500/20 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-red-400 text-[12.5px] font-bold">
+              <ShieldAlert className="w-4 h-4" />
+              <span>{t('longTermCostTitle', { title: frictionHabit.title })}</span>
+            </div>
+            <p className="text-[13.5px] text-white/85 font-medium leading-relaxed">
+              {frictionHabit.bad_cost}
+            </p>
+          </div>
         )}
 
-        {/* Positive replacement behavior */}
-        {habit.replacement && (
-          <GlassCard className="p-4 text-start bg-[var(--accent-soft)] border-[var(--accent)]/30 space-y-1">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[var(--accent)] flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {t('friction.replacementLabel')}
+        {/* Suggested Replacement Action */}
+        {frictionHabit.replacement && (
+          <div className="p-4 rounded-[20px] bg-[var(--accent-soft)] border border-[var(--accent-border)] flex flex-col gap-1">
+            <span className="text-[11.5px] font-bold text-[var(--accent)]">
+              {t('replacementLabel')}
             </span>
-            <p className="text-sm font-medium text-ink leading-relaxed">{habit.replacement}</p>
-          </GlassCard>
+            <span className="text-[14.5px] font-bold text-white">
+              {frictionHabit.replacement}
+            </span>
+          </div>
         )}
 
-        {/* Slip vs Resisted Buttons */}
-        <div className="flex gap-2 pt-2">
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2.5 pt-2">
           <Pill
-            pillStyle="quiet"
-            disabled={countdown > 0}
-            onClick={() => handleLog('slip')}
-            className="flex-1 text-xs text-ink3 hover:text-warn"
-          >
-            {t('friction.slippedAction')}
-          </Pill>
-
+            label={t('resistedAction')}
+            style="ember"
+            icon={<Check className="w-4 h-4 stroke-[2.5]" />}
+            onTap={handleResisted}
+          />
           <Pill
-            pillStyle="ember"
-            disabled={countdown > 0}
-            onClick={() => handleLog('resisted')}
-            className="flex-1 text-xs font-bold"
-            icon={<CheckCircle2 className="w-4 h-4 stroke-[2.5]" />}
-          >
-            {t('friction.resistedAction')}
-          </Pill>
+            label={t('didItSlip')}
+            style="quiet"
+            disabled={secondsLeft > 0}
+            onTap={handleSlipped}
+          />
         </div>
       </div>
-    </Modal>
+    </div>
   );
 };

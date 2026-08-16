@@ -1,156 +1,169 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLiveQuery } from 'dexie-react-hooks';
-import {
-  Settings2,
-  Info,
-  Check,
-} from 'lucide-react';
+import { Flower2, Play, Lock, Sparkles, Sliders, BookOpen } from 'lucide-react';
+import { FunConfig, DayPlan } from '../../core/types';
+import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
+import { todayKey, fmtNum } from '../../core/jalali';
+import { LeisureModal } from './LeisureModal';
 import { GlassCard } from '../ui/GlassCard';
 import { Pill } from '../ui/Pill';
-import { Reveal } from '../ui/Reveal';
-import { Modal } from '../ui/Modal';
-import { GlassField } from '../ui/GlassField';
-import { useToast } from '../ui/Toast';
-import { todayKey } from '../../lib/fa';
-import { LeisureCard } from '../LeisureCard';
-import type { FocusTimerConfig } from '../FocusTimer';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { focusTimer } from '../../state/focusTimer';
+import { clsx } from 'clsx';
 
-interface LeisureScreenProps {
-  onStartFocus: (config: FocusTimerConfig) => void;
-}
-
-export const LeisureScreen: React.FC<LeisureScreenProps> = ({ onStartFocus }) => {
+export const LeisureScreen: React.FC = () => {
   const { t } = useTranslation();
-  const { showToast } = useToast();
+  const { lang } = useAppStore();
+  const [fun, setFun] = useState<FunConfig | null>(null);
+  const [plan, setPlan] = useState<DayPlan | null>(null);
+  const [showConfig, setShowConfig] = useState(false);
+  const [showSkipBoulderConfirm, setShowSkipBoulderConfirm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const today = todayKey();
-
-  const [showConfigModal, setShowConfigModal] = useState(false);
-  const [leisureTitle, setLeisureTitle] = useState('گیم / بازی و فیلم');
-  const [leisureMinutes, setLeisureMinutes] = useState('45');
-
-  // Queries
-  const dayTasks = useLiveQuery(() => repo.getTasksForDay(today), [today]);
-  const leisureItems = useLiveQuery(() => repo.getLeisure(), []);
-
-  const boulderTask = (dayTasks || []).find((t) => t.is_boulder);
-  const isBoulderDone = boulderTask ? boulderTask.status === 'completed' : false;
-
-  const currentLeisure = leisureItems && leisureItems.length > 0 ? leisureItems[0] : null;
-  const activeTitle = currentLeisure?.title || leisureTitle;
-  const activeMinutes = currentLeisure?.duration_minutes || parseInt(leisureMinutes, 10) || 45;
-
-  const handleSaveConfig = async () => {
-    const title = leisureTitle.trim() || 'تفریح بدون عذاب وجدان';
-    const mins = parseInt(leisureMinutes, 10) || 45;
-
+  const loadData = async () => {
     try {
-      await repo.saveLeisure(title, mins);
-      showToast(t('common.save') + ' ✓');
-      setShowConfigModal(false);
-    } catch {
-      showToast(t('common.errorTitle'));
+      const cfg = await repo.funConfig();
+      setFun(cfg);
+      const p = await repo.dayPlan(todayKey());
+      setPlan(p);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleStartPlay = () => {
-    onStartFocus({
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  if (loading || !fun) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 rounded-full border-2 border-[var(--accent)] border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  const isBoulderDone = plan?.boulderDone ?? false;
+
+  const handleStartPlay = async () => {
+    await focusTimer.start({
       taskId: null,
-      title: activeTitle,
-      minutes: activeMinutes,
+      title: fun.title,
+      minutes: fun.minutes,
       kind: 'fun',
     });
+    appActions.openFocusScreen();
+  };
+
+  const handlePlayClick = () => {
+    if (!isBoulderDone && plan?.planned) {
+      setShowSkipBoulderConfirm(true);
+      return;
+    }
+    handleStartPlay();
   };
 
   return (
-    <div className="space-y-5 pb-40">
-      {/* 1. Header (Matching Flutter _Header) */}
-      <Reveal order={0}>
-        <div className="flex items-center justify-between px-1 pt-3 pb-2">
-          <div className="space-y-1">
-            <h1 className="text-[26px] font-extrabold text-ink tracking-tight">
-              {t('app.leisureTab')}
-            </h1>
-            <p className="text-[12.5px] font-medium text-ink3 leading-relaxed">
-              {t('leisure.leisureSubtitle')}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setLeisureTitle(activeTitle);
-              setLeisureMinutes(String(activeMinutes));
-              setShowConfigModal(true);
-            }}
-            className="pressable flex h-[42px] w-[42px] items-center justify-center rounded-[14px] glass-surface text-ink2 hover:text-ink transition-colors"
-            title={t('leisure.configFunTitle')}
-          >
-            <Settings2 className="w-[19px] h-[19px]" />
-          </button>
+    <div className="flex-1 flex flex-col gap-6 py-6 pb-28 md:pb-12 text-start">
+      {/* Header */}
+      <header className="flex items-center justify-between pt-2">
+        <div className="flex flex-col">
+          <h1 className="text-[26px] md:text-[28px] font-extrabold tracking-tight text-[#F5F5F7]">
+            {t('leisureTab')}
+          </h1>
+          <p className="text-[12.5px] text-white/50 mt-0.5">{t('leisureSubtitle')}</p>
         </div>
-      </Reveal>
 
-      {/* 2. Main Play Block Card (Direct 1:1 Transpiled LeisureCard) */}
-      <Reveal order={1}>
-        <LeisureCard
-          title={activeTitle}
-          minutes={activeMinutes}
-          isBoulderDone={isBoulderDone}
-          onStartPlay={handleStartPlay}
-        />
-      </Reveal>
+        <button
+          type="button"
+          onClick={() => setShowConfig(true)}
+          title={t('configFunTitle')}
+          className="w-10 h-10 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition-all pressable"
+        >
+          <Sliders className="w-4 h-4" />
+        </button>
+      </header>
 
-      {/* 3. Philosophy Banner: Antidote to Parkinson's Law */}
-      <Reveal order={2}>
-        <GlassCard className="p-5 space-y-2 bg-white/[0.03]">
-          <div className="flex items-center gap-2 text-[var(--accent)]">
-            <Info className="w-4 h-4" />
-            <h3 className="text-[13.5px] font-bold">
-              {t('leisure.leisurePhilosophyTitle')}
-            </h3>
-          </div>
-          <p className="text-[12.5px] text-ink2 leading-[1.8]">
-            {t('leisure.leisurePhilosophyBody')}
-          </p>
-        </GlassCard>
-      </Reveal>
-
-      {/* Configure Leisure Modal */}
-      <Modal
-        isOpen={showConfigModal}
-        onClose={() => setShowConfigModal(false)}
-        title={t('leisure.configFunTitle')}
-        subtitle={t('leisure.configFunHint')}
-        maxWidth="max-w-md"
+      {/* Hero Guilt-Free Play Card */}
+      <GlassCard
+        radius="card"
+        emberRing={isBoulderDone}
+        className="p-6 md:p-7 flex flex-col gap-5 text-start"
       >
-        <div className="space-y-4">
-          <GlassField
-            label={t('leisure.configFunPrompt')}
-            hint={t('leisure.configFunHint')}
-            value={leisureTitle}
-            onChange={setLeisureTitle}
-          />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span
+              className={clsx(
+                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border',
+                isBoulderDone
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent-border)]'
+                  : 'bg-white/[0.04] text-white/50 border-white/[0.06]'
+              )}
+            >
+              {isBoulderDone ? (
+                <Sparkles className="w-3.5 h-3.5 fill-current" />
+              ) : (
+                <Lock className="w-3.5 h-3.5" />
+              )}
+              <span>{isBoulderDone ? t('funUnlockedSub') : t('funLockedSub')}</span>
+            </span>
+          </div>
 
-          <GlassField
-            label={t('leisure.durationMinutes')}
-            hint="45"
-            value={leisureMinutes}
-            onChange={setLeisureMinutes}
-          />
-
-          <Pill
-            pillStyle="ember"
-            onClick={handleSaveConfig}
-            className="h-[48px]"
-            icon={<Check className="w-4 h-4 stroke-[3]" />}
-          >
-            {t('common.save')}
-          </Pill>
+          <span className="text-[12.5px] font-bold text-white/60">
+            {fmtNum(fun.minutes, lang)} دقیقه
+          </span>
         </div>
-      </Modal>
+
+        <div>
+          <h2 className="text-[22px] md:text-[24px] font-extrabold text-white">
+            {fun.title}
+          </h2>
+          <p className="text-[13px] text-white/55 mt-1.5 leading-relaxed">
+            {t('funHint')}
+          </p>
+        </div>
+
+        <div className="pt-2">
+          <Pill
+            label={t('startLeisurePlay')}
+            style={isBoulderDone ? 'ember' : 'glass'}
+            icon={<Play className="w-4 h-4 fill-current" />}
+            onTap={handlePlayClick}
+          />
+        </div>
+      </GlassCard>
+
+      {/* Philosophy Card: Parkinson's Law Antidote */}
+      <GlassCard radius="card" className="p-6 flex flex-col gap-3 text-start">
+        <div className="flex items-center gap-2 text-[var(--accent)]">
+          <BookOpen className="w-4 h-4" />
+          <span className="text-[13px] font-bold">{t('leisurePhilosophyTitle')}</span>
+        </div>
+
+        <p className="text-[13.5px] text-white/65 leading-loose">
+          {t('leisurePhilosophyBody')}
+        </p>
+      </GlassCard>
+
+      {/* Config Modal */}
+      <LeisureModal
+        isOpen={showConfig}
+        onClose={() => setShowConfig(false)}
+        onRefresh={loadData}
+      />
+
+      {/* Skip Boulder Confirmation */}
+      <ConfirmModal
+        isOpen={showSkipBoulderConfirm}
+        title={t('boulderFirstForPlayTitle')}
+        sub={t('boulderFirstForPlaySub')}
+        yesLabel={t('iWillWaitAction')}
+        noLabel={t('startAnywayAction')}
+        emberYes={true}
+        onClose={() => setShowSkipBoulderConfirm(false)}
+        onConfirm={handleStartPlay}
+      />
     </div>
   );
 };
