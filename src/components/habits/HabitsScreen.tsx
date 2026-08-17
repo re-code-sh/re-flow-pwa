@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Plus,
   Repeat,
-  ShieldAlert,
   Bell,
-  Check,
   AlertCircle,
-  Sparkles,
 } from 'lucide-react';
 import { Habit } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -68,52 +64,46 @@ export const HabitsScreen: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col gap-6 py-6 pb-28 md:pb-12 text-start">
-      {/* Header */}
-      <header className="flex items-center justify-between pt-2">
-        <div className="flex flex-col">
-          <h1 className="text-[26px] md:text-[28px] font-extrabold tracking-tight text-[#F5F5F7]">
-            {t('habitsTab')}
-          </h1>
-          <p className="text-[12.5px] text-white/50 mt-0.5">{t('habitsSubtitle')}</p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => appActions.openHabitEditor()}
-          className="h-10 px-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] flex items-center gap-1.5 text-white/80 hover:text-white transition-all text-[13px] font-bold pressable"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t('newHabit')}</span>
-        </button>
+    <div className="flex-1 flex flex-col gap-4 py-4 pb-28 md:pb-12 text-start select-none">
+      {/* Header Matching Flutter _Header and Screenshot 2 */}
+      <header className="flex flex-col pt-2">
+        <h1 className="text-[25px] font-extrabold tracking-tight text-[#F5F5F7]">
+          {t('habitsTab')}
+        </h1>
+        <p className="text-[12.5px] text-white/38 mt-1">{t('habitsSubtitle')}</p>
       </header>
 
-      {/* Empty State */}
+      {/* Top Full-Width Action Button Matching Screenshot 2 */}
+      <div className="w-full pt-1">
+        <Pill
+          label={`+ ${t('newHabit')}`}
+          style="ember"
+          expanded
+          onTap={() => appActions.openHabitEditor()}
+        />
+      </div>
+
+      {/* Empty State Card Matching Screenshot 2 */}
       {habits.length === 0 && !loading && (
-        <div className="flex-1 flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-4 text-[var(--accent)]">
-            <Repeat className="w-8 h-8" />
-          </div>
-          <h3 className="text-[17px] font-bold text-white mb-1">
-            {t('emptyHabitsTitle')}
-          </h3>
-          <p className="text-[13px] text-white/45 max-w-xs mb-6">
-            {t('emptyHabitsSubtitle')}
-          </p>
-          <div className="w-48">
-            <Pill
-              label={t('addHabit')}
-              style="ember"
-              onTap={() => appActions.openHabitEditor()}
-            />
-          </div>
+        <div className="pt-2">
+          <GlassCard radius="small" className="p-8 flex flex-col items-center justify-center text-center">
+            <div className="w-[52px] h-[52px] rounded-full bg-[var(--accent)]/[0.12] border border-[var(--accent)]/[0.30] flex items-center justify-center text-[var(--accent)] mb-4">
+              <Repeat className="w-[26px] h-[26px]" />
+            </div>
+            <h3 className="text-[16px] font-bold text-white mb-1.5">
+              {t('emptyHabitsTitle')}
+            </h3>
+            <p className="text-[13px] text-white/38 leading-relaxed max-w-xs">
+              {t('emptyHabitsSubtitle')}
+            </p>
+          </GlassCard>
         </div>
       )}
 
       {/* Good Habits Section */}
       {goodHabits.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <span className="text-[13px] font-bold text-white/55 px-1">
+        <section className="flex flex-col gap-2.5 pt-2">
+          <span className="text-[11.5px] font-semibold text-white/38 px-1.5 tracking-wider">
             {t('activeHabits')}
           </span>
 
@@ -127,7 +117,7 @@ export const HabitsScreen: React.FC = () => {
                   key={h.id}
                   radius="small"
                   className={clsx(
-                    'p-4 md:p-4.5 transition-all hover:border-white/15 cursor-pointer',
+                    'p-4 transition-all hover:border-white/15 cursor-pointer',
                     isDone && 'opacity-65'
                   )}
                   onTap={() => appActions.openHabitEditor(h)}
@@ -139,7 +129,7 @@ export const HabitsScreen: React.FC = () => {
                       <div className="flex items-center justify-between gap-2">
                         <span
                           className={clsx(
-                            'text-[15.5px] font-bold truncate',
+                            'text-[15px] font-bold truncate',
                             isDone ? 'line-through text-white/40' : 'text-white'
                           )}
                         >
@@ -179,8 +169,8 @@ export const HabitsScreen: React.FC = () => {
 
       {/* Bad Habits Section */}
       {badHabits.length > 0 && (
-        <section className="flex flex-col gap-3 pt-2">
-          <span className="text-[13px] font-bold text-red-400/80 px-1">
+        <section className="flex flex-col gap-2.5 pt-2">
+          <span className="text-[11.5px] font-semibold text-red-400/80 px-1.5 tracking-wider">
             {t('badHabitFriction')}
           </span>
 
@@ -194,7 +184,7 @@ export const HabitsScreen: React.FC = () => {
                 <GlassCard
                   key={h.id}
                   radius="small"
-                  className="p-4 md:p-4.5 hover:border-red-500/30 transition-all cursor-pointer"
+                  className="p-4 hover:border-red-500/30 transition-all cursor-pointer"
                   onTap={() => appActions.openHabitEditor(h)}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -203,7 +193,7 @@ export const HabitsScreen: React.FC = () => {
                         <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 text-[10.5px] font-bold">
                           {t('badHabitTag')}
                         </span>
-                        <span className="text-[15.5px] font-bold text-white truncate">
+                        <span className="text-[15px] font-bold text-white truncate">
                           {h.title}
                         </span>
                       </div>

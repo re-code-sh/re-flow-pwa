@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Bell } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { todayKey, fmtTime } from '../../core/jalali';
@@ -31,9 +31,16 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ onRefresh }) => {
 
   if (!isTaskEditModalOpen || !editingTask) return null;
 
+  const isRtl = lang === 'fa';
+  const Chevron = isRtl ? ChevronLeft : ChevronRight;
+  const hasReminder = reminderTime !== null;
+
   const handleSave = async () => {
     const trimmed = title.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      appActions.showToast(lang === 'fa' ? 'عنوان خالی نمی‌شود' : 'Title cannot be empty');
+      return;
+    }
     await repo.renameTask(todayKey(), editingTask.taskId, trimmed);
     await repo.updateTaskReminder(editingTask.taskId, reminderTime);
     appActions.closeTaskEditModal();
@@ -51,72 +58,67 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ onRefresh }) => {
       <GlassSheet
         isOpen={isTaskEditModalOpen}
         onClose={() => appActions.closeTaskEditModal()}
-        title={t('editTaskTitle')}
-        sub={t('editTaskSub')}
+        title={editingTask.isBoulder ? (lang === 'fa' ? 'تخته‌سنگ' : 'The Boulder') : (lang === 'fa' ? 'ویرایش کار' : 'Edit Task')}
         maxWidth="md"
       >
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3.5">
+          {/* Task Title Field */}
           <GlassField
-            label={t('taskTitleLabel')}
+            hint={lang === 'fa' ? 'عنوان کار…' : 'Task title...'}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onSubmitted={handleSave}
             autofocus
           />
 
-          {/* Reminder row */}
-          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
+          {/* Reminder Row Matching Screenshot 4 */}
+          <div
+            onClick={() => setShowTimePicker(true)}
+            className="flex items-center justify-between px-4 py-3 rounded-2xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer transition-all pressable"
+          >
             <div className="flex items-center gap-2.5">
               <Bell className="w-4 h-4 text-white/55" />
-              <span className="text-[13px] font-medium text-white/70">
-                {reminderTime !== null
-                  ? t('reminderTimeLabel', { time: fmtTime(reminderTime, lang) })
-                  : t('noReminder')}
+              <span className="text-[13.5px] font-medium text-white/70">
+                {hasReminder
+                  ? t('reminderTimeLabel', { time: fmtTime(reminderTime!, lang) })
+                  : (lang === 'fa' ? 'تنظیم یادآور' : 'Set Reminder')}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              {reminderTime !== null && (
-                <button
-                  type="button"
-                  onClick={() => setReminderTime(null)}
-                  className="text-[12px] text-red-400 font-semibold px-2 py-1 hover:underline pressable"
-                >
-                  {t('clearReminder')}
-                </button>
-              )}
+            {hasReminder ? (
               <button
                 type="button"
-                onClick={() => setShowTimePicker(true)}
-                className="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[12px] font-bold text-white transition-all pressable"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setReminderTime(null);
+                }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white/40 hover:text-red-400 pressable"
               >
-                {reminderTime !== null ? t('edit') : t('setReminderTime')}
+                <X className="w-4 h-4" />
               </button>
-            </div>
+            ) : (
+              <Chevron className="w-4.5 h-4.5 text-white/40" />
+            )}
           </div>
 
-          {/* Delete Action */}
-          <button
-            type="button"
-            onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center justify-center gap-2 py-3 rounded-2xl text-red-400/80 hover:text-red-400 bg-red-500/[0.06] hover:bg-red-500/[0.1] transition-all font-semibold text-[13px] pressable"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>{t('deleteTaskAction')}</span>
-          </button>
-
-          {/* Dialog Action Buttons */}
-          <div className="flex items-center gap-3 pt-2">
-            <Pill
-              label={t('cancel')}
-              style="quiet"
-              onTap={() => appActions.closeTaskEditModal()}
-            />
-            <Pill
-              label={t('save')}
-              style="ember"
-              onTap={handleSave}
-            />
+          {/* Bottom Action Buttons: Left "حذف", Right "ذخیره" Matching Screenshot 4 */}
+          <div className="grid grid-cols-3 gap-2.5 pt-2">
+            <div className="col-span-1">
+              <Pill
+                label={lang === 'fa' ? 'حذف' : 'Delete'}
+                style="quiet"
+                expanded
+                onTap={() => setShowDeleteConfirm(true)}
+              />
+            </div>
+            <div className="col-span-2">
+              <Pill
+                label={lang === 'fa' ? 'ذخیره' : 'Save'}
+                style="ember"
+                expanded
+                onTap={handleSave}
+              />
+            </div>
           </div>
         </div>
       </GlassSheet>
@@ -124,7 +126,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ onRefresh }) => {
       <TimePickerModal
         isOpen={showTimePicker}
         initialMinutes={reminderTime || 9 * 60}
-        title={t('setReminderTime')}
+        title={lang === 'fa' ? 'تنظیم یادآور' : 'Set Reminder'}
         onClose={() => setShowTimePicker(false)}
         onConfirm={(m) => {
           setReminderTime(m);
@@ -134,8 +136,12 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ onRefresh }) => {
 
       <ConfirmModal
         isOpen={showDeleteConfirm}
-        title={t('deleteTaskTitle')}
-        sub={t('deleteTaskSub')}
+        title={editingTask.isBoulder
+          ? (lang === 'fa' ? 'تخته‌سنگ حذف شود؟' : 'Delete The Boulder?')
+          : (lang === 'fa' ? 'این کار حذف شود؟' : 'Delete this task?')}
+        sub={editingTask.isBoulder
+          ? (lang === 'fa' ? 'کارِ بعدی، تخته‌سنگِ امروز می‌شود.' : 'The next task will become today\'s Boulder.')
+          : (lang === 'fa' ? 'از برنامهٔ امروز برداشته می‌شود.' : 'Will be removed from today\'s plan.')}
         yesLabel={t('delete')}
         noLabel={t('cancel')}
         emberYes={false}

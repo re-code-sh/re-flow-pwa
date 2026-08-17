@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BatteryCharging } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { GlassCard } from '../ui/GlassCard';
@@ -23,15 +23,15 @@ export const EnergyCard: React.FC = () => {
   };
 
   return (
-    <GlassCard radius="small" className="p-4 md:p-5 text-start">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <BatteryCharging className="w-4 h-4 text-[var(--accent)]" />
-          <span className="text-[13.5px] font-bold text-[#F5F5F7]">{t('energyRightNow')}</span>
-        </div>
+    <GlassCard radius="small" className="px-3.5 py-2.5 flex items-center justify-between text-start">
+      <div className="flex items-center gap-2">
+        <Zap className="w-4 h-4 text-[var(--accent)] shrink-0" />
+        <span className="text-[12.5px] font-semibold text-white/80 select-none">
+          {t('energyRightNow')}
+        </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="flex items-center gap-1.5">
         {levels.map((item) => {
           const isSelected = selectedLevel === item.level;
           return (
@@ -40,10 +40,10 @@ export const EnergyCard: React.FC = () => {
               type="button"
               onClick={() => handleSelect(item.level)}
               className={clsx(
-                'py-2.5 px-2 rounded-xl text-[12.5px] font-semibold transition-all duration-200 cursor-pointer pressable border',
+                'px-3 py-1.5 rounded-full text-[11.5px] font-semibold transition-all duration-200 cursor-pointer pressable border',
                 isSelected
-                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent-border)] shadow-[0_0_12px_var(--accent-glow)]'
-                  : 'bg-white/[0.04] text-white/60 border-white/[0.06] hover:bg-white/[0.08] hover:text-white'
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent-border)]'
+                  : 'bg-white/[0.04] text-white/60 border-white/[0.08] hover:bg-white/[0.08] hover:text-white'
               )}
             >
               {item.label}

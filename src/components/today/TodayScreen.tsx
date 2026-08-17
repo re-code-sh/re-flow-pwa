@@ -5,9 +5,9 @@ import {
   BarChart3,
   Edit3,
   Moon,
-  Sparkles,
   Layers,
-  Plus,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { DayPlan } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -20,7 +20,6 @@ import { TaskEditModal } from './TaskEditModal';
 import { MorningWizard } from '../wizard/MorningWizard';
 import { EveningModal } from './../evening/EveningModal';
 import { GlassCard } from '../ui/GlassCard';
-import { Pill } from '../ui/Pill';
 
 export const TodayScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -68,46 +67,57 @@ export const TodayScreen: React.FC = () => {
     );
   }
 
+  const isRtl = lang === 'fa';
+  const Chevron = isRtl ? ChevronLeft : ChevronRight;
+
   return (
-    <div className="flex-1 flex flex-col gap-6 py-6 pb-28 md:pb-12 text-start">
-      {/* Top Header Row */}
-      <header className="flex items-center justify-between pt-2">
+    <div className="flex-1 flex flex-col gap-5 py-4 pb-28 md:pb-12 text-start select-none">
+      {/* Top Header Row Matching Flutter _Header */}
+      <header className="flex items-end justify-between pt-2">
         <div className="flex flex-col">
-          <span className="text-[13px] font-semibold text-white/45">
+          <span className="text-[12.5px] font-medium text-white/38">
             {fmtTodayLabel(lang)}
           </span>
-          <h1 className="text-[26px] md:text-[28px] font-extrabold tracking-tight text-[#F5F5F7]">
-            {t('todayTitle')}
+          <h1 className="text-[25px] font-extrabold tracking-tight text-[#F5F5F7]">
+            {t('appTitle')}
           </h1>
         </div>
 
-        {/* Header Quick Action Icons */}
+        {/* 3 Icon Buttons: Settings, Stats, Edit (Matching _IconBtn) */}
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => appActions.openMorningWizard()}
+            onClick={() => {
+              if (plan.closed) {
+                appActions.showToast(
+                  lang === 'fa' ? 'امروز بسته شده — فردا از نو' : 'Today is closed — start fresh tomorrow'
+                );
+                return;
+              }
+              appActions.openMorningWizard();
+            }}
             title={t('planToday')}
-            className="w-10 h-10 rounded-2xl bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--accent-ink)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent)] transition-all pressable"
+            className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
           >
-            <Plus className="w-4.5 h-4.5" />
+            <Edit3 className="w-[19px] h-[19px]" />
           </button>
 
           <button
             type="button"
             onClick={() => appActions.openStatsModal()}
             title={t('statsMirrorTitle')}
-            className="w-10 h-10 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition-all pressable"
+            className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
           >
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="w-[19px] h-[19px]" />
           </button>
 
           <button
             type="button"
             onClick={() => appActions.openSettingsModal()}
             title={t('settingsTitle')}
-            className="w-10 h-10 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition-all pressable md:hidden"
+            className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
           >
-            <Sliders className="w-4 h-4" />
+            <Sliders className="w-[19px] h-[19px]" />
           </button>
         </div>
       </header>
@@ -138,18 +148,19 @@ export const TodayScreen: React.FC = () => {
       )}
 
       {/* The Boulder Hero Section */}
-      <section className="flex flex-col gap-2">
+      <section className="flex flex-col">
+        <span className="text-[11.5px] font-semibold text-white/38 px-1.5 mb-2.5 tracking-wider">
+          {t('boulderOfToday')}
+        </span>
         <BoulderCard plan={plan} onRefresh={loadData} />
       </section>
 
       {/* Secondary Tasks Section */}
       {plan.planned && plan.others.length > 0 && (
-        <section className="flex flex-col gap-3 pt-2">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[13px] font-bold text-white/55">
-              {t('otherTasksTitle')}
-            </span>
-          </div>
+        <section className="flex flex-col">
+          <span className="text-[11.5px] font-semibold text-white/38 px-1.5 mb-2.5 tracking-wider">
+            {t('otherTasksHeader', { count: plan.others.length })}
+          </span>
 
           <div className="flex flex-col gap-2.5">
             {plan.others.map((tItem, idx) => (
@@ -166,27 +177,34 @@ export const TodayScreen: React.FC = () => {
       )}
 
       {/* Energy Check-in */}
-      <section className="pt-2">
+      <section className="pt-1">
         <EnergyCard />
       </section>
 
-      {/* Evening Review CTA */}
+      {/* Evening Review CTA Matching Flutter _EveningCta */}
       {plan.planned && (
-        <section className="pt-2">
-          {plan.closed ? (
-            <GlassCard radius="small" className="p-4 text-center">
-              <span className="text-[13px] font-semibold text-white/50">
-                {t('dayClosed')} · {t('tomorrowFresh')}
-              </span>
-            </GlassCard>
-          ) : (
-            <Pill
-              label={t('closeDay')}
-              style="glass"
-              icon={<Moon className="w-4 h-4" />}
-              onTap={() => appActions.openEveningModal()}
-            />
-          )}
+        <section className="pt-1">
+          <GlassCard
+            radius="card"
+            className="px-4.5 py-4 flex items-center justify-between cursor-pointer"
+            onTap={() => appActions.openEveningModal()}
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-[14px] bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/60">
+                <Moon className="w-4.5 h-4.5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[15px] font-semibold text-white">
+                  {t('eveningReviewTitle')}
+                </span>
+                <span className="text-[11.5px] text-white/38">
+                  {t('eveningReviewSub')}
+                </span>
+              </div>
+            </div>
+
+            <Chevron className="w-5 h-5 text-white/38" />
+          </GlassCard>
         </section>
       )}
 
