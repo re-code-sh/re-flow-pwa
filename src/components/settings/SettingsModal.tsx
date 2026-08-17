@@ -135,17 +135,35 @@ export const SettingsModal: React.FC = () => {
   const handleSyncNow = async () => {
     setIsSyncing(true);
     try {
+      const activeKey = syncKey.trim() || 'default-user';
       const exported = await repo.exportJson();
-      const res = await fetch('/api/sync/push', {
+      const pushRes = await fetch('/api/sync/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          syncKey: syncKey || 'default-user',
+          syncKey: activeKey,
           backup: JSON.parse(exported),
         }),
       });
-      if (res.ok) {
+
+      if (pushRes.ok) {
+        // Also pull remote updates
+        const pullRes = await fetch(`/api/sync/pull?syncKey=${encodeURIComponent(activeKey)}`);
+        if (pullRes.ok) {
+          const remoteData = await pullRes.json();
+          if (remoteData.tables) {
+            await repo.importJson(
+              JSON.stringify({
+                app: 'taknoghte',
+                version: 2,
+                exported_at: Date.now(),
+                tables: remoteData.tables,
+              })
+            );
+          }
+        }
         appActions.showToast(t('syncSuccess'));
+        loadData();
       } else {
         appActions.showToast('همگام‌سازی انجام شد (لوکال)');
       }
