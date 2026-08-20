@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Plus } from 'lucide-react';
+import { CheckRounded, AddRounded } from '../ui/icons';
 import { DayPlan } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
@@ -116,32 +116,36 @@ export const EveningModal: React.FC<EveningModalProps> = ({ onRefresh }) => {
         </div>
 
         {/* Why-Chain if boulder not done, or celebration banner if boulder fell */}
-        {plan.boulderDone ? (
-          <div className="p-3.5 rounded-2xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center gap-2.5 text-[12.5px] text-[var(--accent)] font-semibold">
-            <Check className="w-4 h-4" />
-            <span>{t('toastRecordedWinningDay')}</span>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2 pt-1">
-            <div className="flex flex-col gap-0.5 px-1">
-              <span className="text-[12.5px] font-bold text-[#FF7A6E]">
-                {t('whyChainHeader')}
-              </span>
-              <span className="text-[11px] text-white/45">
-                {t('whyChainSub')}
-              </span>
-            </div>
+        <div className="p-3.5 rounded-2xl bg-[var(--accent-soft)] border border-[var(--accent-border)] flex items-center gap-2.5 text-[12.5px] text-[var(--accent)] font-semibold">
+          <CheckRounded style={{ fontSize: 18 }} />
+          <span>
+            {plan.boulderDone
+              ? (lang === 'fa' ? 'تخته‌سنگ افتاد' : 'Boulder Completed')
+              : (lang === 'fa' ? 'تخته‌سنگ هنوز نیفتاده' : 'Boulder Incomplete')}
+          </span>
+        </div>
 
-            {[0, 1, 2].slice(0, whyVisible).map((idx) => (
+        {/* 3-Level Why-Chain */}
+        {!plan.boulderDone && (
+          <div className="flex flex-col gap-2.5 pt-1">
+            <span className="text-[12.5px] font-semibold text-white/70">
+              {lang === 'fa' ? 'زنجیرهٔ ۳ چراییِ ریشه‌ای:' : '3-Level Root Why Chain:'}
+            </span>
+            {Array.from({ length: whyVisible }).map((_, idx) => (
               <GlassField
                 key={idx}
-                label={t(`whyFieldLabel_${idx + 1}`)}
-                hint={t(`whyFieldHint_${idx + 1}`)}
+                hint={
+                  idx === 0
+                    ? (lang === 'fa' ? 'چرا نیفتاد؟ (علت سطحی)' : 'Why not? (Surface)')
+                    : idx === 1
+                    ? (lang === 'fa' ? 'و چرا آن اتفاق افتاد؟ (مانع واقعی)' : 'And why did that happen? (Real barrier)')
+                    : (lang === 'fa' ? 'ریشهٔ اصلی چیست؟ (الگوی تکراری)' : 'What is the root cause? (Pattern)')
+                }
                 value={whys[idx]}
                 onChange={(e) => {
-                  const copy = [...whys];
-                  copy[idx] = e.target.value;
-                  setWhys(copy);
+                  const next = [...whys];
+                  next[idx] = e.target.value;
+                  setWhys(next);
                 }}
               />
             ))}
@@ -149,11 +153,11 @@ export const EveningModal: React.FC<EveningModalProps> = ({ onRefresh }) => {
             {whyVisible < 3 && (
               <button
                 type="button"
-                onClick={() => setWhyVisible((v) => v + 1)}
-                className="py-2 text-[11.5px] font-semibold text-[var(--accent)] flex items-center justify-center gap-1 hover:underline pressable"
+                onClick={() => setWhyVisible((v) => Math.min(3, v + 1))}
+                className="self-start text-[11.5px] text-[var(--accent)] font-bold flex items-center gap-1 hover:underline pt-0.5"
               >
-                <Plus className="w-3.5 h-3.5" />
-                <span>{t('addWhyLayer')}</span>
+                <AddRounded style={{ fontSize: 16 }} />
+                <span>{lang === 'fa' ? 'یک لایه عمیق‌تر (چرا؟)' : 'One layer deeper (Why?)'}</span>
               </button>
             )}
           </div>

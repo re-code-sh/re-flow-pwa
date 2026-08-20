@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Bell, Lock } from 'lucide-react';
+import {
+  PlayArrowRounded,
+  NotificationsActiveRounded,
+} from '../ui/icons';
 import { DayPlan, DayTask } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
@@ -69,51 +72,50 @@ export const OtherTaskRow: React.FC<OtherTaskRowProps> = ({
     <>
       <div
         className={clsx(
-          'transition-all duration-200 text-start',
+          'transition-all duration-200 text-start select-none',
           task.done ? 'opacity-55' : isLocked ? 'opacity-65' : 'opacity-100'
         )}
         onContextMenu={handleOpenEdit}
       >
         <GlassCard
           radius="small"
-          className="p-4 md:p-4.5 flex items-center gap-3.5 hover:border-white/15"
+          className="p-4 flex items-center justify-between gap-3.5 hover:border-white/15 cursor-pointer"
           onTap={handleOpenEdit}
         >
-          <CheckCircle on={task.done} onTap={handleToggle} />
+          <div className="flex items-center gap-3.5 min-w-0 flex-1">
+            <CheckCircle on={task.done} onTap={handleToggle} />
 
-          <div className="flex-1 min-w-0 flex flex-col gap-1">
-            <span
-              className={clsx(
-                'text-[15px] font-medium leading-normal transition-all truncate',
-                task.done ? 'line-through text-white/35' : 'text-[#F5F5F7]'
-              )}
-            >
-              {task.title}
-            </span>
+            <div className="flex-1 min-w-0 flex flex-col gap-1">
+              <span
+                className={clsx(
+                  'text-[15px] font-medium leading-normal transition-all truncate',
+                  task.done ? 'line-through text-white/35' : 'text-[#F5F5F7]'
+                )}
+              >
+                {task.title}
+              </span>
 
-            <div className="flex items-center gap-2 flex-wrap text-[11px]">
-              {task.reminderTime !== null && !task.done && (
-                <div className="inline-flex items-center gap-1 text-[var(--accent)] font-semibold">
-                  <Bell className="w-3 h-3" />
-                  <span>{fmtTime(task.reminderTime, lang)}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                {task.reminderTime !== null && !task.done && (
+                  <div className="inline-flex items-center gap-1 text-[var(--accent)] font-semibold">
+                    <NotificationsActiveRounded style={{ fontSize: 13 }} />
+                    <span>{fmtTime(task.reminderTime, lang)}</span>
+                  </div>
+                )}
 
-              {isPebble && (
-                <div className="inline-flex items-center gap-1.5">
-                  <span className="px-1.5 py-0.5 rounded bg-[var(--accent-soft)] text-[var(--accent)] font-bold text-[10px]">
-                    {t('pebbleTag')}
-                  </span>
-                  <span className="text-white/38 text-[10.5px]">{t('pebbleHelperText')}</span>
-                </div>
-              )}
+                {isPebble && (
+                  <div className="inline-flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-[var(--accent-soft)] text-[var(--accent)] font-bold text-[10px]">
+                      {t('pebbleTag')}
+                    </span>
+                    <span className="text-white/38 text-[10.5px]">{t('pebbleHelperText')}</span>
+                  </div>
+                )}
 
-              {isLocked && (
-                <div className="inline-flex items-center gap-1 text-white/38">
-                  <Lock className="w-3 h-3" />
-                  <span>{t('queuedBehindBoulder')}</span>
-                </div>
-              )}
+                {isLocked && (
+                  <span className="text-white/38 text-[11.5px]">{t('queuedBehindBoulder')}</span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -121,9 +123,9 @@ export const OtherTaskRow: React.FC<OtherTaskRowProps> = ({
             <button
               type="button"
               onClick={handleFocusClick}
-              className="px-2.5 py-1.5 rounded-xl bg-[var(--accent)]/12 hover:bg-[var(--accent)]/20 text-[var(--accent)] border border-white/[0.08] flex items-center gap-1 text-[11.5px] font-bold shrink-0 transition-all pressable"
+              className="px-2.5 py-1.5 rounded-[10px] bg-[var(--accent)]/12 hover:bg-[var(--accent)]/20 text-[var(--accent)] border border-white/[0.08] flex items-center gap-1 text-[11.5px] font-bold shrink-0 transition-all pressable"
             >
-              <Play className="w-3.5 h-3.5 fill-current" />
+              <PlayArrowRounded style={{ fontSize: 16 }} />
               <span>{t('focusButton')}</span>
             </button>
           )}

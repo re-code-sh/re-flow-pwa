@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Bell } from 'lucide-react';
+import {
+  NotificationsActiveRounded,
+  NotificationsNoneRounded,
+  CloseRounded,
+  ChevronLeftRounded,
+  ChevronRightRounded,
+} from '../ui/icons';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { fmtTime } from '../../core/jalali';
@@ -161,7 +167,11 @@ export const HabitEditorModal: React.FC<HabitEditorModalProps> = ({ onRefresh })
           {/* Reminder Time Picker Toggle */}
           <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Bell className="w-4.5 h-4.5 text-white/40" />
+              {reminderMinutes !== null ? (
+                <NotificationsActiveRounded style={{ fontSize: 19 }} className="text-[var(--accent)]" />
+              ) : (
+                <NotificationsNoneRounded style={{ fontSize: 19 }} className="text-white/40" />
+              )}
               <div className="flex flex-col">
                 <span className="text-[13px] font-semibold text-white">
                   {t('habitReminderLabel')}
@@ -191,7 +201,7 @@ export const HabitEditorModal: React.FC<HabitEditorModalProps> = ({ onRefresh })
                 onClick={() => setShowDeleteConfirm(true)}
                 className="w-12 h-[50px] rounded-[17px] bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center justify-center pressable shrink-0"
               >
-                <Trash2 className="w-4.5 h-4.5" />
+                <CloseRounded style={{ fontSize: 19 }} />
               </button>
             )}
 

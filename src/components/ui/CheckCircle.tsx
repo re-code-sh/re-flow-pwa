@@ -1,6 +1,6 @@
 import React from 'react';
 import { clsx } from 'clsx';
-import { Check } from 'lucide-react';
+import { CheckRounded } from './icons';
 
 export interface CheckCircleProps {
   on: boolean;
@@ -38,7 +38,7 @@ export const CheckCircle: React.FC<CheckCircleProps> = ({
             : 'border-[1.5px] border-white/[0.22] bg-transparent hover:border-white/40'
         )}
       >
-        {on && <Check className="w-4 h-4 text-[var(--accent-ink)] stroke-[2.5]" />}
+        {on && <CheckRounded style={{ fontSize: 17 }} className="text-[var(--accent-ink)]" />}
       </div>
     </button>
   );

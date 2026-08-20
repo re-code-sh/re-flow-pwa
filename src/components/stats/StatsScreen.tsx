@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Zap,
-  Sparkles,
-  Layers,
-} from 'lucide-react';
+  BoltRounded,
+  AutoAwesomeRounded,
+  LayersOutlined,
+  FilterListRounded,
+} from '../ui/icons';
 import { StatsData } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
@@ -67,7 +68,7 @@ export const StatsScreen: React.FC = () => {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center">
-                    <Layers className="w-4 h-4" />
+                    <LayersOutlined style={{ fontSize: 18 }} />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[13.5px] font-bold text-white">
@@ -188,7 +189,7 @@ export const StatsScreen: React.FC = () => {
             {/* Golden Hour Energy Insight */}
             {s.goldenHour !== null && (
               <GlassCard radius="small" className="p-3.5 flex items-center gap-3">
-                <Zap className="w-5 h-5 text-[var(--accent)] shrink-0" />
+                <BoltRounded style={{ fontSize: 20 }} className="text-[var(--accent)] shrink-0" />
                 <p className="text-[12px] text-white/70 leading-relaxed">
                   {t('goldenHourInsight', {
                     start: fmtNum(s.goldenHour, lang),

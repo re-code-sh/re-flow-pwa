@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Sunrise,
-  Moon,
-  Share2,
-  RotateCcw,
-  Languages,
-  Palette,
-  Cloud,
-  Check,
-  PlusCircle,
-  XCircle,
-  ChevronRight,
-  ChevronLeft,
-  RefreshCw,
-} from 'lucide-react';
+  WbTwilightRounded,
+  NightlightRound,
+  IosShareRounded,
+  SettingsBackupRestoreRounded,
+  LanguageRounded,
+  PaletteOutlined,
+  CloudOffRounded,
+  CheckRounded,
+  AddCircleOutlineRounded,
+  CloseRounded,
+  ChevronRightRounded,
+  ChevronLeftRounded,
+  RestartAltRounded,
+} from '../ui/icons';
 import { APP_ACCENTS } from '../../core/theme';
 import { AppAccentCode, AppLanguage } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -98,24 +98,16 @@ export const SettingsModal: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
-      try {
-        const parsed = JSON.parse(content);
-        if (!parsed || parsed.app !== 'taknoghte' || !parsed.tables) {
-          appActions.showToast(t('invalidBackupFile'));
-          return;
-        }
+      if (content) {
         setPendingRestoreJson(content);
         setShowRestoreConfirm(true);
-      } catch (_) {
-        appActions.showToast(t('invalidBackupFile'));
       }
     };
     reader.readAsText(file);
-    e.target.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleConfirmRestore = async () => {
@@ -175,7 +167,7 @@ export const SettingsModal: React.FC = () => {
   };
 
   const isRtl = lang === 'fa';
-  const Chevron = isRtl ? ChevronLeft : ChevronRight;
+  const Chevron = isRtl ? ChevronLeftRounded : ChevronRightRounded;
 
   return (
     <>
@@ -187,7 +179,7 @@ export const SettingsModal: React.FC = () => {
         maxWidth="lg"
       >
         <div className="flex flex-col gap-2.5">
-          {/* Morning Reminder Row */}
+          {/* Morning Reminder Row Matching Flutter _SettingsSheet */}
           <GlassCard
             radius="small"
             className="p-3.5 flex items-center justify-between cursor-pointer hover:border-white/15"
@@ -196,48 +188,53 @@ export const SettingsModal: React.FC = () => {
               else setActivePicker('morning');
             }}
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <Sunrise className="w-4.5 h-4.5 text-white/55 shrink-0" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/70 shrink-0">
+                <WbTwilightRounded style={{ fontSize: 18 }} />
+              </div>
               <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-white">
+                <span className="text-[14px] font-semibold text-white">
                   {t('morningReminder')}
                 </span>
-                <span className="text-[11px] text-white/38">
+                <span className="text-[11.5px] text-white/40">
                   {t('morningReminderSub')}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               <span
+                onClick={() => morning !== null && setActivePicker('morning')}
                 className={clsx(
-                  'text-[13px] font-bold tabular-nums',
-                  morning !== null ? 'text-[var(--accent)]' : 'text-white/38'
+                  'text-[13px] font-bold px-2 py-1 rounded-lg transition-all',
+                  morning !== null
+                    ? 'text-[var(--accent)] cursor-pointer bg-[var(--accent-soft)]'
+                    : 'text-white/30'
                 )}
               >
-                {morning !== null ? fmtTime(morning, lang) : t('off')}
+                {morning !== null ? fmtTime(morning, lang) : t('reminderOff')}
               </span>
+
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() =>
                   handleSaveReminder(
                     'rem_morning',
-                    morning === null ? 8 * 60 + 30 : null
-                  );
-                }}
-                className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                    morning !== null ? null : 8 * 60 + 30
+                  )
+                }
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/45 hover:text-white transition-colors"
               >
                 {morning === null ? (
-                  <PlusCircle className="w-4.5 h-4.5" />
+                  <AddCircleOutlineRounded style={{ fontSize: 18 }} />
                 ) : (
-                  <XCircle className="w-4.5 h-4.5 text-red-400/80 hover:text-red-400" />
+                  <CloseRounded style={{ fontSize: 18 }} />
                 )}
               </button>
             </div>
           </GlassCard>
 
-          {/* Evening Reminder Row */}
+          {/* Evening Reminder Row Matching Flutter _SettingsSheet */}
           <GlassCard
             radius="small"
             className="p-3.5 flex items-center justify-between cursor-pointer hover:border-white/15"
@@ -246,87 +243,81 @@ export const SettingsModal: React.FC = () => {
               else setActivePicker('evening');
             }}
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <Moon className="w-4.5 h-4.5 text-white/55 shrink-0" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/70 shrink-0">
+                <NightlightRound style={{ fontSize: 18 }} />
+              </div>
               <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-white">
+                <span className="text-[14px] font-semibold text-white">
                   {t('eveningReminder')}
                 </span>
-                <span className="text-[11px] text-white/38">
+                <span className="text-[11.5px] text-white/40">
                   {t('eveningReminderSub')}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               <span
+                onClick={() => evening !== null && setActivePicker('evening')}
                 className={clsx(
-                  'text-[13px] font-bold tabular-nums',
-                  evening !== null ? 'text-[var(--accent)]' : 'text-white/38'
+                  'text-[13px] font-bold px-2 py-1 rounded-lg transition-all',
+                  evening !== null
+                    ? 'text-[var(--accent)] cursor-pointer bg-[var(--accent-soft)]'
+                    : 'text-white/30'
                 )}
               >
-                {evening !== null ? fmtTime(evening, lang) : t('off')}
+                {evening !== null ? fmtTime(evening, lang) : t('reminderOff')}
               </span>
+
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() =>
                   handleSaveReminder(
                     'rem_evening',
-                    evening === null ? 21 * 60 : null
-                  );
-                }}
-                className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                    evening !== null ? null : 21 * 60
+                  )
+                }
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/45 hover:text-white transition-colors"
               >
                 {evening === null ? (
-                  <PlusCircle className="w-4.5 h-4.5" />
+                  <AddCircleOutlineRounded style={{ fontSize: 18 }} />
                 ) : (
-                  <XCircle className="w-4.5 h-4.5 text-red-400/80 hover:text-red-400" />
+                  <CloseRounded style={{ fontSize: 18 }} />
                 )}
               </button>
             </div>
           </GlassCard>
 
-          <div className="h-2" />
-
-          {/* Action Row: Export Backup */}
+          {/* Export JSON Backup */}
           <GlassCard
             radius="small"
             className="p-3.5 flex items-center justify-between cursor-pointer hover:border-white/15"
             onTap={handleExport}
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <Share2 className="w-4.5 h-4.5 text-white/55 shrink-0" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/70 shrink-0">
+                <IosShareRounded style={{ fontSize: 18 }} />
+              </div>
               <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-white">
-                  {t('exportBackup')}
+                <span className="text-[14px] font-semibold text-white">
+                  {t('exportBackupTitle')}
                 </span>
-                <span className="text-[11px] text-white/38">
+                <span className="text-[11.5px] text-white/40">
                   {t('exportBackupSub')}
                 </span>
               </div>
             </div>
-            <Chevron className="w-4 h-4 text-white/38 shrink-0" />
+
+            <Chevron style={{ fontSize: 19 }} className="text-white/35" />
           </GlassCard>
 
-          {/* Action Row: Restore Backup */}
+          {/* Restore JSON Backup */}
           <GlassCard
             radius="small"
             className="p-3.5 flex items-center justify-between cursor-pointer hover:border-white/15"
             onTap={() => fileInputRef.current?.click()}
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <RotateCcw className="w-4.5 h-4.5 text-white/55 shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-white">
-                  {t('restoreBackup')}
-                </span>
-                <span className="text-[11px] text-white/38">
-                  {t('restoreBackupSub')}
-                </span>
-              </div>
-            </div>
-            <Chevron className="w-4 h-4 text-white/38 shrink-0" />
             <input
               ref={fileInputRef}
               type="file"
@@ -334,106 +325,94 @@ export const SettingsModal: React.FC = () => {
               className="hidden"
               onChange={handleFileChange}
             />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/70 shrink-0">
+                <SettingsBackupRestoreRounded style={{ fontSize: 18 }} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[14px] font-semibold text-white">
+                  {t('restoreBackupTitle')}
+                </span>
+                <span className="text-[11.5px] text-white/40">
+                  {t('restoreBackupSub')}
+                </span>
+              </div>
+            </div>
+
+            <Chevron style={{ fontSize: 19 }} className="text-white/35" />
           </GlassCard>
 
-          {/* Action Row: App Language */}
+          {/* Language Toggle */}
           <GlassCard
             radius="small"
             className="p-3.5 flex items-center justify-between cursor-pointer hover:border-white/15"
             onTap={() => appActions.toggleLanguage()}
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <Languages className="w-4.5 h-4.5 text-white/55 shrink-0" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/70 shrink-0">
+                <LanguageRounded style={{ fontSize: 18 }} />
+              </div>
               <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-white">
-                  {t('appLanguage')}
+                <span className="text-[14px] font-semibold text-white">
+                  {t('languageLabel')}
                 </span>
-                <span className="text-[11px] text-white/38">
-                  {lang === 'fa' ? 'فارسی' : 'English'}
+                <span className="text-[11.5px] text-white/40">
+                  {lang === 'fa' ? 'فارسی (Persian)' : 'English'}
                 </span>
               </div>
             </div>
-            <span className="text-[12px] font-bold text-[var(--accent)] shrink-0">
+
+            <span className="text-[12px] font-bold px-2.5 py-1 rounded-lg bg-white/[0.06] text-white/80">
               {lang === 'fa' ? 'English' : 'فارسی'}
             </span>
           </GlassCard>
 
-          <div className="h-2" />
-
-          {/* Accent Color Swatch Picker (Matching Flutter _accentPicker) */}
+          {/* Accent Color Swatch Picker Matching Flutter _accentPicker */}
           <GlassCard radius="small" className="p-4 flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <Palette className="w-4.5 h-4.5 text-white/55 shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-white">
-                  {t('accentColorTitle')}
-                </span>
-                <span className="text-[11px] text-white/38">
-                  {t('accentColorSub')}
-                </span>
-              </div>
+            <div className="flex items-center gap-2.5 text-white">
+              <PaletteOutlined style={{ fontSize: 18 }} className="text-white/70" />
+              <span className="text-[14px] font-semibold">{t('accentThemeTitle')}</span>
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-1">
-              {(Object.keys(APP_ACCENTS) as AppAccentCode[]).map((code) => {
-                const acc = APP_ACCENTS[code];
-                const isSelected = accent === code;
+            <div className="grid grid-cols-6 gap-2 pt-1">
+              {Object.values(APP_ACCENTS).map((item) => {
+                const isSelected = accent === item.code;
                 return (
                   <button
-                    key={code}
+                    key={item.code}
                     type="button"
-                    onClick={() => appActions.setAccent(code)}
+                    onClick={() => appActions.setAccent(item.code)}
+                    title={item.nameFa}
+                    style={{ backgroundColor: item.color }}
                     className={clsx(
-                      'inline-flex items-center gap-2 px-3 py-2 rounded-[17px] transition-all pressable',
-                      isSelected
-                        ? 'border-[1.5px] shadow-[0_0_12px_var(--accent-glow)]'
-                        : 'bg-white/[0.04] border border-white/[0.10]'
+                      'h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer pressable relative shadow-md',
+                      isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-[#141418] scale-105' : 'opacity-80 hover:opacity-100'
                     )}
-                    style={{
-                      backgroundColor: isSelected
-                        ? `${acc.color}2e`
-                        : undefined,
-                      borderColor: isSelected ? acc.color : undefined,
-                    }}
                   >
-                    <div
-                      className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0"
-                      style={{
-                        backgroundColor: acc.color,
-                        boxShadow: isSelected
-                          ? `0 0 6px ${acc.color}80`
-                          : undefined,
-                      }}
-                    >
-                      {isSelected && (
-                        <Check className="w-2.5 h-2.5 text-black stroke-[3.5]" />
-                      )}
-                    </div>
-                    <span
-                      className={clsx(
-                        'text-[12px]',
-                        isSelected ? 'font-bold text-[#F5F5F7]' : 'font-medium text-white/55'
-                      )}
-                    >
-                      {lang === 'fa' ? acc.nameFa : acc.nameEn}
-                    </span>
+                    {isSelected && (
+                      <CheckRounded style={{ fontSize: 16 }} className="text-[#060608]" />
+                    )}
                   </button>
                 );
               })}
             </div>
           </GlassCard>
 
-          {/* Cloudflare D1 Cloud Sync */}
+          {/* Cloudflare D1 Cloud Sync Row */}
           <GlassCard radius="small" className="p-4 flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <Cloud className="w-4.5 h-4.5 text-white/55 shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-[13.5px] font-semibold text-white">
-                  {t('syncTitle')}
-                </span>
-                <span className="text-[11px] text-white/38">
-                  {t('syncSub')}
-                </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center text-[var(--accent)]">
+                  <CloudOffRounded style={{ fontSize: 16 }} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[13.5px] font-semibold text-white">
+                    {t('syncTitle')}
+                  </span>
+                  <span className="text-[11px] text-white/40">
+                    {t('syncSub')}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -446,15 +425,15 @@ export const SettingsModal: React.FC = () => {
                   repo.setSetting('sync_key', e.target.value);
                 }}
                 placeholder={t('syncPairKey')}
-                className="flex-1 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[12.5px] text-white focus:outline-none focus:border-[var(--accent)]"
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3.5 py-2 text-[12.5px] text-white focus:outline-none focus:border-[var(--accent)]"
               />
               <button
                 type="button"
                 onClick={handleSyncNow}
                 disabled={isSyncing}
-                className="px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-[12.5px] flex items-center gap-1.5 pressable shrink-0"
+                className="h-[38px] px-4 rounded-xl bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--accent-ink)] border border-[var(--accent-border)] text-[var(--accent)] text-[12px] font-bold flex items-center gap-1.5 transition-all pressable shrink-0 disabled:opacity-50"
               >
-                <RefreshCw className={clsx('w-3.5 h-3.5', isSyncing && 'animate-spin')} />
+                <RestartAltRounded style={{ fontSize: 16 }} className={clsx(isSyncing && 'animate-spin')} />
                 <span>{t('syncNow')}</span>
               </button>
             </div>
@@ -462,35 +441,41 @@ export const SettingsModal: React.FC = () => {
         </div>
       </GlassSheet>
 
-      {/* Time Picker Modal */}
+      {/* Time Pickers */}
       <TimePickerModal
-        isOpen={activePicker !== null}
-        initialMinutes={
-          activePicker === 'morning'
-            ? morning || 8 * 60 + 30
-            : evening || 21 * 60
-        }
-        title={
-          activePicker === 'morning'
-            ? t('morningReminder')
-            : t('eveningReminder')
-        }
+        isOpen={activePicker === 'morning'}
+        initialMinutes={morning || 8 * 60 + 30}
+        title={t('morningReminder')}
         onClose={() => setActivePicker(null)}
-        onConfirm={(min) => {
-          if (activePicker === 'morning') handleSaveReminder('rem_morning', min);
-          else if (activePicker === 'evening') handleSaveReminder('rem_evening', min);
+        onConfirm={(m) => {
+          handleSaveReminder('rem_morning', m);
+          setActivePicker(null);
         }}
       />
 
-      {/* Confirm Restore Sheet */}
+      <TimePickerModal
+        isOpen={activePicker === 'evening'}
+        initialMinutes={evening || 21 * 60}
+        title={t('eveningReminder')}
+        onClose={() => setActivePicker(null)}
+        onConfirm={(m) => {
+          handleSaveReminder('rem_evening', m);
+          setActivePicker(null);
+        }}
+      />
+
+      {/* Restore Confirmation Dialog */}
       <ConfirmModal
         isOpen={showRestoreConfirm}
-        title={t('confirmRestoreTitle')}
-        sub={t('confirmRestoreSub')}
-        yesLabel={t('replaceAction')}
+        title={t('restoreConfirmTitle')}
+        sub={t('restoreConfirmSub')}
+        yesLabel={t('restoreAction')}
         noLabel={t('cancel')}
-        emberYes={false}
-        onClose={() => setShowRestoreConfirm(false)}
+        emberYes={true}
+        onClose={() => {
+          setShowRestoreConfirm(false);
+          setPendingRestoreJson(null);
+        }}
         onConfirm={handleConfirmRestore}
       />
     </>

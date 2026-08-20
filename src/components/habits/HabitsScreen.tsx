@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Repeat,
-  Bell,
-  AlertCircle,
-} from 'lucide-react';
+  RepeatRounded,
+  NotificationsActiveRounded,
+  BatteryAlertRounded,
+} from '../ui/icons';
 import { Habit } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
@@ -88,7 +88,7 @@ export const HabitsScreen: React.FC = () => {
         <div className="pt-2">
           <GlassCard radius="small" className="p-8 flex flex-col items-center justify-center text-center">
             <div className="w-[52px] h-[52px] rounded-full bg-[var(--accent)]/[0.12] border border-[var(--accent)]/[0.30] flex items-center justify-center text-[var(--accent)] mb-4">
-              <Repeat className="w-[26px] h-[26px]" />
+              <RepeatRounded style={{ fontSize: 28 }} />
             </div>
             <h3 className="text-[16px] font-bold text-white mb-1.5">
               {t('emptyHabitsTitle')}
@@ -138,7 +138,7 @@ export const HabitsScreen: React.FC = () => {
 
                         {h.reminder_minutes !== null && (
                           <div className="flex items-center gap-1 text-[11px] text-[var(--accent)] shrink-0">
-                            <Bell className="w-3 h-3" />
+                            <NotificationsActiveRounded style={{ fontSize: 13 }} />
                             <span>{fmtTime(h.reminder_minutes, lang)}</span>
                           </div>
                         )}
@@ -154,7 +154,7 @@ export const HabitsScreen: React.FC = () => {
                       {/* Recovery Note badge if any */}
                       {recoveryNote && (
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-orange-500/[0.1] border border-orange-500/20 text-orange-300 text-[11px] font-semibold mt-1">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <BatteryAlertRounded style={{ fontSize: 14 }} className="shrink-0" />
                           <span>{recoveryNote}</span>
                         </div>
                       )}

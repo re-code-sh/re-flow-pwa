@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Star,
-  Trash2,
-  Plus,
-} from 'lucide-react';
+  StarRounded,
+  StarOutlineRounded,
+  DeleteOutlineRounded,
+  AddRounded,
+} from '../ui/icons';
 import { BacklogItem } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo, maxTasksForActiveDays } from '../../db/repo';
@@ -219,9 +220,11 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
                           : 'text-white/20 hover:text-white/50'
                       )}
                     >
-                      <Star
-                        className={clsx('w-4 h-4', isBoulder && 'fill-current')}
-                      />
+                      {isBoulder ? (
+                        <StarRounded style={{ fontSize: 18 }} />
+                      ) : (
+                        <StarOutlineRounded style={{ fontSize: 18 }} />
+                      )}
                     </button>
 
                     <span
@@ -239,7 +242,7 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
                     onClick={(e) => handleDeleteBacklog(item.id, e)}
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white/25 hover:text-red-400 transition-colors shrink-0"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <DeleteOutlineRounded style={{ fontSize: 18 }} />
                   </button>
                 </GlassCard>
               );
@@ -263,7 +266,7 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
             disabled={!newTaskTitle.trim()}
             className="w-12 h-12 rounded-[17px] bg-white/[0.06] hover:bg-[var(--accent)] text-white hover:text-[var(--accent-ink)] border border-white/[0.1] flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none pressable shrink-0"
           >
-            <Plus className="w-5 h-5" />
+            <AddRounded style={{ fontSize: 22 }} />
           </button>
         </div>
 

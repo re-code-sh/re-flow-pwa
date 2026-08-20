@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Flame, Play, Bell, Check, Undo2 } from 'lucide-react';
+import {
+  LocalFireDepartmentRounded,
+  PlayArrowRounded,
+  NotificationsActiveRounded,
+  CheckRounded,
+  UndoRounded,
+} from '../ui/icons';
 import confetti from 'canvas-confetti';
 import { DayPlan } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -19,14 +25,13 @@ export interface BoulderCardProps {
 export const BoulderCard: React.FC<BoulderCardProps> = ({ plan, onRefresh }) => {
   const { t } = useTranslation();
   const { lang } = useAppStore();
-  const [isPressing, setIsPressing] = useState(false);
 
   if (!plan.planned) {
     return (
       <GlassCard radius="card" emberRing className="p-6 md:p-7">
         <div className="flex flex-col items-start gap-4">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
-            <Flame className="w-3.5 h-3.5 fill-current" />
+            <LocalFireDepartmentRounded style={{ fontSize: 13 }} />
             <span>{t('oneHotSpot')}</span>
           </div>
 
@@ -107,13 +112,13 @@ export const BoulderCard: React.FC<BoulderCardProps> = ({ plan, onRefresh }) => 
           {/* Header Tag & Reminder */}
           <div className="flex items-center gap-2 flex-wrap">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
-              <Flame className="w-3.5 h-3.5 fill-current" />
+              <LocalFireDepartmentRounded style={{ fontSize: 13 }} />
               <span>{t('boulderTitle')}</span>
             </div>
 
             {boulder.reminderTime !== null && isAlive && (
               <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-[11px] font-semibold">
-                <Bell className="w-3 h-3" />
+                <NotificationsActiveRounded style={{ fontSize: 12 }} />
                 <span>{fmtTime(boulder.reminderTime, lang)}</span>
               </div>
             )}
@@ -153,20 +158,20 @@ export const BoulderCard: React.FC<BoulderCardProps> = ({ plan, onRefresh }) => 
                 <Pill
                   label={t('startFocus')}
                   style="ember"
-                  icon={<Play className="w-4 h-4 fill-current" />}
+                  icon={<PlayArrowRounded style={{ fontSize: 18 }} />}
                   onTap={() => handleStartFocus()}
                 />
               </div>
             )}
             <div className="flex-1">
               <Pill
-                label={boulder.done ? t('undo') : t('markDone')}
+                label={boulder.done ? t('undo') : (lang === 'fa' ? 'علامتِ انجام' : 'Mark Done')}
                 style={boulder.done ? 'quiet' : 'glass'}
                 icon={
                   boulder.done ? (
-                    <Undo2 className="w-4 h-4" />
+                    <UndoRounded style={{ fontSize: 17 }} />
                   ) : (
-                    <Check className="w-4 h-4" />
+                    <CheckRounded style={{ fontSize: 17 }} />
                   )
                 }
                 onTap={handleToggle as any}

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import {
+  NotificationsActiveRounded,
+  NotificationsNoneRounded,
+  CloseRounded,
+  ChevronLeftRounded,
+  ChevronRightRounded,
+} from '../ui/icons';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { todayKey, fmtTime } from '../../core/jalali';
@@ -32,7 +38,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ onRefresh }) => {
   if (!isTaskEditModalOpen || !editingTask) return null;
 
   const isRtl = lang === 'fa';
-  const Chevron = isRtl ? ChevronLeft : ChevronRight;
+  const Chevron = isRtl ? ChevronLeftRounded : ChevronRightRounded;
   const hasReminder = reminderTime !== null;
 
   const handleSave = async () => {
@@ -77,7 +83,11 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ onRefresh }) => {
             className="flex items-center justify-between px-4 py-3 rounded-2xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] cursor-pointer transition-all pressable"
           >
             <div className="flex items-center gap-2.5">
-              <Bell className="w-4 h-4 text-white/55" />
+              {hasReminder ? (
+                <NotificationsActiveRounded style={{ fontSize: 19 }} className="text-[var(--accent)]" />
+              ) : (
+                <NotificationsNoneRounded style={{ fontSize: 19 }} className="text-white/55" />
+              )}
               <span className="text-[13.5px] font-medium text-white/70">
                 {hasReminder
                   ? t('reminderTimeLabel', { time: fmtTime(reminderTime!, lang) })
@@ -94,10 +104,10 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ onRefresh }) => {
                 }}
                 className="w-7 h-7 rounded-lg flex items-center justify-center text-white/40 hover:text-red-400 pressable"
               >
-                <X className="w-4 h-4" />
+                <CloseRounded style={{ fontSize: 17 }} />
               </button>
             ) : (
-              <Chevron className="w-4.5 h-4.5 text-white/40" />
+              <Chevron style={{ fontSize: 19 }} className="text-white/40" />
             )}
           </div>
 

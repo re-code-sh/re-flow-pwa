@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, Check } from 'lucide-react';
+import { BatteryAlertRounded, CheckRounded } from '../ui/icons';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { todayKey, fmtNum } from '../../core/jalali';
@@ -92,7 +92,7 @@ export const FrictionModal: React.FC<FrictionModalProps> = ({ onRefresh }) => {
         {frictionHabit.bad_cost && (
           <div className="p-4 rounded-[20px] bg-red-500/[0.08] border border-red-500/20 flex flex-col gap-1.5">
             <div className="flex items-center gap-2 text-red-400 text-[12.5px] font-bold">
-              <ShieldAlert className="w-4 h-4 shrink-0" />
+              <BatteryAlertRounded style={{ fontSize: 18 }} className="shrink-0" />
               <span>{t('longTermCostTitle', { title: frictionHabit.title })}</span>
             </div>
             <p className="text-[13.5px] text-white/85 font-medium leading-relaxed">
@@ -118,7 +118,7 @@ export const FrictionModal: React.FC<FrictionModalProps> = ({ onRefresh }) => {
           <Pill
             label={t('resistedAction')}
             style="ember"
-            icon={<Check className="w-4 h-4 stroke-[2.5]" />}
+            icon={<CheckRounded style={{ fontSize: 18 }} />}
             onTap={handleResisted}
           />
           <Pill

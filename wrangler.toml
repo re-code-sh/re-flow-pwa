@@ -2,6 +2,7 @@ name = "flow"
 main = "worker/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+account_id = "1eea836cff0e928871149d3f870bc498"
 
 [assets]
 directory = "./dist"
@@ -10,4 +11,4 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "flow-db"
-database_id = "1b45fafe-4e2c-463a-b1c7-74035400e188"
+database_id = "f604da49-12a9-472b-bf1c-31a8b0f0a7c8"

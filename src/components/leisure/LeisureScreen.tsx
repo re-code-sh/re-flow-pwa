@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Flower2,
-  Clock,
-  Edit2,
-  Lightbulb,
-} from 'lucide-react';
+  SpaRounded,
+  TimerOutlined,
+  EditOutlined,
+  LightbulbOutlined,
+} from '../ui/icons';
 import { FunConfig, DayPlan } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
@@ -82,7 +82,7 @@ export const LeisureScreen: React.FC = () => {
           <div className="flex items-start gap-3.5">
             {/* Flower / Spa Circle Icon */}
             <div className="w-[46px] h-[46px] rounded-full bg-[var(--accent)]/[0.14] border border-[var(--accent)]/[0.35] flex items-center justify-center text-[var(--accent)] shrink-0">
-              <Flower2 className="w-[24px] h-[24px]" />
+              <SpaRounded style={{ fontSize: 26 }} />
             </div>
 
             <div className="flex-1 min-w-0 flex flex-col gap-1">
@@ -92,7 +92,7 @@ export const LeisureScreen: React.FC = () => {
 
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="inline-flex items-center gap-1 text-[13px] font-semibold text-white/60">
-                  <Clock className="w-3.5 h-3.5 text-white/40" />
+                  <TimerOutlined style={{ fontSize: 15 }} className="text-white/40" />
                   <span className="tabular-nums">
                     {fmtNum(fun.minutes, lang)} {t('minutes')}
                   </span>
@@ -111,7 +111,7 @@ export const LeisureScreen: React.FC = () => {
               onClick={() => setShowConfig(true)}
               className="w-8 h-8 rounded-lg flex items-center justify-center text-white/38 hover:text-white transition-colors"
             >
-              <Edit2 className="w-4 h-4" />
+              <EditOutlined style={{ fontSize: 20 }} />
             </button>
           </div>
 
@@ -131,7 +131,7 @@ export const LeisureScreen: React.FC = () => {
       <section className="pt-1">
         <GlassCard radius="small" className="p-5 flex flex-col gap-2">
           <div className="flex items-center gap-2 text-white">
-            <Lightbulb className="w-4.5 h-4.5 text-[var(--accent)] shrink-0" />
+            <LightbulbOutlined style={{ fontSize: 20 }} className="text-[var(--accent)] shrink-0" />
             <span className="text-[14px] font-bold">
               {t('parkinsonTitle')}
             </span>

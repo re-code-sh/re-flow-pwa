@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Flame,
-  RotateCcw,
-  Bell,
-  Sparkles,
-} from 'lucide-react';
+  LocalFireDepartmentRounded,
+  RestartAltRounded,
+  NotificationsActiveRounded,
+} from '../ui/icons';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { fmtTime, fmtNum } from '../../core/jalali';
@@ -36,7 +35,7 @@ export const OnboardingScreen: React.FC = () => {
     {
       visual: (
         <div className="w-24 h-24 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/[0.08] flex items-center justify-center text-[var(--accent)] shadow-2xl">
-          <Flame className="w-11 h-11 fill-current" />
+          <LocalFireDepartmentRounded style={{ fontSize: 44 }} />
         </div>
       ),
       title: t('onboardingSlide2Title'),
@@ -45,7 +44,7 @@ export const OnboardingScreen: React.FC = () => {
     {
       visual: (
         <div className="w-24 h-24 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/[0.08] flex items-center justify-center text-[var(--accent)] shadow-2xl">
-          <RotateCcw className="w-11 h-11" />
+          <RestartAltRounded style={{ fontSize: 44 }} />
         </div>
       ),
       title: t('onboardingSlide3Title'),
@@ -54,7 +53,7 @@ export const OnboardingScreen: React.FC = () => {
     {
       visual: (
         <div className="w-24 h-24 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/[0.08] flex items-center justify-center text-[var(--accent)] shadow-2xl">
-          <Bell className="w-11 h-11" />
+          <NotificationsActiveRounded style={{ fontSize: 44 }} />
         </div>
       ),
       title: t('onboardingSlide4Title'),

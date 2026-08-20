@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  BrainCircuit,
-  Search,
-  Plus,
-  Edit2,
-  Trash2,
-  ArrowUpCircle,
-} from 'lucide-react';
+  PsychologyOutlined,
+  SearchRounded,
+  AddRounded,
+  EditRounded,
+  DeleteOutlineRounded,
+  ArrowCircleUpRounded,
+} from '../ui/icons';
 import { Thought, ThoughtCategory } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
@@ -94,7 +94,7 @@ export const VaultScreen: React.FC = () => {
   });
 
   return (
-    <div className="flex-1 flex flex-col gap-6 py-6 pb-28 md:pb-12 text-start">
+    <div className="flex-1 flex flex-col gap-6 py-6 pb-28 md:pb-12 text-start select-none">
       {/* Header */}
       <header className="flex flex-col pt-2">
         <h1 className="text-[26px] md:text-[28px] font-extrabold tracking-tight text-[#F5F5F7]">
@@ -216,14 +216,14 @@ export const VaultScreen: React.FC = () => {
                     }}
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <EditRounded style={{ fontSize: 18 }} />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDelete(th)}
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-red-400"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <DeleteOutlineRounded style={{ fontSize: 18 }} />
                   </button>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export const VaultScreen: React.FC = () => {
                 onClick={() => handlePromote(th)}
                 className="w-full py-2.5 rounded-xl bg-[var(--accent)]/[0.08] hover:bg-[var(--accent)]/[0.15] border border-[var(--accent-border)] text-[var(--accent)] text-[12.5px] font-bold flex items-center justify-center gap-1.5 transition-all pressable"
               >
-                <ArrowUpCircle className="w-4 h-4" />
+                <ArrowCircleUpRounded style={{ fontSize: 18 }} />
                 <span>{t('promoteToTaskAction')}</span>
               </button>
             </GlassCard>

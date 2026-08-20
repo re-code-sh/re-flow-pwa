@@ -58,3 +58,14 @@ export class AppDatabase extends Dexie {
 }
 
 export const db = new AppDatabase();
+
+// Request permanent persistent storage on browser / PWA to guarantee data is never evicted
+if (typeof window !== 'undefined' && 'storage' in navigator && 'persist' in navigator.storage) {
+  navigator.storage.persist().then((isPersisted) => {
+    if (isPersisted) {
+      console.log('IndexedDB persistent storage successfully granted.');
+    }
+  }).catch((err) => {
+    console.warn('Persistent storage request:', err);
+  });
+}

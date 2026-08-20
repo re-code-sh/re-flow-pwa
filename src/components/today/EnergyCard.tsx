@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Zap } from 'lucide-react';
+import { BoltRounded } from '../ui/icons';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { GlassCard } from '../ui/GlassCard';
@@ -25,7 +25,7 @@ export const EnergyCard: React.FC = () => {
   return (
     <GlassCard radius="small" className="px-3.5 py-2.5 flex items-center justify-between text-start">
       <div className="flex items-center gap-2">
-        <Zap className="w-4 h-4 text-[var(--accent)] shrink-0" />
+        <BoltRounded style={{ fontSize: 18 }} className="text-[var(--accent)] shrink-0" />
         <span className="text-[12.5px] font-semibold text-white/80 select-none">
           {t('energyRightNow')}
         </span>

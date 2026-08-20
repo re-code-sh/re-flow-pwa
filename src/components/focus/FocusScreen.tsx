@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Play,
-  Pause,
-  X,
-  Plus,
-  BrainCircuit,
-  Flame,
-  Check,
-  RotateCcw,
-  Sparkles,
-  ChevronDown,
-} from 'lucide-react';
+  PlayArrowRounded,
+  PauseRounded,
+  CloseRounded,
+  AddRounded,
+  PsychologyOutlined,
+  LocalFireDepartmentRounded,
+  CheckCircleRounded,
+  PauseCircleOutlineRounded,
+  TimerOutlined,
+  MoreTimeRounded,
+} from '../ui/icons';
 import confetti from 'canvas-confetti';
 import { FocusViewState, focusTimer } from '../../state/focusTimer';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -126,14 +126,14 @@ export const FocusScreen: React.FC = () => {
       {/* Background Radial Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-[var(--accent)]/10 blur-[130px] pointer-events-none" />
 
-      {/* Top Header */}
+      {/* Top Bar Controls */}
       <div className="flex items-center justify-between z-10">
         <button
           type="button"
           onClick={() => setShowEarlyEnd(true)}
           className="w-11 h-11 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition-all pressable"
         >
-          <X className="w-5 h-5" />
+          <CloseRounded style={{ fontSize: 20 }} />
         </button>
 
         <span className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[12px] font-bold text-white/70">
@@ -146,7 +146,7 @@ export const FocusScreen: React.FC = () => {
           title={t('intrudingThoughtTitle')}
           className="w-11 h-11 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition-all pressable"
         >
-          <BrainCircuit className="w-5 h-5" />
+          <PsychologyOutlined style={{ fontSize: 20 }} />
         </button>
       </div>
 
@@ -204,12 +204,12 @@ export const FocusScreen: React.FC = () => {
         >
           {focus.paused ? (
             <>
-              <Play className="w-5 h-5 fill-current" />
+              <PlayArrowRounded style={{ fontSize: 22 }} />
               <span>ادامه</span>
             </>
           ) : (
             <>
-              <Pause className="w-5 h-5 fill-current" />
+              <PauseRounded style={{ fontSize: 22 }} />
               <span>توقف</span>
             </>
           )}
@@ -323,7 +323,7 @@ export const FocusScreen: React.FC = () => {
                 <Pill
                   label={t('yesDone')}
                   style="ember"
-                  icon={<Check className="w-4 h-4 stroke-[2.5]" />}
+                  icon={<CheckCircleRounded style={{ fontSize: 18 }} />}
                   onTap={() => handleConfirmEarlyEnd(true)}
                 />
               )}
@@ -366,13 +366,13 @@ export const FocusScreen: React.FC = () => {
                   <Pill
                     label={t('yesDone')}
                     style="ember"
-                    icon={<Check className="w-4 h-4 stroke-[2.5]" />}
+                    icon={<CheckCircleRounded style={{ fontSize: 18 }} />}
                     onTap={handleTimeUpDone}
                   />
                   <Pill
                     label={t('addTenMinFocus')}
                     style="glass"
-                    icon={<Plus className="w-4 h-4" />}
+                    icon={<MoreTimeRounded style={{ fontSize: 18 }} />}
                     onTap={handleTimeUpExtend}
                   />
                   <Pill
