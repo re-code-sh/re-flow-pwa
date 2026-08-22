@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { repo } from '../../db/repo';
 import { fmtNum } from '../../core/jalali';
-import { useAppStore } from '../../state/useAppStore';
+import { useAppStore, appActions } from '../../state/useAppStore';
 import { GlassField } from '../ui/GlassField';
 import { Pill } from '../ui/Pill';
 import { GlassSheet } from '../ui/GlassSheet';
@@ -36,10 +36,15 @@ export const LeisureModal: React.FC<LeisureModalProps> = ({
 
   const handleSave = async () => {
     const trimmed = title.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      appActions.showToast(
+        lang === 'fa' ? 'عنوان تفریح را بنویسید' : 'Please enter the activity title'
+      );
+      return;
+    }
     await repo.setFunConfig({
       title: trimmed,
-      minutes,
+      minutes: Math.max(5, Math.min(240, minutes)),
     });
     onClose();
     onRefresh();
@@ -49,14 +54,22 @@ export const LeisureModal: React.FC<LeisureModalProps> = ({
     <GlassSheet
       isOpen={isOpen}
       onClose={onClose}
-      title={t('configFunTitle')}
-      sub={t('configFunPrompt')}
+      title={lang === 'fa' ? 'تنظیم تفریح' : 'Configure Leisure'}
+      sub={
+        lang === 'fa'
+          ? 'تفریح، باقی‌ماندهٔ روز نیست؛ بخشِ رسمی برنامه است. زمان‌دار و بی‌گناه.'
+          : 'Play is not leftovers; it is an official part of the plan. Timed and guilt-free.'
+      }
       maxWidth="md"
     >
       <div className="flex flex-col gap-4">
         <GlassField
-          label={t('activityTitle')}
-          hint={t('configFunHint')}
+          label={lang === 'fa' ? 'عنوان فعالیت' : 'Activity Title'}
+          hint={
+            lang === 'fa'
+              ? 'مثلاً: گیم، مطالعه آزاد، فیلم، پیاده‌روی'
+              : 'e.g., Gaming, Reading, Movies, Walk'
+          }
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           autofocus
@@ -65,9 +78,11 @@ export const LeisureModal: React.FC<LeisureModalProps> = ({
         {/* Duration selector */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between text-[13px] font-semibold">
-            <span className="text-white/60">{t('durationMinutesLabel')}</span>
+            <span className="text-white/60">
+              {lang === 'fa' ? 'مدت زمان (دقیقه)' : 'Duration (Minutes)'}
+            </span>
             <span className="text-[var(--accent)] font-bold">
-              {fmtNum(minutes, lang)} دقیقه
+              {fmtNum(minutes, lang)} {lang === 'fa' ? 'دقیقه' : 'min'}
             </span>
           </div>
 
@@ -79,7 +94,7 @@ export const LeisureModal: React.FC<LeisureModalProps> = ({
                 onClick={() => setMinutes(m)}
                 className={`py-2 rounded-xl text-[13px] font-bold border transition-all ${
                   minutes === m
-                    ? 'bg-[var(--accent)] text-[var(--accent-ink)] border-[var(--accent)]'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent-border)]'
                     : 'bg-white/[0.04] text-white/60 border-white/[0.06] hover:bg-white/[0.08]'
                 }`}
               >

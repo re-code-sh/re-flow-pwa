@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   RepeatRounded,
   NotificationsActiveRounded,
-  BatteryAlertRounded,
+  BlockRounded,
 } from '../ui/icons';
 import { Habit } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -55,10 +55,14 @@ export const HabitsScreen: React.FC = () => {
     const doneTwoDaysAgo = h.logs?.[twoDaysAgo] === 'done';
 
     if (!doneYesterday && !doneTwoDaysAgo && h.created <= twoDaysAgo) {
-      return t('twoDaysMissedNote');
+      return lang === 'fa'
+        ? 'دو روز شد — فقط نسخهٔ ۲ دقیقه‌ای را بزن'
+        : 'Two days missed — just do the 2-minute version';
     }
     if (!doneYesterday && h.created <= yesterday) {
-      return t('missedYesterdayNote');
+      return lang === 'fa'
+        ? 'دیروز جا ماند — امروز برگرد، زنجیره سالم می‌ماند'
+        : 'Missed yesterday — return today, the chain stays healthy';
     }
     return null;
   };
@@ -129,7 +133,7 @@ export const HabitsScreen: React.FC = () => {
                       <div className="flex items-center justify-between gap-2">
                         <span
                           className={clsx(
-                            'text-[15px] font-bold truncate',
+                            'text-[15.5px] font-semibold truncate',
                             isDone ? 'line-through text-white/40' : 'text-white'
                           )}
                         >
@@ -147,16 +151,15 @@ export const HabitsScreen: React.FC = () => {
                       {/* Anchor Cue */}
                       {h.cue && (
                         <span className="text-[12px] text-white/45 truncate">
-                          {t('afterCuePrefix')} {h.cue}
+                          {lang === 'fa' ? `بعد از ${h.cue}` : `after ${h.cue}`}
                         </span>
                       )}
 
                       {/* Recovery Note badge if any */}
                       {recoveryNote && (
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-orange-500/[0.1] border border-orange-500/20 text-orange-300 text-[11px] font-semibold mt-1">
-                          <BatteryAlertRounded style={{ fontSize: 14 }} className="shrink-0" />
-                          <span>{recoveryNote}</span>
-                        </div>
+                        <span className="text-[11px] font-semibold text-[var(--accent)] mt-0.5">
+                          {recoveryNote}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -167,7 +170,7 @@ export const HabitsScreen: React.FC = () => {
         </section>
       )}
 
-      {/* Bad Habits Section */}
+      {/* Bad Habits Section Matching Flutter _BadHabitCard */}
       {badHabits.length > 0 && (
         <section className="flex flex-col gap-2.5 pt-2">
           <span className="text-[11.5px] font-semibold text-red-400/80 px-1.5 tracking-wider">
@@ -188,33 +191,35 @@ export const HabitsScreen: React.FC = () => {
                   onTap={() => appActions.openHabitEditor(h)}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0 flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 text-[10.5px] font-bold">
-                          {t('badHabitTag')}
-                        </span>
-                        <span className="text-[15px] font-bold text-white truncate">
-                          {h.title}
-                        </span>
+                    <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                      {/* Red Block Icon Container */}
+                      <div className="w-[30px] h-[30px] rounded-full bg-red-500/15 border border-red-500/35 flex items-center justify-center text-red-400 shrink-0">
+                        <BlockRounded style={{ fontSize: 16 }} />
                       </div>
 
-                      {h.cue && (
-                        <span className="text-[12px] text-white/45 truncate">
-                          {t('afterCuePrefix')} {h.cue}
+                      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                        <span className="text-[15.5px] font-semibold text-white truncate">
+                          {h.title}
                         </span>
-                      )}
 
-                      {isResisted && (
-                        <span className="text-[11.5px] font-bold text-[var(--accent)] mt-0.5">
-                          {t('resistedTodayText')}
-                        </span>
-                      )}
+                        {h.cue && (
+                          <span className="text-[12px] text-white/45 truncate">
+                            {lang === 'fa' ? `محرک: ${h.cue}` : `Trigger: ${h.cue}`}
+                          </span>
+                        )}
 
-                      {isSlip && (
-                        <span className="text-[11.5px] font-bold text-red-400 mt-0.5">
-                          {t('slipLoggedText')}
-                        </span>
-                      )}
+                        {isResisted && (
+                          <span className="text-[11px] font-semibold text-[var(--accent)] mt-0.5">
+                            {lang === 'fa' ? 'امروز مقاومت کردی ✓' : 'Resisted today ✓'}
+                          </span>
+                        )}
+
+                        {isSlip && (
+                          <span className="text-[11px] font-semibold text-red-400 mt-0.5">
+                            {lang === 'fa' ? 'لغزش ثبت شد — فردا از نو' : 'Slip logged — fresh start tomorrow'}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {!isResisted && !isSlip && (
@@ -224,7 +229,7 @@ export const HabitsScreen: React.FC = () => {
                           e.stopPropagation();
                           appActions.openFrictionModal(h);
                         }}
-                        className="px-3.5 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-[12.5px] font-bold transition-all pressable shrink-0"
+                        className="px-3 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-[12px] font-bold transition-all pressable shrink-0"
                       >
                         {t('temptedAction')}
                       </button>

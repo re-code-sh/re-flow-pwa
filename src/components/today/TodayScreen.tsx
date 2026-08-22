@@ -83,8 +83,26 @@ export const TodayScreen: React.FC = () => {
           </h1>
         </div>
 
-        {/* 3 Icon Buttons: Settings, Stats, Edit (Matching _IconBtn) */}
+        {/* 3 Icon Buttons in exact Flutter order: Tune (Settings), BarChart (Stats), Edit (Plan) */}
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => appActions.openSettingsModal()}
+            title={t('settingsTitle')}
+            className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
+          >
+            <TuneRounded style={{ fontSize: 19 }} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => appActions.openStatsModal()}
+            title={t('statsMirrorTitle')}
+            className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
+          >
+            <BarChartRounded style={{ fontSize: 19 }} />
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -100,24 +118,6 @@ export const TodayScreen: React.FC = () => {
             className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
           >
             <EditRounded style={{ fontSize: 19 }} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => appActions.openStatsModal()}
-            title={t('statsMirrorTitle')}
-            className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
-          >
-            <BarChartRounded style={{ fontSize: 19 }} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => appActions.openSettingsModal()}
-            title={t('settingsTitle')}
-            className="w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-white/[0.072] to-white/[0.030] border border-white/[0.085] flex items-center justify-center text-white/55 hover:text-white transition-all pressable"
-          >
-            <TuneRounded style={{ fontSize: 19 }} />
           </button>
         </div>
       </header>

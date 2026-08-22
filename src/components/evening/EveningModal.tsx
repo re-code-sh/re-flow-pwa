@@ -49,25 +49,28 @@ export const EveningModal: React.FC<EveningModalProps> = ({ onRefresh }) => {
     onRefresh();
   };
 
-  const handleSave = async () => {
-    const filledWhys = whys.map((w) => w.trim()).filter(Boolean);
-    if (!plan.boulderDone && filledWhys.length === 0) {
-      appActions.showToast(t('toastAtLeastOneWhy'));
+  const handleCloseDay = async () => {
+    const validWhys = whys.slice(0, whyVisible).map((w) => w.trim()).filter(Boolean);
+    if (!plan.boulderDone && validWhys.length === 0) {
+      appActions.showToast(
+        lang === 'fa'
+          ? 'حداقل یک «چرا» — همین‌جا یادگیری اتفاق می‌افتد'
+          : 'At least one "why" — this is where learning happens'
+      );
       return;
     }
 
     await repo.closeDay({
       dayKey: todayKey(),
-      whys: filledWhys,
+      whys: validWhys,
       note: nightNote.trim(),
     });
-
-    appActions.closeEveningModal();
     appActions.showToast(
       plan.boulderDone
-        ? t('toastRecordedWinningDay')
-        : t('toastRecordedImprovedSystem')
+        ? (lang === 'fa' ? 'ثبت شد. روزِ برنده.' : 'Recorded. A winning day.')
+        : (lang === 'fa' ? 'ثبت شد. فردا با سیستمِ اصلاح‌شده.' : 'Recorded. Tomorrow with improved system.')
     );
+    appActions.closeEveningModal();
     onRefresh();
   };
 
@@ -75,44 +78,54 @@ export const EveningModal: React.FC<EveningModalProps> = ({ onRefresh }) => {
     <GlassSheet
       isOpen={isEveningModalOpen}
       onClose={() => appActions.closeEveningModal()}
-      title={t('eveningReviewTitle')}
-      sub={lang === 'fa' ? 'شصت ثانیه. صادقانه.' : '60 seconds. Honestly.'}
-      maxWidth="lg"
+      title={lang === 'fa' ? 'پایان روز' : 'Evening Review'}
+      sub={
+        lang === 'fa'
+          ? '۶۰ ثانیه — چک، چرا، یک خط'
+          : '60 seconds — check, why, one line'
+      }
+      maxWidth="md"
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         {/* Final Check Section */}
-        <span className="text-[11.5px] font-semibold text-white/38 px-1">
-          {lang === 'fa' ? 'چک نهایی' : 'Final Check'}
-        </span>
-
         <div className="flex flex-col gap-2">
-          {plan.tasks.map((task) => (
-            <GlassCard
-              key={task.taskId}
-              radius="small"
-              className="p-3.5 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <CheckCircle
-                  on={task.done}
-                  onTap={() => handleToggleDone(task.taskId, task.done)}
-                />
-                <span
-                  className={clsx(
-                    'text-[14px] truncate select-none',
-                    task.done ? 'line-through text-white/38' : 'text-[#F5F5F7]'
-                  )}
+          <span className="text-[12.5px] font-semibold text-white/70">
+            {lang === 'fa' ? 'چک نهایی وظایف امروز:' : 'Final Task Check:'}
+          </span>
+
+          <div className="flex flex-col gap-2">
+            {plan.tasks.map((task) => {
+              const isBoulder = plan.boulderId === task.taskId;
+              return (
+                <GlassCard
+                  key={task.taskId}
+                  radius="small"
+                  className="p-3 flex items-center justify-between"
                 >
-                  {task.title}
-                  {task.isBoulder && (
-                    <span className="ms-2 text-[11px] font-bold text-[var(--accent)]">
-                      {t('boulderLabel')}
+                  <div className="flex items-center gap-3">
+                    <CheckCircle
+                      on={task.done}
+                      onTap={() => handleToggleDone(task.taskId, task.done)}
+                    />
+                    <span
+                      className={clsx(
+                        'text-[14px] font-medium',
+                        task.done ? 'line-through text-white/40' : 'text-white'
+                      )}
+                    >
+                      {task.title}
+                    </span>
+                  </div>
+
+                  {isBoulder && (
+                    <span className="px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] text-[10.5px] font-bold">
+                      {lang === 'fa' ? 'تخته‌سنگ' : 'Boulder'}
                     </span>
                   )}
-                </span>
-              </div>
-            </GlassCard>
-          ))}
+                </GlassCard>
+              );
+            })}
+          </div>
         </div>
 
         {/* Why-Chain if boulder not done, or celebration banner if boulder fell */}
@@ -163,22 +176,22 @@ export const EveningModal: React.FC<EveningModalProps> = ({ onRefresh }) => {
           </div>
         )}
 
-        {/* Night Note */}
-        <div className="pt-1">
+        {/* Night One-line Note */}
+        <div className="flex flex-col gap-1.5 pt-1">
           <GlassField
-            label={t('nightNoteLabel')}
-            hint={t('nightNoteHint')}
+            label={lang === 'fa' ? 'یادداشت یک‌خطی شب' : 'One-line Night Note'}
+            hint={lang === 'fa' ? 'یک جمله دربارهٔ امروز…' : 'One sentence about today...'}
             value={nightNote}
             onChange={(e) => setNightNote(e.target.value)}
           />
         </div>
 
-        {/* Confirm Action */}
+        {/* Close Day CTA */}
         <div className="pt-2">
           <Pill
-            label={t('confirmCloseDayAction')}
+            label={lang === 'fa' ? 'تثبیت و بستن روز' : 'Lock & Close Day'}
             style="ember"
-            onTap={handleSave}
+            onTap={handleCloseDay}
           />
         </div>
       </div>

@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import {
   StarRounded,
   StarOutlineRounded,
-  DeleteOutlineRounded,
+  CloseRounded,
   AddRounded,
+  CheckRounded,
 } from '../ui/icons';
 import { BacklogItem } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
@@ -52,17 +53,14 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
 
     setBacklog(bl);
 
-    if (plan.planned && plan.tasks.length > 0) {
-      setSelectedIds(plan.tasks.map((t) => t.taskId));
-      setBoulderId(plan.boulderId || plan.tasks[0].taskId);
-      setPrediction(plan.prediction ?? 70);
+    if (plan.planned) {
+      setSelectedIds(plan.tasks.map((tItem) => tItem.taskId));
+      setBoulderId(plan.boulderId);
+      setPrediction(plan.prediction || 70);
     } else {
-      const maxSlots = maxTasksForActiveDays(days);
-      const initial = bl.slice(0, maxSlots);
-      setSelectedIds(initial.map((b) => b.id));
-      if (initial.length > 0) {
-        setBoulderId(initial[0].id);
-      }
+      setSelectedIds(bl.slice(0, 3).map((b) => b.id));
+      setBoulderId(bl[0]?.id || null);
+      setPrediction(70);
     }
   };
 
@@ -76,20 +74,23 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
 
   const maxSlots = maxTasksForActiveDays(activeDays);
 
-  const handleToggle = (id: string) => {
+  const handleToggleSelect = (id: string) => {
     if (selectedIds.includes(id)) {
-      const next = selectedIds.filter((x) => x !== id);
+      const next = selectedIds.filter((item) => item !== id);
       setSelectedIds(next);
       if (boulderId === id) {
-        setBoulderId(next.length > 0 ? next[0] : null);
+        setBoulderId(next[0] || null);
       }
     } else {
       if (selectedIds.length >= maxSlots) {
-        appActions.showToast(t('maxTasksReachedToast', { count: maxSlots }));
+        appActions.showToast(
+          lang === 'fa'
+            ? `حداکثر ${fmtNum(maxSlots, lang)} کار در این مرحله مجاز است`
+            : `Maximum ${maxSlots} tasks allowed at this stage`
+        );
         return;
       }
-      const next = [...selectedIds, id];
-      setSelectedIds(next);
+      setSelectedIds([...selectedIds, id]);
       if (!boulderId) {
         setBoulderId(id);
       }
@@ -97,85 +98,105 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
   };
 
   const handleAddNewTask = async () => {
-    const trimmed = newTaskTitle.trim();
-    if (!trimmed) return;
-
-    const item = await repo.addBacklog(trimmed);
+    const title = newTaskTitle.trim();
+    if (!title) return;
+    const item = await repo.addBacklog(title);
     setBacklog((prev) => [item, ...prev]);
-
     if (selectedIds.length < maxSlots) {
       setSelectedIds((prev) => [...prev, item.id]);
       if (!boulderId) setBoulderId(item.id);
     }
-
     setNewTaskTitle('');
   };
 
   const handleDeleteBacklog = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     await repo.deleteBacklog(id);
-    setBacklog((prev) => prev.filter((b) => b.id !== id));
-    setSelectedIds((prev) => prev.filter((x) => x !== id));
+    setSelectedIds((prev) => prev.filter((item) => item !== id));
     if (boulderId === id) {
-      const remaining = selectedIds.filter((x) => x !== id);
-      setBoulderId(remaining.length > 0 ? remaining[0] : null);
+      setBoulderId(null);
     }
+    setBacklog((prev) => prev.filter((b) => b.id !== id));
   };
 
-  const handleSave = async () => {
-    if (selectedIds.length === 0) {
-      appActions.showToast(t('toastEnterAtLeastOneTask'));
-      return;
-    }
-    const finalBoulderId = boulderId || selectedIds[0];
-    const selectedItems = selectedIds
-      .map((id) => backlog.find((b) => b.id === id))
-      .filter(Boolean) as BacklogItem[];
+  const handleConfirmPlan = async () => {
+    if (selectedIds.length === 0 || !boulderId) return;
+
+    const chosenTasks = selectedIds.map((id) => {
+      const b = backlog.find((item) => item.id === id);
+      return {
+        id,
+        title: b?.title || '',
+        notes: b?.notes || '',
+        created_at: b?.created_at || Date.now(),
+        updated_at: Date.now(),
+      };
+    });
 
     await repo.planDay({
       dayKey: todayKey(),
-      selected: selectedItems,
-      boulderId: finalBoulderId,
+      selected: chosenTasks,
+      boulderId,
       prediction,
     });
-
+    appActions.showToast(
+      lang === 'fa' ? 'برنامهٔ امروز چیده شد 🪨' : 'Today is planned 🪨'
+    );
     appActions.closeMorningWizard();
-    appActions.showToast(t('dayPlannedToast'));
     onRefresh();
   };
 
-  const ready = selectedIds.length > 0 && boulderId !== null;
+  const getProgressHint = () => {
+    if (activeDays < 3) {
+      return lang === 'fa' ? 'سنگ‌های روزهای اول — حداکثر ۳ کار' : 'First days habit — max 3 tasks';
+    }
+    if (activeDays < 7) {
+      return lang === 'fa' ? 'روزهای ابتدایی — حداکثر ۴ کار' : 'Early days — max 4 tasks';
+    }
+    return lang === 'fa' ? 'عادت شکل گرفته — حداکثر ۵ کار' : 'Habit solidified — max 5 tasks';
+  };
+
+  const getCalibrationHint = () => {
+    if (prediction >= 90) {
+      return lang === 'fa' ? 'خیلی مطمئن؟ مراقب شکاف خوش‌بینی باش' : 'Very confident? Watch the optimism gap';
+    }
+    if (prediction >= 70) {
+      return lang === 'fa' ? 'سطح اطمینان خوب و واقع‌بینانه' : 'Good and realistic confidence level';
+    }
+    return lang === 'fa' ? 'سنگ را کوچک‌تر کن یا موانع را بردار' : 'Make the boulder smaller or remove obstacles';
+  };
+
+  const readyToPlan = selectedIds.length > 0 && boulderId !== null;
 
   return (
     <GlassSheet
       isOpen={isMorningWizardOpen}
       onClose={() => appActions.closeMorningWizard()}
-      title={t('morningPlanHeader')}
-      sub={t('morningPlanSub')}
-      maxWidth="lg"
+      title={lang === 'fa' ? 'چیدنِ برنامهٔ امروز' : 'Plan Your Day'}
+      sub={
+        lang === 'fa'
+          ? 'سه کار، یک تخته‌سنگ، یک پیش‌بینی — کمتر از ۶۰ ثانیه.'
+          : 'Three tasks, one boulder, one prediction — under 60 seconds.'
+      }
+      maxWidth="md"
     >
-      <div className="flex flex-col gap-3">
-        {/* Active Capacity Badge */}
-        <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
+      <div className="flex flex-col gap-4">
+        {/* Dynamic Capacity Progression Banner Matching Flutter */}
+        <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="px-2.5 py-0.5 rounded-lg bg-[var(--accent-soft)] text-[var(--accent)] font-bold text-[12px] tabular-nums border border-[var(--accent-border)]">
+            <span className="px-2.5 py-1 rounded-lg bg-[var(--accent-soft)] text-[var(--accent)] font-bold text-[12px] tabular-nums">
               {fmtNum(selectedIds.length, lang)} / {fmtNum(maxSlots, lang)}
             </span>
-            <span className="text-[11.5px] text-white/55 font-medium">
-              {activeDays < 15 &&
-                t('activeDaysProgressHint_15', { days: fmtNum(activeDays, lang) })}
-              {activeDays >= 15 &&
-                activeDays < 30 &&
-                t('activeDaysProgressHint_30', { days: fmtNum(activeDays, lang) })}
-              {activeDays >= 30 && t('activeDaysUnlockedMax')}
+            <span className="text-[12px] text-white/60 font-medium">
+              {getProgressHint()}
             </span>
           </div>
         </div>
 
         {/* Backlog List */}
-        <div className="flex flex-col gap-2 pt-1">
+        <div className="flex flex-col gap-2 max-h-[36vh] overflow-y-auto pr-1">
           {backlog.length === 0 ? (
-            <div className="py-6 text-center text-white/38 text-[13px]">
+            <div className="py-8 text-center text-white/40 text-[13px]">
               {lang === 'fa'
                 ? 'لیستِ کارها خالی است. اولین کارِ مهم را بنویس ↓'
                 : 'Task list is empty. Write your first important task ↓'}
@@ -190,22 +211,38 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
                   key={item.id}
                   radius="small"
                   className={clsx(
-                    'p-3.5 flex items-center justify-between cursor-pointer transition-all duration-200',
+                    'p-3 flex items-center justify-between gap-3 cursor-pointer transition-all',
                     isSelected
-                      ? 'border-[var(--accent-border)] bg-white/[0.06]'
-                      : 'border-white/[0.06] opacity-65 hover:opacity-100'
+                      ? 'border-[var(--accent-border)] bg-[var(--accent-soft)]/20'
+                      : 'hover:border-white/15'
                   )}
-                  onTap={() => handleToggle(item.id)}
+                  onTap={() => handleToggleSelect(item.id)}
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    {/* Star Boulder Icon */}
+                    {/* Check Selection Ring */}
+                    <div
+                      className={clsx(
+                        'w-6 h-6 rounded-full flex items-center justify-center border transition-all shrink-0',
+                        isSelected
+                          ? 'bg-[var(--accent)] text-[var(--accent-ink)] border-[var(--accent)]'
+                          : 'border-white/20 bg-transparent'
+                      )}
+                    >
+                      {isSelected && <CheckRounded style={{ fontSize: 16 }} />}
+                    </div>
+
+                    {/* Star Boulder Toggle */}
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!isSelected) {
                           if (selectedIds.length >= maxSlots) {
-                            appActions.showToast(t('maxTasksReachedToast', { count: maxSlots }));
+                            appActions.showToast(
+                              lang === 'fa'
+                                ? `حداکثر ${fmtNum(maxSlots, lang)} کار مجاز است`
+                                : `Maximum ${maxSlots} tasks allowed`
+                            );
                             return;
                           }
                           setSelectedIds((prev) => [...prev, item.id]);
@@ -214,7 +251,7 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
                       }}
                       title={t('boulderLabel')}
                       className={clsx(
-                        'w-8 h-8 rounded-full flex items-center justify-center transition-all pressable',
+                        'w-7 h-7 rounded-full flex items-center justify-center transition-all pressable shrink-0',
                         isBoulder
                           ? 'text-[var(--accent)] bg-[var(--accent-soft)] shadow-[0_0_10px_var(--accent-glow)]'
                           : 'text-white/20 hover:text-white/50'
@@ -240,9 +277,9 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
                   <button
                     type="button"
                     onClick={(e) => handleDeleteBacklog(item.id, e)}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white/25 hover:text-red-400 transition-colors shrink-0"
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white/25 hover:text-red-400 transition-colors shrink-0"
                   >
-                    <DeleteOutlineRounded style={{ fontSize: 18 }} />
+                    <CloseRounded style={{ fontSize: 16 }} />
                   </button>
                 </GlassCard>
               );
@@ -254,7 +291,7 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
         <div className="flex items-center gap-2 pt-1">
           <div className="flex-1">
             <GlassField
-              hint={t('newTaskHint')}
+              hint={lang === 'fa' ? 'افزودن کار جدید…' : 'Add new task...'}
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               onSubmitted={handleAddNewTask}
@@ -270,12 +307,12 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
           </button>
         </div>
 
-        {/* Prediction Slider Section (Matching Flutter _predictionSlider) */}
-        {selectedIds.length > 0 && (
+        {/* Prediction Slider Section Matching Flutter _predictionSlider */}
+        {selectedIds.length > 0 && boulderId && (
           <GlassCard radius="small" className="p-4 flex flex-col gap-3 mt-1">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-white/70">
-                {t('chanceBoulderFells')}
+                {lang === 'fa' ? 'پیش‌بینی صبح: شانس سقوط تخته‌سنگ' : 'Morning Prediction'}
               </span>
               <span className="text-[14px] font-extrabold text-[var(--accent)] tabular-nums">
                 {fmtNum(prediction, lang)}٪
@@ -285,22 +322,26 @@ export const MorningWizard: React.FC<MorningWizardProps> = ({ onRefresh }) => {
             <input
               type="range"
               min="10"
-              max="95"
+              max="100"
               step="5"
               value={prediction}
-              onChange={(e) => setPrediction(parseInt(e.target.value, 10))}
-              className="w-full accent-[var(--accent)] cursor-pointer h-2 bg-white/10 rounded-lg appearance-none"
+              onChange={(e) => setPrediction(Number(e.target.value))}
+              className="w-full accent-[var(--accent)] cursor-pointer h-2 bg-white/10 rounded-lg"
             />
+
+            <span className="text-[11.5px] text-white/45 font-medium">
+              {getCalibrationHint()}
+            </span>
           </GlassCard>
         )}
 
-        {/* Bottom Save Action */}
+        {/* Bottom CTA */}
         <div className="pt-2">
           <Pill
-            label={t('startFlowAction')}
+            label={lang === 'fa' ? 'شروع روز' : 'Start Day'}
             style="ember"
-            disabled={!ready}
-            onTap={handleSave}
+            disabled={!readyToPlan}
+            onTap={handleConfirmPlan}
           />
         </div>
       </div>

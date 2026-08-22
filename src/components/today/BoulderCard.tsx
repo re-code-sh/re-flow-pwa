@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   LocalFireDepartmentRounded,
@@ -14,6 +14,7 @@ import { repo } from '../../db/repo';
 import { fmtNum, fmtTime } from '../../core/jalali';
 import { Pill } from '../ui/Pill';
 import { GlassCard } from '../ui/GlassCard';
+import { FocusDurationModal } from '../focus/FocusDurationModal';
 import { focusTimer } from '../../state/focusTimer';
 import { clsx } from 'clsx';
 
@@ -25,6 +26,7 @@ export interface BoulderCardProps {
 export const BoulderCard: React.FC<BoulderCardProps> = ({ plan, onRefresh }) => {
   const { t } = useTranslation();
   const { lang } = useAppStore();
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
 
   if (!plan.planned) {
     return (
@@ -72,13 +74,12 @@ export const BoulderCard: React.FC<BoulderCardProps> = ({ plan, onRefresh }) => 
     onRefresh();
   };
 
-  const handleStartFocus = async (e?: React.MouseEvent) => {
-    e?.stopPropagation();
+  const handleStartFocusSession = async (minutes: number) => {
     if (boulder.done) return;
     await focusTimer.start({
       taskId: boulder.taskId,
       title: boulder.title,
-      minutes: 25,
+      minutes,
       kind: 'task',
     });
     appActions.openFocusScreen();
@@ -95,91 +96,100 @@ export const BoulderCard: React.FC<BoulderCardProps> = ({ plan, onRefresh }) => 
   };
 
   return (
-    <div className="relative group">
-      {/* Breathing glow animation effect when active */}
-      {isAlive && (
-        <div className="absolute -top-6 -start-6 w-48 h-40 rounded-full bg-[var(--accent)]/15 blur-[60px] pointer-events-none animate-breath-slow" />
-      )}
+    <>
+      <div className="relative group">
+        {/* Breathing glow animation effect when active */}
+        {isAlive && (
+          <div className="absolute -top-6 -start-6 w-48 h-40 rounded-full bg-[var(--accent)]/15 blur-[60px] pointer-events-none animate-breath-slow" />
+        )}
 
-      <GlassCard
-        radius="card"
-        emberRing
-        className="p-6 md:p-7 text-start cursor-pointer select-none"
-        onContextMenu={handleOpenEdit}
-        onTap={isAlive ? handleStartFocus : undefined}
-      >
-        <div className="flex flex-col gap-3.5">
-          {/* Header Tag & Reminder */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
-              <LocalFireDepartmentRounded style={{ fontSize: 13 }} />
-              <span>{t('boulderTitle')}</span>
+        <GlassCard
+          radius="card"
+          emberRing
+          className="p-6 md:p-7 text-start cursor-pointer select-none"
+          onContextMenu={handleOpenEdit}
+          onTap={isAlive ? () => setShowDurationPicker(true) : undefined}
+        >
+          <div className="flex flex-col gap-3.5">
+            {/* Header Tag & Reminder */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
+                <LocalFireDepartmentRounded style={{ fontSize: 13 }} />
+                <span>{t('boulderTitle')}</span>
+              </div>
+
+              {boulder.reminderTime !== null && isAlive && (
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-[11px] font-semibold">
+                  <NotificationsActiveRounded style={{ fontSize: 12 }} />
+                  <span>{fmtTime(boulder.reminderTime, lang)}</span>
+                </div>
+              )}
             </div>
 
-            {boulder.reminderTime !== null && isAlive && (
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-[11px] font-semibold">
-                <NotificationsActiveRounded style={{ fontSize: 12 }} />
-                <span>{fmtTime(boulder.reminderTime, lang)}</span>
-              </div>
-            )}
-          </div>
+            {/* Title */}
+            <h2
+              className={clsx(
+                'text-[21px] md:text-[22px] font-bold leading-snug transition-all',
+                boulder.done
+                  ? 'line-through text-white/35 decoration-[var(--accent)]/50'
+                  : 'text-[#F5F5F7]'
+              )}
+            >
+              {boulder.title}
+            </h2>
 
-          {/* Title */}
-          <h2
-            className={clsx(
-              'text-[21px] md:text-[22px] font-bold leading-snug transition-all',
-              boulder.done
-                ? 'line-through text-white/35 decoration-[var(--accent)]/50'
-                : 'text-[#F5F5F7]'
-            )}
-          >
-            {boulder.title}
-          </h2>
+            {/* Morning Prediction Status */}
+            <div className="flex items-center gap-2 text-[12.5px] text-white/55 font-medium">
+              <span>
+                {t('morningPrediction', {
+                  value: fmtNum(plan.prediction || 70, lang),
+                })}
+              </span>
+              {boulder.done && (
+                <span className="text-[var(--accent)] font-bold">{t('doneDone')}</span>
+              )}
+            </div>
 
-          {/* Morning Prediction Status */}
-          <div className="flex items-center gap-2 text-[12.5px] text-white/55 font-medium">
-            <span>
-              {t('morningPrediction', {
-                value: fmtNum(plan.prediction || 70, lang),
-              })}
-            </span>
-            {boulder.done && (
-              <span className="text-[var(--accent)] font-bold">{t('doneDone')}</span>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div
-            className="flex items-center gap-2.5 pt-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {isAlive && (
+            {/* Action Buttons */}
+            <div
+              className="flex items-center gap-2.5 pt-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isAlive && (
+                <div className="flex-1">
+                  <Pill
+                    label={t('startFocus')}
+                    style="ember"
+                    icon={<PlayArrowRounded style={{ fontSize: 18 }} />}
+                    onTap={() => setShowDurationPicker(true)}
+                  />
+                </div>
+              )}
               <div className="flex-1">
                 <Pill
-                  label={t('startFocus')}
-                  style="ember"
-                  icon={<PlayArrowRounded style={{ fontSize: 18 }} />}
-                  onTap={() => handleStartFocus()}
+                  label={boulder.done ? t('undo') : (lang === 'fa' ? 'علامتِ انجام' : 'Mark Done')}
+                  style={boulder.done ? 'quiet' : 'glass'}
+                  icon={
+                    boulder.done ? (
+                      <UndoRounded style={{ fontSize: 17 }} />
+                    ) : (
+                      <CheckRounded style={{ fontSize: 17 }} />
+                    )
+                  }
+                  onTap={handleToggle as any}
                 />
               </div>
-            )}
-            <div className="flex-1">
-              <Pill
-                label={boulder.done ? t('undo') : (lang === 'fa' ? 'علامتِ انجام' : 'Mark Done')}
-                style={boulder.done ? 'quiet' : 'glass'}
-                icon={
-                  boulder.done ? (
-                    <UndoRounded style={{ fontSize: 17 }} />
-                  ) : (
-                    <CheckRounded style={{ fontSize: 17 }} />
-                  )
-                }
-                onTap={handleToggle as any}
-              />
             </div>
           </div>
-        </div>
-      </GlassCard>
-    </div>
+        </GlassCard>
+      </div>
+
+      {/* Focus Duration Selection Sheet */}
+      <FocusDurationModal
+        isOpen={showDurationPicker}
+        onClose={() => setShowDurationPicker(false)}
+        onSelectDuration={handleStartFocusSession}
+      />
+    </>
   );
 };

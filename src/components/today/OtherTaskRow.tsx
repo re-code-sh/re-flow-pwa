@@ -11,6 +11,7 @@ import { fmtTime } from '../../core/jalali';
 import { CheckCircle } from '../ui/CheckCircle';
 import { GlassCard } from '../ui/GlassCard';
 import { ConfirmModal } from '../ui/ConfirmModal';
+import { FocusDurationModal } from '../focus/FocusDurationModal';
 import { focusTimer } from '../../state/focusTimer';
 import { clsx } from 'clsx';
 
@@ -30,6 +31,7 @@ export const OtherTaskRow: React.FC<OtherTaskRowProps> = ({
   const { t } = useTranslation();
   const { lang } = useAppStore();
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
 
   const isLocked = !plan.boulderDone && !task.done;
 
@@ -38,11 +40,11 @@ export const OtherTaskRow: React.FC<OtherTaskRowProps> = ({
     onRefresh();
   };
 
-  const handleStartTaskFocus = async () => {
+  const handleStartTaskFocus = async (minutes: number) => {
     await focusTimer.start({
       taskId: task.taskId,
       title: task.title,
-      minutes: 25,
+      minutes,
       kind: 'task',
     });
     appActions.openFocusScreen();
@@ -55,7 +57,7 @@ export const OtherTaskRow: React.FC<OtherTaskRowProps> = ({
       setShowSkipConfirm(true);
       return;
     }
-    handleStartTaskFocus();
+    setShowDurationPicker(true);
   };
 
   const handleOpenEdit = (e?: React.MouseEvent) => {
@@ -132,6 +134,13 @@ export const OtherTaskRow: React.FC<OtherTaskRowProps> = ({
         </GlassCard>
       </div>
 
+      {/* Focus Duration Selection Sheet */}
+      <FocusDurationModal
+        isOpen={showDurationPicker}
+        onClose={() => setShowDurationPicker(false)}
+        onSelectDuration={handleStartTaskFocus}
+      />
+
       {/* Skip Boulder confirmation modal */}
       <ConfirmModal
         isOpen={showSkipConfirm}
@@ -142,15 +151,7 @@ export const OtherTaskRow: React.FC<OtherTaskRowProps> = ({
         emberYes={true}
         onClose={() => setShowSkipConfirm(false)}
         onConfirm={async () => {
-          if (plan.boulder) {
-            await focusTimer.start({
-              taskId: plan.boulder.taskId,
-              title: plan.boulder.title,
-              minutes: 25,
-              kind: 'task',
-            });
-            appActions.openFocusScreen();
-          }
+          setShowDurationPicker(true);
         }}
       />
     </>

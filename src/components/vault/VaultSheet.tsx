@@ -59,9 +59,9 @@ export const VaultSheet: React.FC = () => {
     await repo.deleteThought(th.id);
     loadData();
     appActions.showToast(
-      lang === 'fa' ? 'فکر حذف شد' : 'Thought deleted',
+      lang === 'fa' ? 'حذف شد' : 'Deleted',
       {
-        actionLabel: t('undo'),
+        actionLabel: lang === 'fa' ? 'لغو' : 'Undo',
         onAction: async () => {
           await repo.restoreThought(th);
           loadData();
@@ -75,8 +75,8 @@ export const VaultSheet: React.FC = () => {
     loadData();
     appActions.showToast(
       onToday
-        ? (lang === 'fa' ? 'به برنامهٔ امروز اضافه شد' : 'Added to today\'s plan')
-        : (lang === 'fa' ? 'در انتظارِ برنامهٔ فردا ذخیره شد' : 'Saved for tomorrow\'s plan')
+        ? (lang === 'fa' ? 'به کارهای امروز اضافه شد' : 'Added to today\'s tasks')
+        : (lang === 'fa' ? 'برای ویزارد فردا ذخیره شد' : 'Saved for tomorrow\'s wizard')
     );
   };
 
@@ -96,7 +96,7 @@ export const VaultSheet: React.FC = () => {
     <GlassSheet
       isOpen={isVaultSheetOpen}
       onClose={() => appActions.closeVaultSheet()}
-      title={lang === 'fa' ? 'مخزنِ ذهن' : 'Brain Vault'}
+      title={lang === 'fa' ? 'مخزن ذهن' : 'Brain Vault'}
       sub={
         lang === 'fa'
           ? 'تخلیهٔ بارِ شناختی در ۵ ثانیه — اینجا بگذار تا فراموش شود اما گم نشود.'
@@ -113,7 +113,7 @@ export const VaultSheet: React.FC = () => {
                 hint={
                   editingId
                     ? (lang === 'fa' ? 'ویرایش فکر…' : 'Edit thought...')
-                    : (lang === 'fa' ? 'ثبت سریع فکر…' : 'Quick dump thought...')
+                    : (lang === 'fa' ? 'فکری که ذهنت را مشغول کرده بنویس…' : 'Write what is on your mind...')
                 }
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
@@ -123,7 +123,7 @@ export const VaultSheet: React.FC = () => {
             </div>
             <div className="w-20 shrink-0">
               <Pill
-                label={editingId ? t('save') : (lang === 'fa' ? 'ثبت' : 'Dump')}
+                label={editingId ? (lang === 'fa' ? 'ذخیره' : 'Save') : (lang === 'fa' ? 'ثبت' : 'Save')}
                 style="ember"
                 expanded
                 onTap={handleSubmit}
@@ -141,7 +141,7 @@ export const VaultSheet: React.FC = () => {
                   type="button"
                   onClick={() => setCategory(c.cat)}
                   className={clsx(
-                    'py-2 px-3 rounded-full text-[12px] font-bold border transition-all pressable text-center',
+                    'py-2 px-3 rounded-xl text-[12px] font-bold border transition-all pressable text-center',
                     isOn
                       ? 'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent-border)]'
                       : 'bg-white/[0.04] text-white/40 border-white/[0.08] hover:text-white/70'
@@ -167,7 +167,7 @@ export const VaultSheet: React.FC = () => {
         <div className="flex flex-col gap-2.5 max-h-[50vh] overflow-y-auto pr-1">
           {filtered.length === 0 ? (
             <div className="py-10 text-center text-white/35 text-[13px]">
-              {query ? t('noResultsFound') : (lang === 'fa' ? 'مخزن خالی است' : 'Vault is empty')}
+              {query ? (lang === 'fa' ? 'موردی یافت نشد.' : 'No results found.') : (lang === 'fa' ? 'هنوز فکری ثبت نشده.' : 'No thoughts recorded yet.')}
             </div>
           ) : (
             filtered.map((th) => {
