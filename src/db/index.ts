@@ -1,13 +1,13 @@
 import Dexie, { type EntityTable } from 'dexie';
 import {
   Task,
-  DayPlan,
   Thought,
   FocusSession,
   Habit,
   HabitLog,
   Leisure,
-  EnergyCheck
+  EnergyCheck,
+  WeeklyReview,
 } from '../core/types';
 
 export interface DbDay {
@@ -40,6 +40,7 @@ export class AppDatabase extends Dexie {
   leisure!: EntityTable<Leisure, 'id'>;
   energy_checks!: EntityTable<EnergyCheck, 'id'>;
   settings!: EntityTable<DbSetting, 'k'>;
+  weekly_reviews!: EntityTable<WeeklyReview, 'id'>;
 
   constructor() {
     super('taknoghte_db');
@@ -53,6 +54,7 @@ export class AppDatabase extends Dexie {
       leisure: 'id, created_at, updated_at, deleted_at',
       energy_checks: 'id, day_key, hour, created_at, updated_at',
       settings: 'k, updated_at',
+      weekly_reviews: 'id, created_at',
     });
   }
 }

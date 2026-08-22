@@ -4,7 +4,6 @@ import { AppLayout } from './components/layout/AppLayout';
 import { TodayScreen } from './components/today/TodayScreen';
 import { HabitsScreen } from './components/habits/HabitsScreen';
 import { LeisureScreen } from './components/leisure/LeisureScreen';
-import { VaultScreen } from './components/vault/VaultScreen';
 import { OnboardingScreen } from './components/onboarding/OnboardingScreen';
 import { FocusScreen } from './components/focus/FocusScreen';
 import { VaultSheet } from './components/vault/VaultSheet';
@@ -14,7 +13,7 @@ import { ToastContainer } from './components/ui/Toast';
 import { applyAccentTheme } from './core/theme';
 
 export const App: React.FC = () => {
-  const { currentTab, isOnboarded, accent, lang } = useAppStore();
+  const { currentTab, isOnboarded, accent } = useAppStore();
 
   useEffect(() => {
     applyAccentTheme(accent);
@@ -35,10 +34,9 @@ export const App: React.FC = () => {
         {currentTab === 0 && <TodayScreen />}
         {currentTab === 1 && <HabitsScreen />}
         {currentTab === 2 && <LeisureScreen />}
-        {currentTab === 3 && <VaultScreen />}
       </AppLayout>
 
-      {/* Global Modals and Drawers */}
+      {/* Global Modals and Sheets */}
       <FocusScreen />
       <VaultSheet />
       <StatsScreen />

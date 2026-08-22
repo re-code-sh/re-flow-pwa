@@ -78,21 +78,22 @@ export interface Habit {
   title: string;
   cue: string;
   created: string; // dayKey
-  frequency: string;
-  recovery_count: number;
+  frequency?: string;
+  recovery_count?: number;
   is_bad: boolean;
-  bad_cost: string;
-  replacement: string;
+  bad_cost?: string;
+  bad_replace?: string;
+  replacement?: string;
   reminder_minutes: number | null;
-  sort: number;
+  sort?: number;
   logs?: Record<string, string>; // dayKey -> 'done' | 'slip' | 'resisted'
-  created_at: number;
-  updated_at: number;
-  deleted_at: number | null;
+  created_at?: number;
+  updated_at?: number;
+  deleted_at?: number | null;
 }
 
 export interface HabitLog {
-  id?: string;
+  id: string;
   habit_id: string;
   day_key: string;
   status: 'done' | 'slip' | 'resisted';
@@ -150,22 +151,22 @@ export interface NightRow {
   dayKey: string;
   prediction: number;
   outcome: boolean;
+  whys?: string[];
+  note?: string;
 }
 
 export interface StatsData {
-  closedCount: number;
   winRate: number | null;
-  avgPrediction: number | null;
-  gap: number | null;
+  optimismGap: number | null;
+  optimismReliable: boolean;
   recoveryRate: number | null;
   lastNights: NightRow[];
   focusMinutesLast7: number[];
-  recentInterrupts: string[];
   interruptCounts: Partial<Record<InterruptTag, number>>;
   goldenHour: number | null;
   reviewDue: boolean;
   focusMinutesWeek: number;
-  optimismReliable: boolean;
+  gap?: number | null;
 }
 
 export interface EnergyCheck {
@@ -175,4 +176,11 @@ export interface EnergyCheck {
   level: number;
   created_at: number;
   updated_at: number;
+}
+
+export interface WeeklyReview {
+  id: string;
+  kept_count: number;
+  pruned_count: number;
+  created_at: number;
 }

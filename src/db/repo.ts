@@ -1,22 +1,22 @@
-import { db, DbDay } from './index';
+import { db, DbDay, DbSetting } from './index';
 import {
+  Task,
   BacklogItem,
   DayPlan,
   DayTask,
-  EnergyCheck,
-  FocusSession,
-  FunConfig,
   Habit,
-  InterruptTag,
-  NightRow,
-  StatsData,
-  Task,
+  HabitLog,
+  FunConfig,
   Thought,
   ThoughtCategory,
+  StatsData,
+  WeeklyReview,
+  EnergyCheck,
+  InterruptTag,
 } from '../core/types';
 import { todayKey, shiftDayKey } from '../core/jalali';
 
-function generateId(): string {
+function generateUUID(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
@@ -28,37 +28,35 @@ function generateId(): string {
 }
 
 export function maxTasksForActiveDays(activeDays: number): number {
-  if (activeDays >= 30) return 5;
-  if (activeDays >= 15) return 4;
-  return 3;
+  if (activeDays < 3) return 3;
+  if (activeDays < 7) return 4;
+  return 5;
 }
 
 export class Repo {
-  // ---------- tasks & backlog ----------
+  // ---------- Backlog ----------
 
   async backlog(): Promise<BacklogItem[]> {
     const rows = await db.tasks
-      .filter((t) => t.status === 'pending' && t.deleted_at === null)
-      .reverse()
+      .filter((t) => t.deleted_at === null && (t.status === 'pending' || t.scheduled_date === null))
       .sortBy('created_at');
 
-    return rows.map((r) => ({
+    return rows.reverse().map((r) => ({
       id: r.id,
       title: r.title,
       notes: r.notes || '',
       created_at: r.created_at,
       updated_at: r.updated_at,
-      deleted_at: r.deleted_at,
     }));
   }
 
   async addBacklog(title: string, notes: string = ''): Promise<BacklogItem> {
     const now = Date.now();
-    const id = generateId();
+    const id = generateUUID();
     const task: Task = {
       id,
-      title,
-      notes,
+      title: title.trim(),
+      notes: notes.trim(),
       is_boulder: false,
       status: 'pending',
       scheduled_date: null,
@@ -71,8 +69,8 @@ export class Repo {
     await db.tasks.add(task);
     return {
       id,
-      title,
-      notes,
+      title: task.title,
+      notes: task.notes,
       created_at: now,
       updated_at: now,
     };
@@ -86,7 +84,7 @@ export class Repo {
     });
   }
 
-  // ---------- day plan ----------
+  // ---------- Day Plan ----------
 
   async dayPlan(dayKey: string): Promise<DayPlan> {
     const dayRow = await db.days.get(dayKey);
@@ -168,7 +166,7 @@ export class Repo {
     await db.transaction('rw', db.tasks, db.days, async () => {
       const selectedIds = new Set(selected.map((s) => s.id));
 
-      // Reset any tasks previously scheduled for this day that are no longer selected
+      // 1. Clear previous tasks scheduled for today that are no longer selected
       const currentDayTasks = await db.tasks
         .filter((t) => t.scheduled_date === dayKey && !selectedIds.has(t.id))
         .toArray();
@@ -181,7 +179,7 @@ export class Repo {
         });
       }
 
-      // Assign selected tasks to today with active order and boulder flag
+      // 2. Schedule selected tasks
       for (let i = 0; i < selected.length; i++) {
         const item = selected[i];
         const isBoulder = item.id === boulderId;
@@ -211,6 +209,7 @@ export class Repo {
         }
       }
 
+      // 3. Upsert Day record
       const existingDay = await db.days.get(dayKey);
       const dayData: DbDay = {
         day_key: dayKey,
@@ -240,7 +239,7 @@ export class Repo {
   async renameTask(dayKey: string, taskId: string, title: string): Promise<void> {
     const now = Date.now();
     await db.tasks.update(taskId, {
-      title,
+      title: title.trim(),
       updated_at: now,
     });
   }
@@ -251,10 +250,6 @@ export class Repo {
       reminder_time: reminderMinutes,
       updated_at: now,
     });
-  }
-
-  async getTask(taskId: string): Promise<Task | undefined> {
-    return db.tasks.get(taskId);
   }
 
   async removeTaskFromDay(dayKey: string, taskId: string): Promise<void> {
@@ -294,39 +289,6 @@ export class Repo {
     });
   }
 
-  async addTaskToDay(dayKey: string, item: BacklogItem): Promise<void> {
-    const now = Date.now();
-    await db.transaction('rw', db.tasks, async () => {
-      const dayTasks = await db.tasks
-        .filter((t) => t.scheduled_date === dayKey && t.deleted_at === null)
-        .toArray();
-      const maxOrder = dayTasks.reduce((max, t) => Math.max(max, t.active_order || 0), -1);
-
-      const existing = await db.tasks.get(item.id);
-      if (existing) {
-        await db.tasks.update(item.id, {
-          scheduled_date: dayKey,
-          active_order: maxOrder + 1,
-          updated_at: now,
-        });
-      } else {
-        await db.tasks.add({
-          id: item.id,
-          title: item.title,
-          notes: item.notes || '',
-          is_boulder: false,
-          status: 'pending',
-          scheduled_date: dayKey,
-          reminder_time: null,
-          active_order: maxOrder + 1,
-          created_at: now,
-          updated_at: now,
-          deleted_at: null,
-        });
-      }
-    });
-  }
-
   async closeDay({
     dayKey,
     whys,
@@ -342,32 +304,199 @@ export class Repo {
       if (!day) return;
 
       const boulder = day.boulder_id ? await db.tasks.get(day.boulder_id) : null;
-      const outcome = boulder ? boulder.status === 'completed' : false;
+      const isWinner = boulder?.status === 'completed';
 
       await db.days.update(dayKey, {
         closed_at: now,
-        outcome: outcome ? 1 : 0,
+        outcome: isWinner ? 1 : 0,
         whys: JSON.stringify(whys),
-        note,
+        note: note.trim(),
         updated_at: now,
       });
     });
   }
 
-  // ---------- thoughts ----------
+  async activeDaysCount(): Promise<number> {
+    const closedCount = await db.days
+      .filter((d) => d.closed_at !== null && d.deleted_at === null)
+      .count();
+    return closedCount;
+  }
+
+  // ---------- Habits ----------
+
+  async habits(): Promise<Habit[]> {
+    const habitRows = await db.habits
+      .filter((h) => h.deleted_at === null)
+      .sortBy('created_at');
+
+    const habitIds = habitRows.map((h) => h.id);
+    const logs = await db.habit_logs
+      .filter((l) => habitIds.includes(l.habit_id))
+      .toArray();
+
+    const logsMap = new Map<string, Record<string, 'done' | 'resisted' | 'slip'>>();
+    for (const log of logs) {
+      if (!logsMap.has(log.habit_id)) {
+        logsMap.set(log.habit_id, {});
+      }
+      logsMap.get(log.habit_id)![log.day_key] = log.status as any;
+    }
+
+    return habitRows.map((h) => ({
+      id: h.id,
+      title: h.title,
+      cue: h.cue || '',
+      created: h.created || todayKey(),
+      is_bad: !!h.is_bad,
+      bad_cost: h.bad_cost || '',
+      bad_replace: h.bad_replace || h.replacement || '',
+      replacement: h.replacement || h.bad_replace || '',
+      reminder_minutes: h.reminder_minutes,
+      created_at: h.created_at,
+      updated_at: h.updated_at,
+      logs: logsMap.get(h.id) || {},
+    }));
+  }
+
+  async addHabit(data: {
+    title: string;
+    cue?: string;
+    isBad?: boolean;
+    badCost?: string;
+    replacement?: string;
+    reminderMinutes?: number | null;
+  }): Promise<Habit> {
+    const now = Date.now();
+    const id = generateUUID();
+    const isBadVal = !!data.isBad;
+    const habit: Habit = {
+      id,
+      title: data.title.trim(),
+      cue: data.cue?.trim() || '',
+      created: todayKey(),
+      is_bad: isBadVal,
+      bad_cost: data.badCost?.trim() || '',
+      bad_replace: data.replacement?.trim() || '',
+      replacement: data.replacement?.trim() || '',
+      reminder_minutes: data.reminderMinutes ?? null,
+      created_at: now,
+      updated_at: now,
+      deleted_at: null,
+    };
+    await db.habits.add(habit);
+    return {
+      ...habit,
+      logs: {},
+    };
+  }
+
+  async updateHabit(data: {
+    id: string;
+    title?: string;
+    cue?: string;
+    isBad?: boolean;
+    badCost?: string;
+    replacement?: string;
+    reminderMinutes?: number | null;
+  }): Promise<void> {
+    const now = Date.now();
+    await db.habits.update(data.id, {
+      ...(data.title !== undefined && { title: data.title.trim() }),
+      ...(data.cue !== undefined && { cue: data.cue.trim() }),
+      ...(data.isBad !== undefined && { is_bad: data.isBad }),
+      ...(data.badCost !== undefined && { bad_cost: data.badCost.trim() }),
+      ...(data.replacement !== undefined && {
+        bad_replace: data.replacement.trim(),
+        replacement: data.replacement.trim(),
+      }),
+      ...(data.reminderMinutes !== undefined && { reminder_minutes: data.reminderMinutes }),
+      updated_at: now,
+    });
+  }
+
+  async deleteHabit(id: string): Promise<void> {
+    const now = Date.now();
+    await db.habits.update(id, {
+      deleted_at: now,
+      updated_at: now,
+    });
+  }
+
+  async logHabit(
+    habitId: string,
+    dayKey: string,
+    status: 'done' | 'resisted' | 'slip' | null
+  ): Promise<void> {
+    const existing = await db.habit_logs
+      .filter((l) => l.habit_id === habitId && l.day_key === dayKey)
+      .first();
+
+    if (status === null) {
+      if (existing && existing.id) await db.habit_logs.delete(existing.id);
+      return;
+    }
+
+    const now = Date.now();
+    if (existing && existing.id) {
+      await db.habit_logs.update(existing.id, {
+        status,
+        updated_at: now,
+      });
+    } else {
+      await db.habit_logs.add({
+        id: generateUUID(),
+        habit_id: habitId,
+        day_key: dayKey,
+        status,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+      });
+    }
+  }
+
+  // ---------- Leisure / Fun Config ----------
+
+  async funConfig(): Promise<FunConfig> {
+    const setting = await db.settings.get('fun_config');
+    if (!setting) return { title: 'تفریح بدون عذاب وجدان', minutes: 30 };
+    try {
+      return JSON.parse(setting.v);
+    } catch (_) {
+      return { title: 'تفریح بدون عذاب وجدان', minutes: 30 };
+    }
+  }
+
+  async setFunConfig(cfg: FunConfig): Promise<void> {
+    await db.settings.put({
+      k: 'fun_config',
+      v: JSON.stringify(cfg),
+      updated_at: Date.now(),
+    });
+  }
+
+  // ---------- Brain Vault Thoughts ----------
 
   async thoughts(): Promise<Thought[]> {
-    return db.thoughts
+    const rows = await db.thoughts
       .filter((t) => t.deleted_at === null)
-      .reverse()
       .sortBy('created_at');
+
+    return rows.reverse().map((r) => ({
+      id: r.id,
+      text: r.text,
+      category: r.category as ThoughtCategory,
+      created_at: r.created_at,
+    }));
   }
 
   async addThought(text: string, category: ThoughtCategory): Promise<Thought> {
     const now = Date.now();
+    const id = generateUUID();
     const thought: Thought = {
-      id: generateId(),
-      text,
+      id,
+      text: text.trim(),
       category,
       created_at: now,
       updated_at: now,
@@ -380,7 +509,7 @@ export class Repo {
   async updateThought(id: string, text: string, category: ThoughtCategory): Promise<void> {
     const now = Date.now();
     await db.thoughts.update(id, {
-      text,
+      text: text.trim(),
       category,
       updated_at: now,
     });
@@ -394,72 +523,127 @@ export class Repo {
     });
   }
 
-  async restoreThought(t: Thought): Promise<void> {
+  async restoreThought(th: Thought): Promise<void> {
     const now = Date.now();
-    await db.thoughts.put({
-      ...t,
-      updated_at: now,
-      deleted_at: null,
+    const existing = await db.thoughts.get(th.id);
+    if (existing) {
+      await db.thoughts.update(th.id, {
+        deleted_at: null,
+        updated_at: now,
+      });
+    } else {
+      await db.thoughts.add({
+        id: th.id,
+        text: th.text,
+        category: th.category,
+        created_at: th.created_at,
+        updated_at: now,
+        deleted_at: null,
+      });
+    }
+  }
+
+  async promoteThought(th: Thought, todayKeyStr: string): Promise<boolean> {
+    const plan = await this.dayPlan(todayKeyStr);
+    const maxSlots = maxTasksForActiveDays(await this.activeDaysCount());
+
+    if (plan.planned && plan.tasks.length < maxSlots) {
+      await this.addTaskToDay(todayKeyStr, {
+        id: generateUUID(),
+        title: th.text,
+        notes: `مخزن ذهن: ${th.category}`,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      });
+      await this.deleteThought(th.id);
+      return true;
+    } else {
+      await this.addBacklog(th.text, `مخزن ذهن: ${th.category}`);
+      await this.deleteThought(th.id);
+      return false;
+    }
+  }
+
+  async addTaskToDay(dayKey: string, item: BacklogItem): Promise<void> {
+    const now = Date.now();
+    await db.transaction('rw', db.tasks, async () => {
+      const dayTasks = await db.tasks
+        .filter((t) => t.scheduled_date === dayKey && t.deleted_at === null)
+        .toArray();
+      const maxOrder = dayTasks.reduce((max, t) => Math.max(max, t.active_order || 0), -1);
+
+      await db.tasks.add({
+        id: item.id,
+        title: item.title,
+        notes: item.notes || '',
+        is_boulder: false,
+        status: 'pending',
+        scheduled_date: dayKey,
+        reminder_time: null,
+        active_order: maxOrder + 1,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+      });
     });
   }
 
-  async activeDaysCount(): Promise<number> {
-    return db.days
-      .filter((d) => d.closed_at !== null && d.deleted_at === null)
-      .count();
+  // ---------- Energy Checks ----------
+
+  async logEnergy(dayKey: string, hour: number, level: number): Promise<void> {
+    const now = Date.now();
+    const id = `${dayKey}_${hour}`;
+    const energyCheck: EnergyCheck = {
+      id,
+      day_key: dayKey,
+      hour,
+      level,
+      created_at: now,
+      updated_at: now,
+    };
+    await db.energy_checks.put(energyCheck);
   }
 
-  async promoteThought(t: Thought, dayKey: string): Promise<boolean> {
-    const plan = await this.dayPlan(dayKey);
-    const item = await this.addBacklog(t.text);
-    await this.deleteThought(t.id);
-
-    const active = await this.activeDaysCount();
-    const maxTasks = maxTasksForActiveDays(active);
-    const hasRoom = plan.planned && !plan.closed && plan.tasks.length < maxTasks;
-
-    if (hasRoom) {
-      await this.addTaskToDay(dayKey, item);
-    }
-    return hasRoom;
+  async addEnergyCheck(level: number): Promise<void> {
+    const hour = new Date().getHours();
+    await this.logEnergy(todayKey(), hour, level);
   }
 
-  // ---------- focus sessions ----------
+  // ---------- Focus Sessions Engine ----------
 
   async startFocusSession({
     dayKey,
     taskId,
     title,
     plannedMin,
-    kind = 'task',
+    kind,
   }: {
     dayKey: string;
     taskId: string | null;
     title: string;
     plannedMin: number;
-    kind?: 'task' | 'fun';
+    kind: 'task' | 'fun';
   }): Promise<string> {
-    const id = generateId();
     const now = Date.now();
-    const session: FocusSession = {
-      id,
+    const sessionId = generateUUID();
+    await db.focus_sessions.add({
+      id: sessionId,
       task_id: taskId,
-      duration_seconds: 0,
-      completed_at: null,
       day_key: dayKey,
       title,
       planned_min: plannedMin,
       started_at: now,
       ended_at: null,
+      completed_at: null,
+      duration_seconds: plannedMin * 60,
       completed: false,
       interrupt_note: null,
       interrupt_tag: null,
       kind,
       created_at: now,
       updated_at: now,
-    };
-    await db.focus_sessions.add(session);
-    return id;
+    });
+    return sessionId;
   }
 
   async endFocusSession({
@@ -475,220 +659,167 @@ export class Repo {
     interruptTag?: InterruptTag | null;
     endedAtMs?: number;
   }): Promise<void> {
-    const now = Date.now();
-    const endedAt = endedAtMs || now;
-    const session = await db.focus_sessions.get(sessionId);
-
-    let durationSec = 0;
-    if (session) {
-      durationSec = Math.min(Math.max(Math.round((endedAt - session.started_at) / 1000), 0), 86400);
-    }
-
+    const now = endedAtMs || Date.now();
     await db.focus_sessions.update(sessionId, {
-      ended_at: endedAt,
-      duration_seconds: durationSec,
-      completed_at: completed ? endedAt : null,
+      ended_at: now,
       completed,
+      completed_at: completed ? now : null,
       interrupt_note: interruptNote || null,
       interrupt_tag: interruptTag || null,
       updated_at: now,
     });
   }
 
-  // ---------- habits ----------
+  // ---------- Stats & Mirror ----------
 
-  async habits(): Promise<Habit[]> {
-    const habitRows = await db.habits
-      .filter((h) => h.deleted_at === null)
-      .sortBy('sort');
+  async stats(): Promise<StatsData> {
+    const days = await db.days
+      .filter((d) => d.deleted_at === null)
+      .sortBy('day_key');
 
-    const logRows = await db.habit_logs
-      .filter((l) => l.deleted_at === null)
+    const closedDays = days.filter((d) => d.closed_at !== null);
+
+    // 1. Win Rate
+    let winRate: number | null = null;
+    if (closedDays.length > 0) {
+      const wins = closedDays.filter((d) => d.outcome === 1).length;
+      winRate = Math.round((wins / closedDays.length) * 100);
+    }
+
+    // 2. Optimism Gap
+    let gap: number | null = null;
+    const optimismReliable = closedDays.length >= 5;
+    if (closedDays.length > 0) {
+      const totalPred = closedDays.reduce((sum, d) => sum + (d.prediction ?? 70), 0);
+      const avgPred = totalPred / closedDays.length;
+      const actualWin = ((closedDays.filter((d) => d.outcome === 1).length) / closedDays.length) * 100;
+      gap = Math.round(avgPred - actualWin);
+    }
+
+    // 3. Recovery Rate
+    let recoveryRate: number | null = null;
+    let losses = 0;
+    let recoveries = 0;
+    for (let i = 0; i < closedDays.length - 1; i++) {
+      if (closedDays[i].outcome === 0) {
+        losses++;
+        if (closedDays[i + 1].outcome === 1) {
+          recoveries++;
+        }
+      }
+    }
+    if (losses > 0) {
+      recoveryRate = Math.round((recoveries / losses) * 100);
+    }
+
+    // 4. Focus minutes in last 7 days
+    const today = todayKey();
+    const focusMinutesLast7: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const k = shiftDayKey(today, -i);
+      const sessions = await db.focus_sessions
+        .filter((s) => s.day_key === k)
+        .toArray();
+      const mins = sessions.reduce((acc, s) => acc + Math.round((s.duration_seconds || 0) / 60), 0);
+      focusMinutesLast7.push(mins);
+    }
+    const focusMinutesWeek = focusMinutesLast7.reduce((a, b) => a + b, 0);
+
+    // 5. Golden Hour (peak energy)
+    const energy = await db.energy_checks.toArray();
+    let goldenHour: number | null = null;
+    if (energy.length >= 3) {
+      const hourScores = new Map<number, { sum: number; count: number }>();
+      for (const e of energy) {
+        const curr = hourScores.get(e.hour) || { sum: 0, count: 0 };
+        hourScores.set(e.hour, { sum: curr.sum + e.level, count: curr.count + 1 });
+      }
+      let maxScore = -1;
+      for (const [hour, { sum, count }] of hourScores.entries()) {
+        const avg = sum / count;
+        if (avg > maxScore) {
+          maxScore = avg;
+          goldenHour = hour;
+        }
+      }
+    }
+
+    // 6. 30-Day Interruption counts
+    const thirtyDaysAgo = shiftDayKey(today, -30);
+    const recentSessions = await db.focus_sessions
+      .filter((s) => s.day_key >= thirtyDaysAgo)
       .toArray();
 
-    const logsMap: Record<string, Record<string, string>> = {};
-    for (const l of logRows) {
-      if (!logsMap[l.habit_id]) logsMap[l.habit_id] = {};
-      logsMap[l.habit_id][l.day_key] = l.status;
+    const interruptCounts: Partial<Record<InterruptTag, number>> = {};
+    for (const s of recentSessions) {
+      if (s.interrupt_tag) {
+        interruptCounts[s.interrupt_tag] = (interruptCounts[s.interrupt_tag] || 0) + 1;
+      }
     }
 
-    return habitRows.map((h) => ({
-      ...h,
-      logs: logsMap[h.id] || {},
-    }));
-  }
-
-  async addHabit({
-    title,
-    cue,
-    isBad,
-    badCost,
-    replacement,
-    reminderMinutes,
-    frequency = 'daily',
-  }: {
-    title: string;
-    cue: string;
-    isBad: boolean;
-    badCost: string;
-    replacement: string;
-    reminderMinutes: number | null;
-    frequency?: string;
-  }): Promise<Habit> {
-    const now = Date.now();
-    const existing = await db.habits.filter((h) => h.deleted_at === null).toArray();
-    const maxSort = existing.reduce((max, h) => Math.max(max, h.sort || 0), -1);
-
-    const habit: Habit = {
-      id: generateId(),
-      title,
-      cue,
-      created: todayKey(),
-      frequency,
-      recovery_count: 0,
-      is_bad: isBad,
-      bad_cost: badCost,
-      replacement,
-      reminder_minutes: reminderMinutes,
-      sort: maxSort + 1,
-      logs: {},
-      created_at: now,
-      updated_at: now,
-      deleted_at: null,
-    };
-    await db.habits.add(habit);
-    return habit;
-  }
-
-  async updateHabit({
-    id,
-    title,
-    cue,
-    isBad,
-    badCost,
-    replacement,
-    reminderMinutes,
-    frequency = 'daily',
-  }: {
-    id: string;
-    title: string;
-    cue: string;
-    isBad: boolean;
-    badCost: string;
-    replacement: string;
-    reminderMinutes: number | null;
-    frequency?: string;
-  }): Promise<void> {
-    const now = Date.now();
-    await db.habits.update(id, {
-      title,
-      cue,
-      frequency,
-      is_bad: isBad,
-      bad_cost: badCost,
-      replacement,
-      reminder_minutes: reminderMinutes,
-      updated_at: now,
-    });
-  }
-
-  async deleteHabit(id: string): Promise<void> {
-    const now = Date.now();
-    await db.habits.update(id, {
-      deleted_at: now,
-      updated_at: now,
-    });
-  }
-
-  async logHabit(habitId: string, dayKey: string, status: 'done' | 'slip' | 'resisted' | null): Promise<void> {
-    const now = Date.now();
-    const id = `${habitId}_${dayKey}`;
-    if (status === null) {
-      await db.habit_logs.delete(id);
-    } else {
-      await db.habit_logs.put({
-        id,
-        habit_id: habitId,
-        day_key: dayKey,
-        status,
-        created_at: now,
-        updated_at: now,
-        deleted_at: null,
-      });
-    }
-  }
-
-  // ---------- leisure / fun ----------
-
-  async funConfig(): Promise<FunConfig> {
-    const rows = await db.leisure
-      .filter((l) => l.deleted_at === null)
+    // 7. Last 7 closed nights
+    const lastNights = closedDays
+      .slice(-7)
       .reverse()
-      .sortBy('updated_at');
+      .map((d) => ({
+        dayKey: d.day_key,
+        outcome: d.outcome === 1,
+        prediction: d.prediction ?? 70,
+        whys: JSON.parse(d.whys || '[]'),
+        note: d.note || '',
+      }));
 
-    if (rows.length > 0) {
-      return {
-        title: rows[0].title,
-        minutes: rows[0].duration_minutes,
-      };
-    }
-
-    const fallbackSetting = await this.getSetting('fun');
-    if (fallbackSetting) {
-      try {
-        return JSON.parse(fallbackSetting);
-      } catch (_) {}
-    }
+    // 8. Weekly Review Due check
+    const lastReview = await db.weekly_reviews.orderBy('created_at').last();
+    const daysSinceReview = lastReview
+      ? (Date.now() - lastReview.created_at) / (1000 * 60 * 60 * 24)
+      : 8;
+    const reviewDue = closedDays.length >= 4 && daysSinceReview >= 7;
 
     return {
-      title: 'تفریح بدون عذاب وجدان',
-      minutes: 30,
+      winRate,
+      optimismGap: gap,
+      optimismReliable,
+      recoveryRate,
+      focusMinutesLast7,
+      focusMinutesWeek,
+      goldenHour,
+      interruptCounts,
+      lastNights,
+      reviewDue,
+      gap,
     };
   }
 
-  async setFunConfig(fun: FunConfig): Promise<void> {
-    const now = Date.now();
-    const rows = await db.leisure.filter((l) => l.deleted_at === null).toArray();
-    if (rows.length > 0) {
-      await db.leisure.update(rows[0].id, {
-        title: fun.title,
-        duration_minutes: fun.minutes,
-        updated_at: now,
-      });
-    } else {
-      await db.leisure.add({
-        id: generateId(),
-        title: fun.title,
-        duration_minutes: fun.minutes,
-        created_at: now,
-        updated_at: now,
-        deleted_at: null,
-      });
-    }
-    await this.setSetting('fun', JSON.stringify(fun));
+  async markReviewDone(): Promise<void> {
+    await db.weekly_reviews.add({
+      id: generateUUID(),
+      kept_count: 0,
+      pruned_count: 0,
+      created_at: Date.now(),
+    });
   }
 
-  // ---------- settings ----------
+  // ---------- Settings ----------
 
-  async getSetting(key: string): Promise<string | null> {
-    const row = await db.settings.get(key);
-    return row ? row.v : null;
+  async getSetting(key: string): Promise<string | undefined> {
+    const s = await db.settings.get(key);
+    return s?.v;
   }
 
   async setSetting(key: string, value: string): Promise<void> {
-    const now = Date.now();
     await db.settings.put({
       k: key,
       v: value,
-      updated_at: now,
+      updated_at: Date.now(),
     });
   }
 
   async reminderMinutes(key: string, fallback: number): Promise<number | null> {
-    const raw = await this.getSetting(key);
-    if (raw === null) return fallback;
-    if (raw === 'off') return null;
-    const parsed = parseInt(raw, 10);
+    const val = await this.getSetting(key);
+    if (val === undefined) return fallback;
+    if (val === 'off' || val === 'null') return null;
+    const parsed = parseInt(val, 10);
     return isNaN(parsed) ? fallback : parsed;
   }
 
@@ -696,270 +827,97 @@ export class Repo {
     await this.setSetting(key, minutes === null ? 'off' : String(minutes));
   }
 
-  // ---------- energy checks ----------
-
-  async addEnergyCheck(level: number): Promise<void> {
-    const now = Date.now();
-    const hour = new Date().getHours();
-    await db.energy_checks.add({
-      id: generateId(),
-      day_key: todayKey(),
-      hour,
-      level,
-      created_at: now,
-      updated_at: now,
-    });
-  }
-
-  // ---------- stats mirror ----------
-
-  async markReviewDone(): Promise<void> {
-    await this.setSetting('last_review', todayKey());
-  }
-
-  async stats(): Promise<StatsData> {
-    const today = todayKey();
-
-    // Closed nights
-    const closed = await db.days
-      .filter((d) => d.closed_at !== null && d.prediction !== null && d.deleted_at === null)
-      .reverse()
-      .sortBy('day_key');
-
-    const closedCount = closed.length;
-    let winRate: number | null = null;
-    let avgPrediction: number | null = null;
-    let gap: number | null = null;
-
-    if (closedCount > 0) {
-      const wins = closed.filter((r) => r.outcome === 1).length;
-      winRate = Math.round((wins / closedCount) * 100);
-      const sumPred = closed.reduce((acc, r) => acc + (r.prediction || 0), 0);
-      avgPrediction = Math.round(sumPred / closedCount);
-      gap = avgPrediction - winRate;
-    }
-
-    const lastNights: NightRow[] = closed.slice(0, 7).map((r) => ({
-      dayKey: r.day_key,
-      prediction: r.prediction || 0,
-      outcome: r.outcome === 1,
-    }));
-
-    // Habit recovery rate
-    const allHabits = await this.habits();
-    let misses = 0;
-    let recoveries = 0;
-    const fortyFiveDaysAgo = shiftDayKey(today, -45);
-
-    for (const h of allHabits.filter((x) => !x.is_bad)) {
-      let key = h.created.localeCompare(fortyFiveDaysAgo) > 0 ? h.created : fortyFiveDaysAgo;
-      while (key.localeCompare(today) < 0) {
-        const doneToday = h.logs?.[key] === 'done';
-        if (!doneToday) {
-          misses++;
-          const nextDayKey = shiftDayKey(key, 1);
-          if (h.logs?.[nextDayKey] === 'done') {
-            recoveries++;
-          }
-        }
-        key = shiftDayKey(key, 1);
-      }
-    }
-
-    const recoveryRate = misses > 0 ? Math.round((recoveries / misses) * 100) : null;
-
-    // Focus minutes last 7 days
-    const weekStart = shiftDayKey(today, -6);
-    const sessions = await db.focus_sessions
-      .filter((s) => s.ended_at !== null && s.kind === 'task' && s.day_key >= weekStart)
-      .toArray();
-
-    const focusMinutesLast7 = [0, 0, 0, 0, 0, 0, 0];
-    for (const s of sessions) {
-      const d1 = new Date(today).getTime();
-      const d2 = new Date(s.day_key).getTime();
-      const diffDays = Math.round((d1 - d2) / (1000 * 60 * 60 * 24));
-      const idx = 6 - diffDays;
-      if (idx >= 0 && idx < 7) {
-        const ms = (s.ended_at || 0) - s.started_at;
-        focusMinutesLast7[idx] += Math.min(Math.max(Math.round(ms / 60000), 0), 1440);
-      }
-    }
-
-    // Interrupt patterns last 30 days
-    const thirtyDaysAgo = shiftDayKey(today, -30);
-    const tagSessions = await db.focus_sessions
-      .filter((s) => s.interrupt_tag !== null && s.day_key >= thirtyDaysAgo)
-      .toArray();
-
-    const interruptCounts: Partial<Record<InterruptTag, number>> = {};
-    for (const s of tagSessions) {
-      if (s.interrupt_tag) {
-        interruptCounts[s.interrupt_tag] = (interruptCounts[s.interrupt_tag] || 0) + 1;
-      }
-    }
-
-    const notesSessions = await db.focus_sessions
-      .filter((s) => Boolean(s.interrupt_note && s.interrupt_note.trim()))
-      .reverse()
-      .sortBy('started_at');
-
-    const recentInterrupts = notesSessions.slice(0, 5).map((s) => s.interrupt_note!);
-
-    // Golden hour calculation
-    const checks = await db.energy_checks
-      .filter((c) => c.day_key >= thirtyDaysAgo)
-      .toArray();
-
-    let goldenHour: number | null = null;
-    if (checks.length >= 6) {
-      const sums = Array(8).fill(0);
-      const counts = Array(8).fill(0);
-      for (const c of checks) {
-        const bucket = Math.floor(c.hour / 3);
-        sums[bucket] += c.level;
-        counts[bucket]++;
-      }
-      let best = -1;
-      for (let i = 0; i < 8; i++) {
-        if (counts[i] === 0) continue;
-        const avg = sums[i] / counts[i];
-        if (avg > best) {
-          best = avg;
-          goldenHour = i * 3;
-        }
-      }
-    }
-
-    // Zero-based review due
-    const lastReview = await this.getSetting('last_review');
-    let reviewDue = false;
-    if (lastReview === null && closedCount >= 6) {
-      reviewDue = true;
-    } else if (lastReview !== null) {
-      const diff = Math.round(
-        (new Date(today).getTime() - new Date(lastReview).getTime()) / (1000 * 60 * 60 * 24)
-      );
-      if (diff >= 7) reviewDue = true;
-    }
-
-    const focusMinutesWeek = focusMinutesLast7.reduce((a, b) => a + b, 0);
-
-    return {
-      closedCount,
-      winRate,
-      avgPrediction,
-      gap,
-      recoveryRate,
-      lastNights,
-      focusMinutesLast7,
-      recentInterrupts,
-      interruptCounts,
-      goldenHour,
-      reviewDue,
-      focusMinutesWeek,
-      optimismReliable: closedCount >= 5,
-    };
-  }
-
-  // ---------- JSON export / import ----------
+  // ---------- Backup & JSON Export / Restore ----------
 
   async exportJson(): Promise<string> {
-    const tasks = await db.tasks.toArray();
-    const days = await db.days.toArray();
-    const thoughts = await db.thoughts.toArray();
-    const focus_sessions = await db.focus_sessions.toArray();
-    const habits = await db.habits.toArray();
-    const habit_logs = await db.habit_logs.toArray();
-    const leisure = await db.leisure.toArray();
-    const energy_checks = await db.energy_checks.toArray();
-    const settings = await db.settings.toArray();
+    const [tasks, days, habits, habitLogs, thoughts, focusSessions, energyChecks, settings, weeklyReviews] =
+      await Promise.all([
+        db.tasks.toArray(),
+        db.days.toArray(),
+        db.habits.toArray(),
+        db.habit_logs.toArray(),
+        db.thoughts.toArray(),
+        db.focus_sessions.toArray(),
+        db.energy_checks.toArray(),
+        db.settings.toArray(),
+        db.weekly_reviews.toArray(),
+      ]);
 
-    return JSON.stringify(
-      {
-        app: 'taknoghte',
-        version: 2,
-        exportedAt: new Date().toISOString(),
-        tables: {
-          tasks,
-          days,
-          thoughts,
-          focus_sessions,
-          habits,
-          habit_logs,
-          leisure,
-          energy_checks,
-          settings,
-        },
+    const backup = {
+      app: 'taknoghte',
+      version: 2,
+      exported_at: Date.now(),
+      tables: {
+        tasks,
+        days,
+        habits,
+        habit_logs: habitLogs,
+        thoughts,
+        focus_sessions: focusSessions,
+        energy_checks: energyChecks,
+        settings,
+        weekly_reviews: weeklyReviews,
       },
-      null,
-      2
-    );
+    };
+
+    return JSON.stringify(backup, null, 2);
   }
 
-  async importJson(raw: string): Promise<void> {
-    let decoded: any;
-    try {
-      decoded = JSON.parse(raw);
-    } catch (_) {
-      throw new Error('Invalid JSON');
+  async importJson(jsonString: string): Promise<void> {
+    const data = JSON.parse(jsonString);
+    if (!data.tables || typeof data.tables !== 'object') {
+      throw new Error('Invalid backup format');
     }
 
-    if (!decoded || decoded.app !== 'taknoghte' || !decoded.tables) {
-      throw new Error('Not a valid Taknoghte backup');
-    }
+    const {
+      tasks = [],
+      days = [],
+      habits = [],
+      habit_logs = [],
+      thoughts = [],
+      focus_sessions = [],
+      energy_checks = [],
+      settings = [],
+      weekly_reviews = [],
+    } = data.tables;
 
-    const tables = decoded.tables;
     await db.transaction(
       'rw',
       [
         db.tasks,
         db.days,
-        db.thoughts,
-        db.focus_sessions,
         db.habits,
         db.habit_logs,
-        db.leisure,
+        db.thoughts,
+        db.focus_sessions,
         db.energy_checks,
         db.settings,
+        db.weekly_reviews,
       ],
       async () => {
-        if (tables.tasks) {
-          await db.tasks.clear();
-          await db.tasks.bulkPut(tables.tasks);
-        }
-        if (tables.days) {
-          await db.days.clear();
-          await db.days.bulkPut(tables.days);
-        }
-        if (tables.thoughts) {
-          await db.thoughts.clear();
-          await db.thoughts.bulkPut(tables.thoughts);
-        }
-        if (tables.focus_sessions) {
-          await db.focus_sessions.clear();
-          await db.focus_sessions.bulkPut(tables.focus_sessions);
-        }
-        if (tables.habits) {
-          await db.habits.clear();
-          await db.habits.bulkPut(tables.habits);
-        }
-        if (tables.habit_logs) {
-          await db.habit_logs.clear();
-          await db.habit_logs.bulkPut(tables.habit_logs);
-        }
-        if (tables.leisure) {
-          await db.leisure.clear();
-          await db.leisure.bulkPut(tables.leisure);
-        }
-        if (tables.energy_checks) {
-          await db.energy_checks.clear();
-          await db.energy_checks.bulkPut(tables.energy_checks);
-        }
-        if (tables.settings) {
-          await db.settings.clear();
-          await db.settings.bulkPut(tables.settings);
-        }
+        await Promise.all([
+          db.tasks.clear(),
+          db.days.clear(),
+          db.habits.clear(),
+          db.habit_logs.clear(),
+          db.thoughts.clear(),
+          db.focus_sessions.clear(),
+          db.energy_checks.clear(),
+          db.settings.clear(),
+          db.weekly_reviews.clear(),
+        ]);
+
+        await Promise.all([
+          db.tasks.bulkPut(tasks),
+          db.days.bulkPut(days),
+          db.habits.bulkPut(habits),
+          db.habit_logs.bulkPut(habit_logs),
+          db.thoughts.bulkPut(thoughts),
+          db.focus_sessions.bulkPut(focus_sessions),
+          db.energy_checks.bulkPut(energy_checks),
+          db.settings.bulkPut(settings),
+          db.weekly_reviews.bulkPut(weekly_reviews),
+        ]);
       }
     );
   }

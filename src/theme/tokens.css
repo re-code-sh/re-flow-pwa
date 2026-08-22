@@ -43,17 +43,24 @@
 }
 
 /* Global scroll behavior & body styling */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html, body {
   background-color: #060608;
   color: #F5F5F7;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
   user-select: none;
+  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Glass card styling */

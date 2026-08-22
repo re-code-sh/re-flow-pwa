@@ -105,7 +105,7 @@ export const StatsScreen: React.FC = () => {
                     s.optimismReliable && (s.gap ?? 0) > 15 ? 'text-[#FF7A6E]' : 'text-white'
                   )}
                 >
-                  {!s.optimismReliable || s.gap === null
+                  {!s.optimismReliable || s.gap === null || s.gap === undefined
                     ? '—'
                     : `${s.gap > 0 ? '+' : ''}${fmtNum(s.gap, lang)}`}
                 </span>

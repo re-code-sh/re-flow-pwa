@@ -20,6 +20,7 @@ import { AppAccentCode, AppLanguage } from '../../core/types';
 import { useAppStore, appActions } from '../../state/useAppStore';
 import { repo } from '../../db/repo';
 import { fmtTime, todayKey } from '../../core/jalali';
+import { downloadOrShareFile } from '../../core/exportHelper';
 import { TimePickerModal } from '../ui/TimePickerModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { GlassCard } from '../ui/GlassCard';
@@ -64,32 +65,16 @@ export const SettingsModal: React.FC = () => {
   const handleExport = async () => {
     try {
       const json = await repo.exportJson();
-      const blob = new Blob([json], { type: 'application/json' });
       const stamp = todayKey();
       const filename = `flow-backup-${stamp}.json`;
-
-      // Web Share API support on mobile
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: 'application/json' })] })) {
-        try {
-          const file = new File([blob], filename, { type: 'application/json' });
-          await navigator.share({
-            files: [file],
-            title: `پشتیبان تک‌نقطه — ${stamp}`,
-          });
-          return;
-        } catch (_) {}
+      const ok = await downloadOrShareFile({
+        filename,
+        content: json,
+        title: `پشتیبان تک‌نقطه — ${stamp}`,
+      });
+      if (ok) {
+        appActions.showToast(t('save'));
       }
-
-      // Direct download fallback
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      appActions.showToast(t('save'));
     } catch (err) {
       appActions.showToast('خطا در پشتیبان‌گیری');
     }
