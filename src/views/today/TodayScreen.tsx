@@ -459,17 +459,13 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                 <div>
                   <h3 className="text-[15.5px] font-bold text-ink">
                     {plan.closed
-                      ? isFa
-                        ? 'روز بسته شد'
-                        : 'Day Closed'
-                      : (isFa ? 'پایان روز' : t('eveningReviewTitle'))}
+                      ? (isFa ? 'روز بسته شد' : 'Day Closed')
+                      : t('eveningReviewTitle')}
                   </h3>
                   <p className="text-[11.5px] text-ink-3">
                     {plan.closed
-                      ? isFa
-                        ? 'فردا، دوباره از تخته‌سنگ.'
-                        : 'Tomorrow, start fresh with the Boulder.'
-                      : (isFa ? '۶۰ ثانیه — چک، چرا، یک خط' : t('eveningReviewSub'))}
+                      ? (isFa ? 'فردا، دوباره از تخته‌سنگ.' : 'Tomorrow, start fresh with the Boulder.')
+                      : t('eveningReviewSub')}
                   </p>
                 </div>
 

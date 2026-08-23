@@ -118,6 +118,7 @@
   "taskTitleLabel": "Task Title",
   "deleteTaskAction": "Delete Task",
   "eveningReviewTitle": "Evening Review",
+  "eveningReviewSub": "60 seconds — check, why, one line",
   "eveningReviewDoneSub": "The Boulder fell. Close the day and clear your mind.",
   "eveningReviewMissedSub": "The Boulder didn't fall — the system failed, not you. Trace the root causes.",
   "whyLabel1": "Why 1 (Systemic Cause)",

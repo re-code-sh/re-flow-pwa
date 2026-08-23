@@ -118,6 +118,7 @@
   "taskTitleLabel": "عنوان کار",
   "deleteTaskAction": "حذف کار",
   "eveningReviewTitle": "پایان روز",
+  "eveningReviewSub": "۶۰ ثانیه — چک، چرا، یک خط",
   "eveningReviewDoneSub": "تخته‌سنگ افتاد. روز را ببند و ذهن را خالی کن.",
   "eveningReviewMissedSub": "تخته‌سنگ نیفتاد — سیستم شکست خورد، نه تو. علل را تفکیک کن.",
   "whyLabel1": "چرا اول (علت ریشه‌ای)",

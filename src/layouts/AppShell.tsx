@@ -122,12 +122,12 @@ export const AppShell: React.FC = () => {
         </div>
       </main>
 
-      {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, z-30 directly above nav bar) ================= */}
-      <div className="md:hidden fixed bottom-24 end-5 z-30 select-none">
+      {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, aligned with bottom nav container) ================= */}
+      <div className="md:hidden fixed bottom-[74px] left-4 right-4 max-w-sm mx-auto z-30 pointer-events-none flex justify-start select-none">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
-          className="pressable active:scale-95 flex items-center gap-2 py-1.5 px-3.5 rounded-full bg-[#16161f]/90 backdrop-blur-xl border border-white/[0.08] shadow-lg text-ink-2 hover:text-ink transition-transform duration-100 ease-out cursor-pointer"
+          className="pointer-events-auto pressable active:scale-95 flex items-center gap-2 py-1.5 px-3.5 rounded-full bg-[#16161f]/90 backdrop-blur-xl border border-white/[0.08] shadow-lg text-ink-2 hover:text-ink transition-transform duration-100 ease-out cursor-pointer"
         >
           <span className="text-[12px] font-semibold text-white/85 leading-none">
             {t('brainVaultTitle')}
