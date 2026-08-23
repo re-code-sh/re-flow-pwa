@@ -469,7 +469,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   type="submit"
                   className="pressable flex-2 h-[46px] rounded-[14px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)] font-bold text-[13px] shadow-accent-sm-glow"
                 >
-                  {isFa ? 'ثبت و بازگشت به تمرکز' : 'Save & Return to Focus'}
+                  {isFa ? 'ثبت' : 'Save'}
                 </button>
               </div>
             </form>

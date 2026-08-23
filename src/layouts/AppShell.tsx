@@ -110,14 +110,16 @@ export const AppShell: React.FC = () => {
         </button>
       </aside>
 
-      {/* ================= CENTERED SPACIOUS CANVAS CONTAINER ================= */}
-      <main className="w-full max-w-2xl lg:max-w-3xl mx-auto min-h-screen px-4 sm:px-6 pt-3 pb-36 sm:pb-28 flex flex-col justify-start">
-        {currentTab === 'tasks' && (
-          <TodayScreen onOpenSettings={() => setCurrentTab('settings')} />
-        )}
-        {currentTab === 'habits' && <HabitsView />}
-        {currentTab === 'leisure' && <LeisureView />}
-        {currentTab === 'settings' && <SettingsView />}
+      {/* ================= UNIFIED SCALING CANVAS CONTAINER ================= */}
+      <main className="w-full max-w-xl mx-auto min-h-[100dvh] px-4 sm:px-6 pt-4 pb-36 sm:pb-32 flex flex-col justify-start">
+        <div key={currentTab} className="w-full animate-in fade-in duration-150">
+          {currentTab === 'tasks' && (
+            <TodayScreen onOpenSettings={() => setCurrentTab('settings')} />
+          )}
+          {currentTab === 'habits' && <HabitsView />}
+          {currentTab === 'leisure' && <LeisureView />}
+          {currentTab === 'settings' && <SettingsView />}
+        </div>
       </main>
 
       {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, z-30 directly above nav bar) ================= */}
