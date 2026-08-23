@@ -155,76 +155,76 @@ export const AppShell: React.FC = () => {
       </main>
 
       {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, micro-aligned with Tasks tab) ================= */}
-      <div className="md:hidden fixed bottom-[5.25rem] left-4 right-4 max-w-sm mx-auto px-1.5 z-30 pointer-events-none flex justify-start select-none">
+      <div className="md:hidden fixed bottom-[5.85rem] left-4 right-4 max-w-sm mx-auto px-1.5 z-30 pointer-events-none flex justify-start select-none">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
-          className="pointer-events-auto pressable active:scale-95 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#14141b]/95 border border-white/[0.08] backdrop-blur-xl shadow-lg text-ink-2 hover:text-ink transition-all cursor-pointer"
+          className="pointer-events-auto pressable flex items-center gap-2.5 px-4 py-2 rounded-[20px] bg-[#15151e]/95 border border-white/[0.08] backdrop-blur-xl shadow-lg active:scale-95 transition-all cursor-pointer"
         >
-          <PsychologyOutlinedIcon sx={{ fontSize: 17, color: 'var(--ink-2)' }} />
-          <span className="text-[12px] font-medium text-white/85 leading-none">
+          <PsychologyOutlinedIcon sx={{ fontSize: 18, color: 'rgba(255, 255, 255, 0.75)' }} />
+          <span className="text-xs font-semibold text-white/90 leading-none">
             {t('brainVaultTitle')}
           </span>
         </button>
       </div>
 
       {/* ================= MOBILE FLOATING BOTTOM PILL BAR (< 768px, z-40, 1:1 Android Parity) ================= */}
-      <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 rounded-[28px] bg-[#0e0e14]/90 backdrop-blur-2xl border border-white/[0.08] shadow-2xl p-1.5 grid grid-cols-3 gap-1.5 items-center">
-        {/* Tab 1: Tasks */}
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 h-[72px] rounded-[28px] bg-[#111118]/90 border border-white/[0.08] backdrop-blur-2xl p-1.5 flex items-center justify-between shadow-2xl">
+        {/* Tab 1: Tasks / کارها */}
         <button
           type="button"
           onClick={() => setCurrentTab('tasks')}
           className={clsx(
-            'pressable flex flex-col items-center justify-center py-2 px-3 gap-1 transition-all rounded-2xl',
+            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'tasks'
-              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-bold'
-              : 'border border-transparent text-white/45 hover:text-white/70 font-medium'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
+              : 'text-white/50 hover:text-white/80'
           )}
         >
           {currentTab === 'tasks' ? (
-            <CheckCircleRoundedIcon sx={{ fontSize: 20 }} />
+            <CheckCircleRoundedIcon sx={{ fontSize: 20, color: 'var(--accent)' }} />
           ) : (
             <CheckCircleOutlineRoundedIcon sx={{ fontSize: 20 }} />
           )}
-          <span className="text-[11.5px] leading-none truncate max-w-full">{t('tasksTab')}</span>
+          <span className="text-[11px] font-medium leading-none">{t('tasksTab')}</span>
         </button>
 
-        {/* Tab 2: Habits */}
+        {/* Tab 2: Habits / عادتها */}
         <button
           type="button"
           onClick={() => setCurrentTab('habits')}
           className={clsx(
-            'pressable flex flex-col items-center justify-center py-2 px-3 gap-1 transition-all rounded-2xl',
+            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'habits'
-              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-bold'
-              : 'border border-transparent text-white/45 hover:text-white/70 font-medium'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
+              : 'text-white/50 hover:text-white/80'
           )}
         >
           {currentTab === 'habits' ? (
-            <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
+            <AutoAwesomeRoundedIcon sx={{ fontSize: 20, color: 'var(--accent)' }} />
           ) : (
             <RepeatRoundedIcon sx={{ fontSize: 20 }} />
           )}
-          <span className="text-[11.5px] leading-none truncate max-w-full">{t('habitsTab')}</span>
+          <span className="text-[11px] font-medium leading-none">{t('habitsTab')}</span>
         </button>
 
-        {/* Tab 3: Leisure */}
+        {/* Tab 3: Leisure / تفریحها */}
         <button
           type="button"
           onClick={() => setCurrentTab('leisure')}
           className={clsx(
-            'pressable flex flex-col items-center justify-center py-2 px-3 gap-1 transition-all rounded-2xl',
+            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'leisure'
-              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-bold'
-              : 'border border-transparent text-white/45 hover:text-white/70 font-medium'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
+              : 'text-white/50 hover:text-white/80'
           )}
         >
           {currentTab === 'leisure' ? (
-            <SpaRoundedIcon sx={{ fontSize: 20 }} />
+            <SpaRoundedIcon sx={{ fontSize: 20, color: 'var(--accent)' }} />
           ) : (
             <SpaOutlinedIcon sx={{ fontSize: 20 }} />
           )}
-          <span className="text-[11.5px] leading-none truncate max-w-full">{t('leisureTab')}</span>
+          <span className="text-[11px] font-medium leading-none">{t('leisureTab')}</span>
         </button>
       </nav>
 

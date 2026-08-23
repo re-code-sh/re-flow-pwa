@@ -13,7 +13,7 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const GlassCard: React.FC<GlassCardProps> = ({
   children,
-  radius = '20px',
+  radius = '24px',
   accentRing = false,
   onClick,
   className,
