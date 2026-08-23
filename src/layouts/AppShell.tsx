@@ -111,7 +111,7 @@ export const AppShell: React.FC = () => {
       </aside>
 
       {/* ================= CENTERED SPACIOUS CANVAS CONTAINER ================= */}
-      <main className="w-full max-w-2xl lg:max-w-3xl mx-auto min-h-screen px-4 sm:px-6 pt-3 pb-32 sm:pb-28 flex flex-col justify-start">
+      <main className="w-full max-w-2xl lg:max-w-3xl mx-auto min-h-screen px-4 sm:px-6 pt-3 pb-36 sm:pb-28 flex flex-col justify-start">
         {currentTab === 'tasks' && (
           <TodayScreen onOpenSettings={() => setCurrentTab('settings')} />
         )}
@@ -120,20 +120,22 @@ export const AppShell: React.FC = () => {
         {currentTab === 'settings' && <SettingsView />}
       </main>
 
-      {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px) ================= */}
-      <div className="md:hidden fixed bottom-20 end-5 z-30">
+      {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, z-30 directly above nav bar) ================= */}
+      <div className="md:hidden fixed bottom-[78px] end-5 z-30 select-none">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
-          className="pressable flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C1C21]/95 border border-line shadow-2xl backdrop-blur-xl text-ink-2 hover:text-ink transition-all"
+          className="pressable active:scale-95 flex items-center gap-2 py-1.5 px-3.5 rounded-full bg-[#16161f]/90 backdrop-blur-xl border border-white/[0.08] shadow-lg text-ink-2 hover:text-ink transition-transform duration-100 ease-out cursor-pointer"
         >
-          <span className="text-[12px] font-bold text-ink">{t('brainVaultTitle')}</span>
-          <PsychologyOutlinedIcon sx={{ fontSize: 18, color: 'var(--accent)' }} />
+          <span className="text-[12px] font-semibold text-white/85 leading-none">
+            {t('brainVaultTitle')}
+          </span>
+          <PsychologyOutlinedIcon sx={{ fontSize: 17, color: 'var(--accent)' }} />
         </button>
       </div>
 
-      {/* ================= MOBILE FLOATING BOTTOM PILL BAR (< 768px) ================= */}
-      <nav className="md:hidden fixed bottom-5 left-4 right-4 max-w-sm mx-auto z-40 rounded-full bg-[#0d0d12]/85 backdrop-blur-2xl border border-white/[0.08] shadow-2xl px-3 py-1.5 flex items-center justify-between">
+      {/* ================= MOBILE FLOATING BOTTOM PILL BAR (< 768px, z-40) ================= */}
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 rounded-full bg-[#0d0d12]/85 backdrop-blur-2xl border border-white/[0.08] shadow-2xl px-3 py-1.5 flex items-center justify-between">
         {/* Tab 1: Tasks */}
         <button
           type="button"
