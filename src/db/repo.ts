@@ -1005,6 +1005,23 @@ export class Repo {
       }
     });
   }
+
+  async clearAllData(): Promise<void> {
+    await db.transaction('rw', [
+      db.tasks, db.days, db.habits, db.habit_logs, db.leisure,
+      db.focus_sessions, db.thoughts, db.energy_checks, db.settings,
+    ], async () => {
+      await db.tasks.clear();
+      await db.days.clear();
+      await db.habits.clear();
+      await db.habit_logs.clear();
+      await db.leisure.clear();
+      await db.focus_sessions.clear();
+      await db.thoughts.clear();
+      await db.energy_checks.clear();
+      await db.settings.clear();
+    });
+  }
 }
 
 export const repo = new Repo();

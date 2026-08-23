@@ -30,7 +30,7 @@ export const AccentSelector: React.FC = () => {
               style={{ backgroundColor: item.color }}
             >
               {isSelected && (
-                <CheckRoundedIcon sx={{ fontSize: 18, color: '#1C1207' }} />
+                <CheckRoundedIcon sx={{ fontSize: 18, color: 'var(--accent-ink)' }} />
               )}
             </div>
             <span

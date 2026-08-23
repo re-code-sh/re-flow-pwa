@@ -1,0 +1,34 @@
+{
+  "name": "تک‌نقطه | ReFlow",
+  "short_name": "ReFlow",
+  "description": "تمرکز عمیق، متدولوژی تخته‌سنگ و تفریح بدون عذاب وجدان",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#060608",
+  "theme_color": "#060608",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "fa",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

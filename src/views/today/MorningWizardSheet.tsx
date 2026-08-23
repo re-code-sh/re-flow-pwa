@@ -182,7 +182,7 @@ export const MorningWizardSheet: React.FC<MorningWizardSheetProps> = ({
                       className={clsx(
                         'w-5 h-5 rounded-full border flex items-center justify-center transition-all',
                         isSelected
-                          ? 'border-[var(--accent)] bg-[var(--accent)] text-[#1C1207]'
+                          ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-ink)]'
                           : 'border-white/25 bg-transparent'
                       )}
                     >

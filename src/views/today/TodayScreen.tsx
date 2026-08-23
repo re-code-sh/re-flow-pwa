@@ -28,7 +28,11 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import NotificationsActiveRoundedIcon from '@mui/icons-material/NotificationsActiveRounded';
 
-export const TodayScreen: React.FC = () => {
+interface TodayScreenProps {
+  onOpenSettings?: () => void;
+}
+
+export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
   const { t, i18n } = useTranslation();
   const isFa = i18n.language === 'fa';
   const today = todayKey();
@@ -113,7 +117,10 @@ export const TodayScreen: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={() => {
+                if (onOpenSettings) onOpenSettings();
+                else setIsSettingsOpen(true);
+              }}
               className="pressable w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-glass-a to-glass-b border border-line flex items-center justify-center text-ink-2 hover:text-ink transition-all"
               title={t('settingsTitle')}
             >
