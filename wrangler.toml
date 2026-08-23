@@ -1,4 +1,4 @@
-name = "re-flow-pwa"
+name = "flow"
 compatibility_date = "2026-08-23"
 compatibility_flags = ["nodejs_compat"]
 
