@@ -1,7 +1,7 @@
 /**
  * Tone Design System Tokens — faithful to the liquid-glass ember language of Flutter taknoghte/flow.
  * A near-black canvas, monochrome glass surfaces, and exactly one dynamic warm accent color
- * reserved for the boulder, primary actions, and celebrations.
+ * reserved for the boulder, primary actions, celebrations, and subtle acrylic surface tinting.
  */
 
 export interface AccentColor {
@@ -125,4 +125,11 @@ export function applyAccentToDom(accentKey: AppAccentKey | string) {
   root.style.setProperty('--accent-subtle', hexToRgba(hex, 0.13));
   root.style.setProperty('--accent-border', hexToRgba(hex, 0.35));
   root.style.setProperty('--accent-ink', Tone.emberInk);
+
+  // Dynamic Acrylic Surface Tints & Ambient Glows
+  root.style.setProperty('--accent-tint-subtle', `color-mix(in srgb, ${hex} 5%, #0d0d14)`);
+  root.style.setProperty('--accent-tint-surface', `color-mix(in srgb, ${hex} 8%, #12121a)`);
+  root.style.setProperty('--accent-tint-active', `color-mix(in srgb, ${hex} 16%, transparent)`);
+  root.style.setProperty('--accent-border-tint', `color-mix(in srgb, ${hex} 18%, rgba(255, 255, 255, 0.08))`);
+  root.style.setProperty('--accent-border-active', `color-mix(in srgb, ${hex} 45%, transparent)`);
 }

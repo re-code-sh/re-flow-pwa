@@ -21,6 +21,13 @@
   --accent-subtle: rgba(239, 165, 92, 0.13);
   --accent-border: rgba(239, 165, 92, 0.35);
   --accent-ink: #1C1207;
+
+  /* Dynamic Acrylic Surface Tints & Ambient Glows */
+  --accent-tint-subtle: color-mix(in srgb, var(--accent) 5%, #0d0d14);
+  --accent-tint-surface: color-mix(in srgb, var(--accent) 8%, #12121a);
+  --accent-tint-active: color-mix(in srgb, var(--accent) 16%, transparent);
+  --accent-border-tint: color-mix(in srgb, var(--accent) 18%, rgba(255, 255, 255, 0.08));
+  --accent-border-active: color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 * {

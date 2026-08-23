@@ -36,7 +36,12 @@ export const AppShell: React.FC = () => {
   return (
     <div className="min-h-screen bg-bg text-ink relative selection:bg-[var(--accent-subtle)] selection:text-[var(--accent)]">
       {/* ================= DESKTOP & TABLET DETACHED FLOATING GLASS RAIL (>= 768px) ================= */}
-      <aside className="hidden md:flex fixed start-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 p-2 rounded-[26px] bg-[#0d0d12]/85 backdrop-blur-2xl border border-white/[0.08] shadow-2xl">
+      <aside
+        className="hidden md:flex fixed start-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 p-2 rounded-[26px] bg-[var(--accent-tint-subtle)]/90 backdrop-blur-2xl border border-[var(--accent-border-tint)] transition-all duration-300"
+        style={{
+          boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 0 35px -10px var(--accent-subtle)',
+        }}
+      >
         {/* Brand App Icon Button */}
         <button
           type="button"
@@ -58,7 +63,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'tasks'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold shadow-sm'
+                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('tasksTab')}
@@ -78,7 +83,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'habits'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold shadow-sm'
+                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('habitsTab')}
@@ -98,7 +103,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'leisure'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold shadow-sm'
+                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('leisureTab')}
@@ -118,7 +123,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'settings'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold shadow-sm'
+                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('settingsTitle')}
@@ -154,14 +159,25 @@ export const AppShell: React.FC = () => {
         </div>
       </main>
 
+      {/* ================= SUB-CANVAS BOTTOM AMBIENT ATMOSPHERE GLOW ================= */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 h-48 z-20 overflow-hidden select-none">
+        <div
+          className="w-full h-full transition-all duration-500"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 130px at 50% 100%, var(--accent-subtle), transparent)',
+          }}
+        />
+      </div>
+
       {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, micro-aligned with Tasks tab) ================= */}
       <div className="md:hidden fixed bottom-[5.85rem] left-4 right-4 max-w-sm mx-auto px-1.5 z-30 pointer-events-none flex justify-start select-none">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
-          className="pointer-events-auto pressable flex items-center gap-2.5 px-4 py-2 rounded-[20px] bg-[#15151e]/95 border border-white/[0.08] backdrop-blur-xl shadow-lg active:scale-95 transition-all cursor-pointer"
+          className="pointer-events-auto pressable flex items-center gap-2.5 px-4 py-2 rounded-[20px] bg-[var(--accent-tint-surface)]/95 border border-[var(--accent-border-tint)] backdrop-blur-xl shadow-lg active:scale-95 transition-all cursor-pointer"
         >
-          <PsychologyOutlinedIcon sx={{ fontSize: 18, color: 'rgba(255, 255, 255, 0.75)' }} />
+          <PsychologyOutlinedIcon sx={{ fontSize: 18, color: 'var(--accent)', opacity: 0.92 }} />
           <span className="text-xs font-semibold text-white/90 leading-none">
             {t('brainVaultTitle')}
           </span>
@@ -169,7 +185,12 @@ export const AppShell: React.FC = () => {
       </div>
 
       {/* ================= MOBILE FLOATING BOTTOM PILL BAR (< 768px, z-40, 1:1 Android Parity) ================= */}
-      <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 h-[72px] rounded-[28px] bg-[#111118]/90 border border-white/[0.08] backdrop-blur-2xl p-1.5 flex items-center justify-between shadow-2xl">
+      <nav
+        className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 h-[72px] rounded-[28px] bg-[var(--accent-tint-subtle)]/90 border border-[var(--accent-border-tint)] backdrop-blur-2xl p-1.5 flex items-center justify-between transition-all duration-300"
+        style={{
+          boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 10px 30px -10px var(--accent-glow)',
+        }}
+      >
         {/* Tab 1: Tasks / کارها */}
         <button
           type="button"
@@ -177,8 +198,8 @@ export const AppShell: React.FC = () => {
           className={clsx(
             'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'tasks'
-              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
-              : 'text-white/50 hover:text-white/80'
+              ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
+              : 'text-white/45 hover:text-white/80'
           )}
         >
           {currentTab === 'tasks' ? (
@@ -196,8 +217,8 @@ export const AppShell: React.FC = () => {
           className={clsx(
             'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'habits'
-              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
-              : 'text-white/50 hover:text-white/80'
+              ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
+              : 'text-white/45 hover:text-white/80'
           )}
         >
           {currentTab === 'habits' ? (
@@ -215,8 +236,8 @@ export const AppShell: React.FC = () => {
           className={clsx(
             'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'leisure'
-              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
-              : 'text-white/50 hover:text-white/80'
+              ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
+              : 'text-white/45 hover:text-white/80'
           )}
         >
           {currentTab === 'leisure' ? (
