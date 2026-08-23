@@ -14,6 +14,7 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import SpaRoundedIcon from '@mui/icons-material/SpaRounded';
+import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined';
 import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
@@ -102,7 +103,11 @@ export const AppShell: React.FC = () => {
             )}
             title={t('leisureTab')}
           >
-            <SpaRoundedIcon sx={{ fontSize: 22 }} />
+            {currentTab === 'leisure' ? (
+              <SpaRoundedIcon sx={{ fontSize: 22 }} />
+            ) : (
+              <SpaOutlinedIcon sx={{ fontSize: 22 }} />
+            )}
             <span className="text-[10.5px] leading-none">{t('leisureTab')}</span>
           </button>
 
@@ -150,38 +155,38 @@ export const AppShell: React.FC = () => {
       </main>
 
       {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, micro-aligned with Tasks tab) ================= */}
-      <div className="md:hidden fixed bottom-[4.75rem] left-4 right-4 max-w-sm mx-auto px-3 z-30 pointer-events-none flex justify-start select-none">
+      <div className="md:hidden fixed bottom-[5.25rem] left-4 right-4 max-w-sm mx-auto px-1.5 z-30 pointer-events-none flex justify-start select-none">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
           className="pointer-events-auto pressable active:scale-95 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#14141b]/95 border border-white/[0.08] backdrop-blur-xl shadow-lg text-ink-2 hover:text-ink transition-all cursor-pointer"
         >
-          <span className="text-xs font-medium text-white/85 leading-none">
+          <PsychologyOutlinedIcon sx={{ fontSize: 17, color: 'var(--ink-2)' }} />
+          <span className="text-[12px] font-medium text-white/85 leading-none">
             {t('brainVaultTitle')}
           </span>
-          <PsychologyOutlinedIcon sx={{ fontSize: 16, color: 'var(--accent)', opacity: 0.85 }} />
         </button>
       </div>
 
-      {/* ================= MOBILE FLOATING BOTTOM PILL BAR (< 768px, z-40) ================= */}
-      <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 rounded-full bg-[#0d0d12]/85 backdrop-blur-2xl border border-white/[0.08] shadow-2xl px-3 py-1.5 flex items-center justify-between">
+      {/* ================= MOBILE FLOATING BOTTOM PILL BAR (< 768px, z-40, 1:1 Android Parity) ================= */}
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 rounded-[28px] bg-[#0e0e14]/90 backdrop-blur-2xl border border-white/[0.08] shadow-2xl p-1.5 grid grid-cols-3 gap-1.5 items-center">
         {/* Tab 1: Tasks */}
         <button
           type="button"
           onClick={() => setCurrentTab('tasks')}
           className={clsx(
-            'pressable flex-1 py-2 rounded-full flex items-center justify-center gap-2 transition-all',
+            'pressable flex flex-col items-center justify-center py-2 px-3 gap-1 transition-all rounded-2xl',
             currentTab === 'tasks'
-              ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold'
-              : 'text-ink-3 hover:text-ink-2 font-medium'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-bold'
+              : 'border border-transparent text-white/45 hover:text-white/70 font-medium'
           )}
         >
           {currentTab === 'tasks' ? (
-            <CheckCircleRoundedIcon sx={{ fontSize: 19 }} />
+            <CheckCircleRoundedIcon sx={{ fontSize: 20 }} />
           ) : (
-            <CheckCircleOutlineRoundedIcon sx={{ fontSize: 19 }} />
+            <CheckCircleOutlineRoundedIcon sx={{ fontSize: 20 }} />
           )}
-          <span className="text-[12px]">{t('tasksTab')}</span>
+          <span className="text-[11.5px] leading-none truncate max-w-full">{t('tasksTab')}</span>
         </button>
 
         {/* Tab 2: Habits */}
@@ -189,18 +194,18 @@ export const AppShell: React.FC = () => {
           type="button"
           onClick={() => setCurrentTab('habits')}
           className={clsx(
-            'pressable flex-1 py-2 rounded-full flex items-center justify-center gap-2 transition-all',
+            'pressable flex flex-col items-center justify-center py-2 px-3 gap-1 transition-all rounded-2xl',
             currentTab === 'habits'
-              ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold'
-              : 'text-ink-3 hover:text-ink-2 font-medium'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-bold'
+              : 'border border-transparent text-white/45 hover:text-white/70 font-medium'
           )}
         >
           {currentTab === 'habits' ? (
-            <AutoAwesomeRoundedIcon sx={{ fontSize: 19 }} />
+            <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
           ) : (
-            <RepeatRoundedIcon sx={{ fontSize: 19 }} />
+            <RepeatRoundedIcon sx={{ fontSize: 20 }} />
           )}
-          <span className="text-[12px]">{t('habitsTab')}</span>
+          <span className="text-[11.5px] leading-none truncate max-w-full">{t('habitsTab')}</span>
         </button>
 
         {/* Tab 3: Leisure */}
@@ -208,14 +213,18 @@ export const AppShell: React.FC = () => {
           type="button"
           onClick={() => setCurrentTab('leisure')}
           className={clsx(
-            'pressable flex-1 py-2 rounded-full flex items-center justify-center gap-2 transition-all',
+            'pressable flex flex-col items-center justify-center py-2 px-3 gap-1 transition-all rounded-2xl',
             currentTab === 'leisure'
-              ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold'
-              : 'text-ink-3 hover:text-ink-2 font-medium'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-bold'
+              : 'border border-transparent text-white/45 hover:text-white/70 font-medium'
           )}
         >
-          <SpaRoundedIcon sx={{ fontSize: 19 }} />
-          <span className="text-[12px]">{t('leisureTab')}</span>
+          {currentTab === 'leisure' ? (
+            <SpaRoundedIcon sx={{ fontSize: 20 }} />
+          ) : (
+            <SpaOutlinedIcon sx={{ fontSize: 20 }} />
+          )}
+          <span className="text-[11.5px] leading-none truncate max-w-full">{t('leisureTab')}</span>
         </button>
       </nav>
 
