@@ -139,7 +139,7 @@ export const AppShell: React.FC = () => {
 
       {/* ================= UNIFIED SCALING CANVAS CONTAINER ================= */}
       <main className="w-full max-w-xl lg:max-w-2xl mx-auto min-h-[100dvh] px-4 sm:px-6 pt-4 pb-36 sm:pb-32 flex flex-col justify-start">
-        <div key={currentTab} className="w-full animate-in fade-in duration-150">
+        <div key={currentTab} className="w-full animate-view-in">
           {currentTab === 'tasks' && (
             <TodayScreen onOpenSettings={handleOpenSettings} />
           )}

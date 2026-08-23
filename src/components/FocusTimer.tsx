@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { clsx } from 'clsx';
 import { repo } from '../db/repo';
 import { toast } from './ui/Toast';
 import { faClock, todayKey } from '../utils/fa';
@@ -184,7 +185,12 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       {/* Center Circle Arena */}
       <main className="relative z-10 flex flex-col items-center justify-center my-auto py-2">
         {/* SVG Progress Ring */}
-        <div className="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center">
+        <div
+          className={clsx(
+            'relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center transition-all duration-500',
+            !isPaused && 'animate-ambient-breath'
+          )}
+        >
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 260 260">
             {/* Background Track */}
             <circle
@@ -200,14 +206,14 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
               cx="130"
               cy="130"
               r="115"
-              className="text-[var(--accent)] stroke-current transition-all duration-1000 ease-out"
+              className="text-[var(--accent)] stroke-current transition-[stroke-dashoffset] duration-1000 ease-linear"
               strokeWidth="4.5"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="transparent"
               style={{
-                filter: 'drop-shadow(0 0 12px var(--accent-glow))',
+                filter: 'drop-shadow(0 0 14px var(--accent-glow))',
               }}
             />
           </svg>
