@@ -121,7 +121,7 @@ export const AppShell: React.FC = () => {
       </main>
 
       {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, z-30 directly above nav bar) ================= */}
-      <div className="md:hidden fixed bottom-[78px] end-5 z-30 select-none">
+      <div className="md:hidden fixed bottom-24 end-5 z-30 select-none">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
