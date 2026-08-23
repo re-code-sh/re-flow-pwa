@@ -13,7 +13,7 @@ import { TaskEditSheet } from './TaskEditSheet';
 import { EveningSheet } from '../evening/EveningSheet';
 import { SettingsSheet } from '../settings/SettingsSheet';
 import { StatsScreenModal } from '../stats/StatsScreenModal';
-import { FocusScreenModal } from '../focus/FocusScreenModal';
+import { FocusTimer } from '../../components/FocusTimer';
 import type { DayTask } from '../../db/schema';
 
 // Material Icons matching Flutter Icons.* 1:1
@@ -539,7 +539,7 @@ export const TodayScreen: React.FC = () => {
       />
 
       {focusingTask && (
-        <FocusScreenModal
+        <FocusTimer
           isOpen={true}
           onClose={() => setFocusingTask(null)}
           taskId={focusingTask.id}

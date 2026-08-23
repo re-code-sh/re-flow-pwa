@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TodayScreen } from '../views/today/TodayScreen';
-import { HabitsScreen } from '../views/habits/HabitsScreen';
-import { LeisureScreen } from '../views/leisure/LeisureScreen';
-import { VaultSheet } from '../views/vault/VaultSheet';
+import { HabitsView } from '../views/HabitsView';
+import { LeisureView } from '../views/LeisureView';
+import { BrainDump } from '../components/BrainDump';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
 import { clsx } from 'clsx';
 
@@ -114,8 +114,8 @@ export const AppShell: React.FC = () => {
       {/* Main Content Workspace Container */}
       <main className="flex-1 w-full max-w-2xl lg:max-w-3xl mx-auto pb-28 md:pb-12 pt-1 md:pt-4 px-2 sm:px-4">
         {currentTab === 'tasks' && <TodayScreen />}
-        {currentTab === 'habits' && <HabitsScreen />}
-        {currentTab === 'leisure' && <LeisureScreen />}
+        {currentTab === 'habits' && <HabitsView />}
+        {currentTab === 'leisure' && <LeisureView />}
       </main>
 
       {/* Mobile Floating Brain Dump Button (< 768px, bottom-20) */}
@@ -188,8 +188,8 @@ export const AppShell: React.FC = () => {
         </div>
       </nav>
 
-      {/* Global Brain Vault Sheet */}
-      <VaultSheet
+      {/* Global Brain Dump Sheet */}
+      <BrainDump
         isOpen={isVaultOpen}
         onClose={() => setIsVaultOpen(false)}
       />

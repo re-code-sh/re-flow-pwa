@@ -599,6 +599,49 @@ export class Repo {
     });
   }
 
+  async saveHabit({
+    id,
+    title,
+    cue,
+    isBad,
+    badCost = '',
+    replacement = '',
+    reminderMinutes = null,
+    frequency = 'daily',
+  }: {
+    id?: string | null;
+    title: string;
+    cue: string;
+    isBad: boolean;
+    badCost?: string;
+    replacement?: string;
+    reminderMinutes?: number | null;
+    frequency?: string;
+  }): Promise<void> {
+    if (id) {
+      await this.updateHabit({
+        id,
+        title,
+        cue,
+        isBad,
+        badCost,
+        replacement,
+        reminderMinutes,
+        frequency,
+      });
+    } else {
+      await this.addHabit({
+        title,
+        cue,
+        isBad,
+        badCost,
+        replacement,
+        reminderMinutes,
+        frequency,
+      });
+    }
+  }
+
   async deleteHabit(id: string): Promise<void> {
     const now = Date.now();
     await db.transaction('rw', [db.habits, db.habit_logs], async () => {
