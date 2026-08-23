@@ -7,6 +7,7 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { Pill } from '../components/ui/Pill';
 import { toast } from '../components/ui/Toast';
 import { todayKey, faNum } from '../utils/fa';
+import { WheelTimePickerSheet } from '../components/ui/WheelTimePickerSheet';
 
 // Material Icons
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
@@ -21,6 +22,7 @@ import WbTwilightRoundedIcon from '@mui/icons-material/WbTwilightRounded';
 import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
 import OfflinePinRoundedIcon from '@mui/icons-material/OfflinePinRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import BatteryAlertRoundedIcon from '@mui/icons-material/BatteryAlertRounded';
 import { clsx } from 'clsx';
 
 export const SettingsView: React.FC = () => {
@@ -30,6 +32,7 @@ export const SettingsView: React.FC = () => {
 
   const [morningReminder, setMorningReminder] = useState<number | null>(null);
   const [eveningReminder, setEveningReminder] = useState<number | null>(null);
+  const [pickingReminder, setPickingReminder] = useState<'morning' | 'evening' | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
@@ -49,16 +52,27 @@ export const SettingsView: React.FC = () => {
     toast(lang === 'fa' ? 'زبان برنامه به فارسی تغییر کرد' : 'Language set to English');
   };
 
-  const handleMorningToggle = async () => {
+  const handleToggleMorning = async () => {
     const next = morningReminder === null ? 8 * 60 + 30 : null;
     setMorningReminder(next);
     await repo.setSetting('rem_morning', next !== null ? String(next) : '');
   };
 
-  const handleEveningToggle = async () => {
+  const handleToggleEvening = async () => {
     const next = eveningReminder === null ? 21 * 60 + 30 : null;
     setEveningReminder(next);
     await repo.setSetting('rem_evening', next !== null ? String(next) : '');
+  };
+
+  const handleSetReminderTime = async (minutes: number) => {
+    if (pickingReminder === 'morning') {
+      setMorningReminder(minutes);
+      await repo.setSetting('rem_morning', String(minutes));
+    } else if (pickingReminder === 'evening') {
+      setEveningReminder(minutes);
+      await repo.setSetting('rem_evening', String(minutes));
+    }
+    setPickingReminder(null);
   };
 
   const formatMinutes = (mins: number) => {
@@ -207,6 +221,19 @@ export const SettingsView: React.FC = () => {
             </div>
           </GlassCard>
 
+          {/* Battery Optimization Card */}
+          <GlassCard className="p-4 flex items-start gap-3 bg-white/[0.02]">
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <BatteryAlertRoundedIcon sx={{ fontSize: 18 }} />
+            </div>
+            <div>
+              <h4 className="text-[13px] font-bold text-ink">{t('batterySettings')}</h4>
+              <p className="text-[11px] text-ink-3 leading-relaxed mt-0.5">
+                {t('batterySettingsSub')}
+              </p>
+            </div>
+          </GlassCard>
+
           {/* Offline PWA Status */}
           <GlassCard className="p-4 flex items-center gap-3 bg-white/[0.02]">
             <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
@@ -251,13 +278,25 @@ export const SettingsView: React.FC = () => {
                     <span className="text-[11px] text-ink-3">{t('morningReminderSub')}</span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleMorningToggle}
-                  className="px-3 py-1 rounded-[10px] bg-white/[0.06] text-[12px] font-bold text-[var(--accent)]"
-                >
-                  {morningReminder !== null ? formatMinutes(morningReminder) : t('off')}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (morningReminder === null) handleToggleMorning();
+                      else setPickingReminder('morning');
+                    }}
+                    className="px-3 py-1 rounded-[10px] bg-white/[0.06] text-[12px] font-bold text-[var(--accent)]"
+                  >
+                    {morningReminder !== null ? formatMinutes(morningReminder) : t('off')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleToggleMorning}
+                    className="p-1 rounded-full text-ink-3 hover:text-warn"
+                  >
+                    <CloseRoundedIcon sx={{ fontSize: 16 }} />
+                  </button>
+                </div>
               </div>
 
               {/* Evening Review Reminder */}
@@ -271,13 +310,25 @@ export const SettingsView: React.FC = () => {
                     <span className="text-[11px] text-ink-3">{t('eveningReminderSub')}</span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleEveningToggle}
-                  className="px-3 py-1 rounded-[10px] bg-white/[0.06] text-[12px] font-bold text-[var(--accent)]"
-                >
-                  {eveningReminder !== null ? formatMinutes(eveningReminder) : t('off')}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (eveningReminder === null) handleToggleEvening();
+                      else setPickingReminder('evening');
+                    }}
+                    className="px-3 py-1 rounded-[10px] bg-white/[0.06] text-[12px] font-bold text-[var(--accent)]"
+                  >
+                    {eveningReminder !== null ? formatMinutes(eveningReminder) : t('off')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleToggleEvening}
+                    className="p-1 rounded-full text-ink-3 hover:text-warn"
+                  >
+                    <CloseRoundedIcon sx={{ fontSize: 16 }} />
+                  </button>
+                </div>
               </div>
             </div>
           </GlassCard>
@@ -335,6 +386,25 @@ export const SettingsView: React.FC = () => {
           </GlassCard>
         </div>
       </div>
+
+      {/* Wheel Time Picker for Reminders */}
+      {pickingReminder && (
+        <WheelTimePickerSheet
+          isOpen={true}
+          onClose={() => setPickingReminder(null)}
+          initialMinutes={
+            pickingReminder === 'morning'
+              ? morningReminder ?? 8 * 60 + 30
+              : eveningReminder ?? 21 * 60 + 30
+          }
+          title={
+            pickingReminder === 'morning'
+              ? t('morningReminder')
+              : t('eveningReminder')
+          }
+          onConfirm={handleSetReminderTime}
+        />
+      )}
 
       {/* ================= CLEAR DATABASE CONFIRMATION MODAL ================= */}
       {showClearConfirm && (

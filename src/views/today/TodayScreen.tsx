@@ -16,17 +16,18 @@ import { StatsScreenModal } from '../stats/StatsScreenModal';
 import { FocusTimer } from '../../components/FocusTimer';
 import type { DayTask } from '../../db/schema';
 
-// Material Icons matching Flutter Icons.* 1:1
+// Material Icons matching Flutter Icons 1:1
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
 import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import NotificationsActiveRoundedIcon from '@mui/icons-material/NotificationsActiveRounded';
+import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
+import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
 
 interface TodayScreenProps {
   onOpenSettings?: () => void;
@@ -94,6 +95,12 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
     );
   };
 
+  const formatReminderTime = (mins: number) => {
+    const h = Math.floor(mins / 60).toString().padStart(2, '0');
+    const m = (mins % 60).toString().padStart(2, '0');
+    return isFa ? faNum(`${h}:${m}`) : `${h}:${m}`;
+  };
+
   const ChevronIcon = isFa ? ChevronLeftRoundedIcon : ChevronRightRoundedIcon;
 
   return (
@@ -104,38 +111,18 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
         <div className="absolute -bottom-[20%] -left-[15%] w-[420px] h-[420px] rounded-full bg-[var(--accent)]/5 blur-[100px]" />
       </div>
 
-      <div className="relative z-10 max-w-xl mx-auto px-4 py-5 space-y-6">
+      <div className="relative z-10 max-w-xl mx-auto px-4 py-4 sm:py-5 space-y-5">
         {/* Top Header */}
-        <header className="flex items-end justify-between pt-1 pb-2">
+        <header className="flex items-end justify-between pt-1 pb-1">
           <div className="space-y-0.5">
             <p className="text-[12.5px] font-medium text-ink-3">{dateHeaderLabel}</p>
-            <h1 className="text-[25px] font-extrabold tracking-tight text-ink">
+            <h1 className="text-[26px] font-extrabold tracking-tight text-ink">
               {t('appTitle')}
             </h1>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                if (onOpenSettings) onOpenSettings();
-                else setIsSettingsOpen(true);
-              }}
-              className="pressable w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-glass-a to-glass-b border border-line flex items-center justify-center text-ink-2 hover:text-ink transition-all"
-              title={t('settingsTitle')}
-            >
-              <TuneRoundedIcon sx={{ fontSize: 19 }} />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsStatsOpen(true)}
-              className="pressable w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-glass-a to-glass-b border border-line flex items-center justify-center text-ink-2 hover:text-ink transition-all"
-              title={t('statsMirrorTitle')}
-            >
-              <BarChartRoundedIcon sx={{ fontSize: 19 }} />
-            </button>
-
+            {/* Pencil / Morning Wizard button */}
             <button
               type="button"
               onClick={() => {
@@ -149,10 +136,33 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                 }
                 setIsWizardOpen(true);
               }}
-              className="pressable w-[42px] h-[42px] rounded-[14px] bg-gradient-to-b from-glass-a to-glass-b border border-line flex items-center justify-center text-ink-2 hover:text-ink transition-all"
+              className="pressable w-[42px] h-[42px] rounded-full bg-white/[0.05] border border-line flex items-center justify-center text-ink-2 hover:text-ink hover:bg-white/10 transition-all shadow-sm"
               title={t('planToday')}
             >
-              <EditRoundedIcon sx={{ fontSize: 19 }} />
+              <EditRoundedIcon sx={{ fontSize: 18 }} />
+            </button>
+
+            {/* Stats / Mirror button */}
+            <button
+              type="button"
+              onClick={() => setIsStatsOpen(true)}
+              className="pressable w-[42px] h-[42px] rounded-full bg-white/[0.05] border border-line flex items-center justify-center text-ink-2 hover:text-ink hover:bg-white/10 transition-all shadow-sm"
+              title={t('statsMirrorTitle')}
+            >
+              <BarChartRoundedIcon sx={{ fontSize: 19 }} />
+            </button>
+
+            {/* Sliders / Settings button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenSettings) onOpenSettings();
+                else setIsSettingsOpen(true);
+              }}
+              className="pressable w-[42px] h-[42px] rounded-full bg-white/[0.05] border border-line flex items-center justify-center text-ink-2 hover:text-ink hover:bg-white/10 transition-all shadow-sm"
+              title={t('settingsTitle')}
+            >
+              <TuneRoundedIcon sx={{ fontSize: 19 }} />
             </button>
           </div>
         </header>
@@ -183,7 +193,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
 
         {/* ================= SECTION 1: THE BOULDER ================= */}
         <section className="space-y-2">
-          <p className="text-[11.5px] font-semibold text-ink-3 tracking-wider px-1">
+          <p className="text-[12px] font-semibold text-ink-3 tracking-wider px-1">
             {t('boulderOfToday')}
           </p>
 
@@ -212,7 +222,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
           ) : plan.boulder ? (
             /* Planned Boulder Card */
             <div className="relative group">
-              {/* Breathing Ember Glow */}
+              {/* Breathing Glow */}
               <div className="pointer-events-none absolute -top-10 -left-6 w-48 h-36 rounded-full bg-[var(--accent)]/15 blur-3xl animate-pulse" />
 
               <GlassCard
@@ -232,35 +242,21 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                 {/* Top Badge & Reminders */}
                 <div className="flex items-center justify-between">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
-                    <LocalFireDepartmentRoundedIcon sx={{ fontSize: 13 }} />
+                    <PushPinRoundedIcon sx={{ fontSize: 13 }} />
                     <span>{t('theBoulder')}</span>
                   </div>
 
                   {plan.boulder.reminderTime !== null && !plan.boulder.done && (
                     <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-semibold">
                       <NotificationsActiveRoundedIcon sx={{ fontSize: 12 }} />
-                      <span>
-                        {isFa
-                          ? faNum(
-                              `${Math.floor(plan.boulder.reminderTime / 60)
-                                .toString()
-                                .padStart(2, '0')}:${(plan.boulder.reminderTime % 60)
-                                .toString()
-                                .padStart(2, '0')}`
-                            )
-                          : `${Math.floor(plan.boulder.reminderTime / 60)
-                              .toString()
-                              .padStart(2, '0')}:${(plan.boulder.reminderTime % 60)
-                              .toString()
-                              .padStart(2, '0')}`}
-                      </span>
+                      <span>{formatReminderTime(plan.boulder.reminderTime)}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Boulder Title */}
                 <h2
-                  className={`text-[21px] font-bold leading-snug cursor-pointer transition-all ${
+                  className={`text-[22px] font-extrabold leading-snug cursor-pointer transition-all ${
                     plan.boulder.done
                       ? 'line-through text-ink-3'
                       : 'text-ink hover:text-[var(--accent)]'
@@ -281,8 +277,8 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                 <div className="flex items-center gap-2 text-[12.5px] text-ink-2 font-medium">
                   <span>
                     {isFa
-                      ? `پیش‌بینی صبح: ${faNum(plan.prediction || 0)}٪`
-                      : `Morning prediction: ${plan.prediction || 0}%`}
+                      ? `پیش‌بینی صبح: ${faNum(plan.prediction || 70)}٪`
+                      : `Morning prediction: ${plan.prediction || 70}%`}
                   </span>
                   {plan.boulder.done && (
                     <span className="font-bold text-[var(--accent)]">
@@ -291,35 +287,35 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                   )}
                 </div>
 
-                {/* Dual-Action Buttons */}
+                {/* Dual-Action Buttons (Matching screenshot: Left "علامت انجام", Right "شروع تمرکز") */}
                 <div className="flex items-center gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleToggleBoulder}
+                    className={`pressable flex-1 h-[48px] rounded-[16px] border text-[13.5px] font-semibold transition-all ${
+                      plan.boulder.done
+                        ? 'bg-white/[0.08] border-white/20 text-ink'
+                        : 'bg-white/[0.04] border-line text-ink-2 hover:bg-white/[0.08] hover:text-ink'
+                    }`}
+                  >
+                    {plan.boulder.done ? t('undo') : isFa ? 'علامتِ انجام' : 'Mark Done'}
+                  </button>
+
                   {!plan.boulder.done && (
-                    <Pill
-                      label={t('startFocus')}
-                      pillStyle="accent"
-                      icon={<PlayArrowRoundedIcon sx={{ fontSize: 20 }} />}
+                    <button
+                      type="button"
                       onClick={() =>
                         setFocusingTask({
                           id: plan.boulder!.taskId,
                           title: plan.boulder!.title,
                         })
                       }
-                      className="flex-1"
-                    />
+                      className="pressable flex-1 h-[48px] px-4 rounded-[16px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)] font-bold text-[13.5px] flex items-center justify-center gap-1.5 shadow-accent-sm-glow"
+                    >
+                      <PlayArrowRoundedIcon sx={{ fontSize: 18 }} />
+                      <span>{t('startFocus')}</span>
+                    </button>
                   )}
-
-                  <Pill
-                    label={
-                      plan.boulder.done
-                        ? t('undo')
-                        : isFa
-                        ? 'علامتِ انجام'
-                        : 'Mark Done'
-                    }
-                    pillStyle="glass"
-                    onClick={handleToggleBoulder}
-                    className={plan.boulder.done ? 'w-full' : 'flex-1'}
-                  />
                 </div>
               </GlassCard>
             </div>
@@ -329,16 +325,13 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
         {/* ================= SECTION 2: QUEUED TASKS ================= */}
         {plan?.planned && plan.others.length > 0 && (
           <section className="space-y-2">
-            <p className="text-[11.5px] font-semibold text-ink-3 tracking-wider px-1">
-              {plan.others.length === 2
-                ? t('otherTasksHeader2')
-                : t('otherTasksHeaderMore')}
+            <p className="text-[12px] font-semibold text-ink-3 tracking-wider px-1">
+              {t('otherTasksHeaderMore')}
             </p>
 
             <div className="space-y-2">
-              {plan.others.map((task, idx) => {
+              {plan.others.map((task) => {
                 const locked = !plan.boulderDone && !task.done;
-                const isPebble = idx >= 2;
 
                 return (
                   <GlassCard
@@ -353,75 +346,11 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                       });
                     }}
                     className={`flex items-center justify-between gap-3 p-3.5 sm:p-4 transition-all ${
-                      task.done ? 'opacity-55' : locked ? 'opacity-70' : 'opacity-100'
+                      task.done ? 'opacity-50' : 'opacity-100'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <CheckCircle
-                        checked={task.done}
-                        onToggle={() => handleToggleOtherTask(task)}
-                      />
-
-                      <div
-                        className="min-w-0 flex-1 cursor-pointer"
-                        onClick={() =>
-                          setEditingTask({
-                            id: task.taskId,
-                            title: task.title,
-                            isBoulder: false,
-                            reminderTime: task.reminderTime,
-                          })
-                        }
-                      >
-                        <h3
-                          className={`text-[15px] font-medium truncate ${
-                            task.done ? 'line-through text-ink-3' : 'text-ink'
-                          }`}
-                        >
-                          {task.title}
-                        </h3>
-
-                        {task.reminderTime !== null && !task.done && (
-                          <span className="text-[11px] text-[var(--accent)] font-semibold flex items-center gap-1 mt-0.5">
-                            <NotificationsActiveRoundedIcon sx={{ fontSize: 11 }} />
-                            <span>
-                              {isFa
-                                ? faNum(
-                                    `${Math.floor(task.reminderTime / 60)
-                                      .toString()
-                                      .padStart(2, '0')}:${(task.reminderTime % 60)
-                                      .toString()
-                                      .padStart(2, '0')}`
-                                  )
-                                : `${Math.floor(task.reminderTime / 60)
-                                    .toString()
-                                    .padStart(2, '0')}:${(task.reminderTime % 60)
-                                    .toString()
-                                    .padStart(2, '0')}`}
-                            </span>
-                          </span>
-                        )}
-
-                        {isPebble && (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="px-1.5 py-0.2 rounded bg-[var(--accent-subtle)] text-[var(--accent)] text-[10px] font-bold">
-                              {t('pebbleTag')}
-                            </span>
-                            <span className="text-[10.5px] text-ink-3">
-                              {t('pebbleHelperText')}
-                            </span>
-                          </div>
-                        )}
-
-                        {locked && (
-                          <p className="text-[11.5px] text-ink-3 mt-0.5">
-                            {t('queuedBehindBoulder')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {!task.done && (
+                    {/* Focus Button on Left (RTL) */}
+                    {!task.done ? (
                       <button
                         type="button"
                         onClick={() =>
@@ -430,12 +359,56 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                             title: task.title,
                           })
                         }
-                        className="pressable px-2.5 py-1.5 rounded-[10px] bg-[var(--accent-subtle)] border border-[var(--accent-border)] text-[var(--accent)] text-[11.5px] font-bold flex items-center gap-1 shrink-0"
+                        className="pressable px-3 py-1.5 rounded-[12px] bg-white/[0.05] border border-line text-ink-2 hover:text-[var(--accent)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-subtle)] text-[12px] font-bold flex items-center gap-1 shrink-0 transition-all"
                       >
-                        <PlayArrowRoundedIcon sx={{ fontSize: 15 }} />
+                        <PlayArrowRoundedIcon sx={{ fontSize: 16 }} />
                         <span>{t('focusButton')}</span>
                       </button>
+                    ) : (
+                      <div className="w-12" />
                     )}
+
+                    {/* Middle Info */}
+                    <div
+                      className="min-w-0 flex-1 cursor-pointer text-start"
+                      onClick={() =>
+                        setEditingTask({
+                          id: task.taskId,
+                          title: task.title,
+                          isBoulder: false,
+                          reminderTime: task.reminderTime,
+                        })
+                      }
+                    >
+                      <h3
+                        className={`text-[15.5px] font-semibold truncate ${
+                          task.done ? 'line-through text-ink-3' : 'text-ink'
+                        }`}
+                      >
+                        {task.title}
+                      </h3>
+
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {task.reminderTime !== null && !task.done && (
+                          <span className="text-[11.5px] text-[var(--accent)] font-semibold flex items-center gap-1">
+                            <span>{formatReminderTime(task.reminderTime)}</span>
+                            <NotificationsActiveRoundedIcon sx={{ fontSize: 12 }} />
+                          </span>
+                        )}
+
+                        {locked && (
+                          <span className="text-[11.5px] text-ink-3">
+                            {t('queuedBehindBoulder')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Circular Checkbox on Right (RTL) */}
+                    <CheckCircle
+                      checked={task.done}
+                      onToggle={() => handleToggleOtherTask(task)}
+                    />
                   </GlassCard>
                 );
               })}
@@ -445,64 +418,65 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
 
         {/* ================= SECTION 3: ENERGY CHECK-IN WIDGET ================= */}
         <section>
-          <GlassCard className="flex items-center justify-between gap-2 p-3 sm:px-4 sm:py-2.5">
-            <div className="flex items-center gap-1.5 text-ink-2">
-              <BoltRoundedIcon sx={{ fontSize: 18, color: 'var(--accent)' }} />
-              <span className="text-[12.5px] font-semibold">
-                {isFa ? 'انرژی الان؟' : 'Energy right now?'}
-              </span>
-            </div>
-
+          <GlassCard className="flex items-center justify-between gap-2 p-3 sm:px-4 sm:py-3">
             <div className="flex items-center gap-1.5">
               {[
-                { label: isFa ? 'کم' : 'Low', level: 1 },
-                { label: isFa ? 'متوسط' : 'Med', level: 2 },
                 { label: isFa ? 'زیاد' : 'High', level: 3 },
+                { label: isFa ? 'متوسط' : 'Med', level: 2 },
+                { label: isFa ? 'کم' : 'Low', level: 1 },
               ].map((chip) => (
                 <button
                   key={chip.level}
                   type="button"
                   onClick={() => handleEnergyCheck(chip.level)}
-                  className="pressable px-3 py-1 rounded-full bg-white/[0.04] border border-line text-ink-2 hover:text-[var(--accent)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-subtle)] text-[11.5px] font-semibold transition-all"
+                  className="pressable px-3.5 py-1 rounded-full bg-white/[0.04] border border-line text-ink-2 hover:text-[var(--accent)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-subtle)] text-[12px] font-semibold transition-all"
                 >
                   {chip.label}
                 </button>
               ))}
+            </div>
+
+            <div className="flex items-center gap-1.5 text-ink-2">
+              <span className="text-[13px] font-semibold">
+                {isFa ? 'انرژی الان؟' : 'Energy right now?'}
+              </span>
+              <BoltRoundedIcon sx={{ fontSize: 18, color: 'var(--accent)' }} />
             </div>
           </GlassCard>
         </section>
 
         {/* ================= SECTION 4: EVENING REVIEW BANNER ================= */}
         {plan?.planned && (
-          <section className="pt-2">
+          <section className="pt-1">
             <GlassCard
-              radius={26}
+              radius={24}
               onClick={() => setIsEveningOpen(true)}
               className="flex items-center justify-between p-4 cursor-pointer hover:border-white/20 transition-all"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[14px] bg-white/[0.05] border border-line flex items-center justify-center text-ink-2">
-                  <NightlightRoundIcon sx={{ fontSize: 18 }} />
-                </div>
+              <ChevronIcon sx={{ fontSize: 20, color: 'var(--ink-3)' }} />
+
+              <div className="flex items-center gap-3 text-end">
                 <div>
-                  <h3 className="text-[15px] font-semibold text-ink">
+                  <h3 className="text-[15.5px] font-bold text-ink">
                     {plan.closed
                       ? isFa
                         ? 'روز بسته شد'
                         : 'Day Closed'
-                      : t('eveningReviewTitle')}
+                      : (isFa ? 'پایان روز' : t('eveningReviewTitle'))}
                   </h3>
                   <p className="text-[11.5px] text-ink-3">
                     {plan.closed
                       ? isFa
                         ? 'فردا، دوباره از تخته‌سنگ.'
                         : 'Tomorrow, start fresh with the Boulder.'
-                      : t('eveningReviewSub')}
+                      : (isFa ? '۶۰ ثانیه — چک، چرا، یک خط' : t('eveningReviewSub'))}
                   </p>
                 </div>
-              </div>
 
-              <ChevronIcon sx={{ fontSize: 20, color: 'var(--ink-3)' }} />
+                <div className="w-10 h-10 rounded-[14px] bg-white/[0.05] border border-line flex items-center justify-center text-ink-2">
+                  <NightlightRoundIcon sx={{ fontSize: 18 }} />
+                </div>
+              </div>
             </GlassCard>
           </section>
         )}

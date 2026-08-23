@@ -135,30 +135,30 @@ export const AppShell: React.FC = () => {
         {currentTab === 'settings' && <SettingsView />}
       </main>
 
-      {/* Mobile Floating Brain Dump Button (< 768px, bottom-20) */}
-      <div className="md:hidden fixed bottom-20 start-4 z-40">
+      {/* Mobile Floating Brain Dump Button (< 768px, positioned right above the bottom bar) */}
+      <div className="md:hidden fixed bottom-[76px] end-4 z-40">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
-          className="pressable flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#1C1C21]/95 border border-line shadow-2xl backdrop-blur-xl text-ink-2 hover:text-ink transition-all"
+          className="pressable flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C1C21]/95 border border-line shadow-2xl backdrop-blur-xl text-ink-2 hover:text-ink transition-all"
         >
-          <PsychologyOutlinedIcon sx={{ fontSize: 19, color: 'var(--accent)' }} />
-          <span className="text-[12.5px] font-bold text-ink">{t('brainVaultTitle')}</span>
+          <span className="text-[12px] font-bold text-ink">{t('brainVaultTitle')}</span>
+          <PsychologyOutlinedIcon sx={{ fontSize: 18, color: 'var(--accent)' }} />
         </button>
       </div>
 
       {/* Mobile Bottom Frosted Glass Navigation Bar (< 768px) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-3 pb-3 pt-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-4 pb-3 pt-2">
         <div className="max-w-md mx-auto rounded-[24px] bg-[#141418]/90 border border-white/[0.08] shadow-glass-card backdrop-blur-2xl p-1.5 flex items-center justify-between">
           {/* Tab 1: Tasks */}
           <button
             type="button"
             onClick={() => setCurrentTab('tasks')}
             className={clsx(
-              'pressable flex-1 py-2 rounded-[18px] flex flex-col items-center justify-center gap-1 transition-all',
+              'pressable flex-1 py-2.5 rounded-[18px] flex items-center justify-center gap-2 transition-all',
               currentTab === 'tasks'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]'
-                : 'text-ink-3 hover:text-ink-2'
+                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold'
+                : 'text-ink-3 hover:text-ink-2 font-medium'
             )}
           >
             {currentTab === 'tasks' ? (
@@ -166,7 +166,7 @@ export const AppShell: React.FC = () => {
             ) : (
               <CheckCircleOutlineRoundedIcon sx={{ fontSize: 19 }} />
             )}
-            <span className="text-[10.5px] font-bold">{t('tasksTab')}</span>
+            <span className="text-[12px]">{t('tasksTab')}</span>
           </button>
 
           {/* Tab 2: Habits */}
@@ -174,10 +174,10 @@ export const AppShell: React.FC = () => {
             type="button"
             onClick={() => setCurrentTab('habits')}
             className={clsx(
-              'pressable flex-1 py-2 rounded-[18px] flex flex-col items-center justify-center gap-1 transition-all',
+              'pressable flex-1 py-2.5 rounded-[18px] flex items-center justify-center gap-2 transition-all',
               currentTab === 'habits'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]'
-                : 'text-ink-3 hover:text-ink-2'
+                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold'
+                : 'text-ink-3 hover:text-ink-2 font-medium'
             )}
           >
             {currentTab === 'habits' ? (
@@ -185,7 +185,7 @@ export const AppShell: React.FC = () => {
             ) : (
               <RepeatRoundedIcon sx={{ fontSize: 19 }} />
             )}
-            <span className="text-[10.5px] font-bold">{t('habitsTab')}</span>
+            <span className="text-[12px]">{t('habitsTab')}</span>
           </button>
 
           {/* Tab 3: Leisure */}
@@ -193,29 +193,14 @@ export const AppShell: React.FC = () => {
             type="button"
             onClick={() => setCurrentTab('leisure')}
             className={clsx(
-              'pressable flex-1 py-2 rounded-[18px] flex flex-col items-center justify-center gap-1 transition-all',
+              'pressable flex-1 py-2.5 rounded-[18px] flex items-center justify-center gap-2 transition-all',
               currentTab === 'leisure'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]'
-                : 'text-ink-3 hover:text-ink-2'
+                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold'
+                : 'text-ink-3 hover:text-ink-2 font-medium'
             )}
           >
             <SpaRoundedIcon sx={{ fontSize: 19 }} />
-            <span className="text-[10.5px] font-bold">{t('leisureTab')}</span>
-          </button>
-
-          {/* Tab 4: Settings */}
-          <button
-            type="button"
-            onClick={() => setCurrentTab('settings')}
-            className={clsx(
-              'pressable flex-1 py-2 rounded-[18px] flex flex-col items-center justify-center gap-1 transition-all',
-              currentTab === 'settings'
-                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]'
-                : 'text-ink-3 hover:text-ink-2'
-            )}
-          >
-            <TuneRoundedIcon sx={{ fontSize: 19 }} />
-            <span className="text-[10.5px] font-bold">{t('settingsTitle')}</span>
+            <span className="text-[12px]">{t('leisureTab')}</span>
           </button>
         </div>
       </nav>
