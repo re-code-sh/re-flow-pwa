@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { TodayScreen } from '../views/today/TodayScreen';
 import { HabitsView } from '../views/HabitsView';
 import { LeisureView } from '../views/LeisureView';
+import { SettingsView } from '../views/SettingsView';
 import { SettingsSheet } from '../views/settings/SettingsSheet';
 import { BrainDump } from '../components/BrainDump';
 import { clsx } from 'clsx';
@@ -13,14 +14,23 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import SpaRoundedIcon from '@mui/icons-material/SpaRounded';
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined';
 import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
 
 export const AppShell: React.FC = () => {
   const { t } = useTranslation();
-  const [currentTab, setCurrentTab] = useState<'tasks' | 'habits' | 'leisure'>('tasks');
+  const [currentTab, setCurrentTab] = useState<'tasks' | 'habits' | 'leisure' | 'settings'>('tasks');
   const [isVaultOpen, setIsVaultOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
+
+  const handleOpenSettings = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsMobileSettingsOpen(true);
+    } else {
+      setCurrentTab('settings');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-bg text-ink relative selection:bg-[var(--accent-subtle)] selection:text-[var(--accent)]">
@@ -38,7 +48,7 @@ export const AppShell: React.FC = () => {
 
         <div className="w-6 h-[1px] bg-white/10 my-1" />
 
-        {/* 3 Core Navigation Tabs */}
+        {/* 4 Core Navigation Tabs on Desktop */}
         <nav className="flex flex-col gap-1.5">
           {/* Tab 1: Tasks */}
           <button
@@ -95,6 +105,22 @@ export const AppShell: React.FC = () => {
             <SpaRoundedIcon sx={{ fontSize: 22 }} />
             <span className="text-[10.5px] leading-none">{t('leisureTab')}</span>
           </button>
+
+          {/* Tab 4: Settings (Desktop Rail) */}
+          <button
+            type="button"
+            onClick={() => setCurrentTab('settings')}
+            className={clsx(
+              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
+              currentTab === 'settings'
+                ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)] font-bold shadow-sm'
+                : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
+            )}
+            title={t('settingsTitle')}
+          >
+            <TuneRoundedIcon sx={{ fontSize: 22 }} />
+            <span className="text-[10.5px] leading-none">{t('settingsTitle')}</span>
+          </button>
         </nav>
 
         <div className="w-6 h-[1px] bg-white/10 my-1" />
@@ -112,13 +138,14 @@ export const AppShell: React.FC = () => {
       </aside>
 
       {/* ================= UNIFIED SCALING CANVAS CONTAINER ================= */}
-      <main className="w-full max-w-xl mx-auto min-h-[100dvh] px-4 sm:px-6 pt-4 pb-36 sm:pb-32 flex flex-col justify-start">
+      <main className="w-full max-w-xl lg:max-w-2xl mx-auto min-h-[100dvh] px-4 sm:px-6 pt-4 pb-36 sm:pb-32 flex flex-col justify-start">
         <div key={currentTab} className="w-full animate-in fade-in duration-150">
           {currentTab === 'tasks' && (
-            <TodayScreen onOpenSettings={() => setIsSettingsOpen(true)} />
+            <TodayScreen onOpenSettings={handleOpenSettings} />
           )}
           {currentTab === 'habits' && <HabitsView />}
           {currentTab === 'leisure' && <LeisureView />}
+          {currentTab === 'settings' && <SettingsView />}
         </div>
       </main>
 
@@ -195,8 +222,8 @@ export const AppShell: React.FC = () => {
       {/* Global Brain Dump Sheet */}
       <BrainDump isOpen={isVaultOpen} onClose={() => setIsVaultOpen(false)} />
 
-      {/* Global Settings Modal Bottom Sheet */}
-      <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      {/* Mobile Modal Settings Bottom Sheet (suppresses bottom nav when open) */}
+      <SettingsSheet isOpen={isMobileSettingsOpen} onClose={() => setIsMobileSettingsOpen(false)} />
     </div>
   );
 };
