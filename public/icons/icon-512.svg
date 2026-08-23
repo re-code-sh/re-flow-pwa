@@ -1,30 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#1A1816"/>
+    <radialGradient id="bgGrad512" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#14141c"/>
       <stop offset="100%" stop-color="#060608"/>
     </radialGradient>
-    <linearGradient id="flameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFD494"/>
+    <radialGradient id="dotGlow512" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EFA55C" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#EFA55C" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#EFA55C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dotGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE1BE"/>
       <stop offset="50%" stop-color="#EFA55C"/>
-      <stop offset="100%" stop-color="#C25A2E"/>
+      <stop offset="100%" stop-color="#D97A2E"/>
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="24" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
   </defs>
   
-  <!-- Background Container -->
-  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
-  <rect width="508" height="508" x="2" y="2" rx="126" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+  <rect width="512" height="512" rx="116" fill="url(#bgGrad512)"/>
+  <rect width="508" height="508" x="2" y="2" rx="114" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
   
-  <!-- Ambient Ember Glow -->
-  <circle cx="256" cy="270" r="140" fill="#EFA55C" opacity="0.18" filter="url(#glow)"/>
+  <!-- Outer Glow Halo -->
+  <circle cx="256" cy="256" r="150" fill="url(#dotGlow512)"/>
   
-  <!-- Minimalist Flame Symbol -->
-  <path d="M256 96 C256 96, 330 180, 330 270 C330 320, 295 366, 256 384 C217 366, 182 320, 182 270 C182 205, 230 148, 256 96 Z" fill="url(#flameGrad)" />
+  <!-- Single Dot (تک‌نقطه) -->
+  <circle cx="256" cy="256" r="64" fill="url(#dotGrad512)"/>
   
-  <!-- Inner Heart of Flame -->
-  <path d="M256 220 C256 220, 290 265, 290 300 C290 325, 275 350, 256 360 C237 350, 222 325, 222 300 C222 268, 245 240, 256 220 Z" fill="#FFE8C2" opacity="0.9"/>
+  <!-- Inner Specular Highlight -->
+  <circle cx="240" cy="240" r="18" fill="#FFFFFF" opacity="0.35"/>
 </svg>

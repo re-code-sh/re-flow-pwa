@@ -17,7 +17,6 @@ import SpaRoundedIcon from '@mui/icons-material/SpaRounded';
 import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined';
-import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
 
 export const AppShell: React.FC = () => {
   const { t } = useTranslation();
@@ -36,20 +35,15 @@ export const AppShell: React.FC = () => {
   return (
     <div className="min-h-screen bg-bg text-ink relative selection:bg-[var(--accent-subtle)] selection:text-[var(--accent)]">
       {/* ================= DESKTOP & TABLET DETACHED FLOATING GLASS RAIL (>= 768px) ================= */}
-      <aside
-        className="hidden md:flex fixed start-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 p-2 rounded-[26px] bg-[var(--accent-tint-subtle)]/90 backdrop-blur-2xl border border-[var(--accent-border-tint)] transition-all duration-300"
-        style={{
-          boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 0 35px -10px var(--accent-subtle)',
-        }}
-      >
-        {/* Brand App Icon Button */}
+      <aside className="hidden md:flex fixed start-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 p-2 rounded-[26px] bg-[#0e0e14]/90 backdrop-blur-2xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
+        {/* Brand App Icon Button (تک‌نقطه) */}
         <button
           type="button"
           onClick={() => setCurrentTab('tasks')}
-          className="w-11 h-11 rounded-[18px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] flex items-center justify-center shadow-accent-sm-glow transition-all hover:scale-105"
+          className="w-11 h-11 rounded-[18px] bg-white/[0.05] border border-white/10 flex items-center justify-center transition-all hover:scale-105 hover:bg-white/[0.08] relative group"
           title={t('appTitle')}
         >
-          <LocalFireDepartmentRoundedIcon sx={{ fontSize: 24, color: 'var(--accent-ink, #1C1207)' }} />
+          <span className="w-3.5 h-3.5 rounded-full bg-[var(--accent)] shadow-accent-glow transition-transform group-hover:scale-110" />
         </button>
 
         <div className="w-6 h-[1px] bg-white/10 my-1" />
@@ -63,7 +57,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'tasks'
-                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
+                ? 'bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/35 font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('tasksTab')}
@@ -83,7 +77,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'habits'
-                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
+                ? 'bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/35 font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('habitsTab')}
@@ -103,7 +97,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'leisure'
-                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
+                ? 'bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/35 font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('leisureTab')}
@@ -123,7 +117,7 @@ export const AppShell: React.FC = () => {
             className={clsx(
               'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
               currentTab === 'settings'
-                ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
+                ? 'bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/35 font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
             )}
             title={t('settingsTitle')}
@@ -159,25 +153,14 @@ export const AppShell: React.FC = () => {
         </div>
       </main>
 
-      {/* ================= SUB-CANVAS BOTTOM AMBIENT ATMOSPHERE GLOW ================= */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 h-48 z-20 overflow-hidden select-none">
-        <div
-          className="w-full h-full transition-all duration-500"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 130px at 50% 100%, var(--accent-subtle), transparent)',
-          }}
-        />
-      </div>
-
       {/* ================= MOBILE FLOATING BRAIN DUMP BUTTON (< 768px, micro-aligned with Tasks tab) ================= */}
       <div className="md:hidden fixed bottom-[5.85rem] left-4 right-4 max-w-sm mx-auto px-1.5 z-30 pointer-events-none flex justify-start select-none">
         <button
           type="button"
           onClick={() => setIsVaultOpen(true)}
-          className="pointer-events-auto pressable flex items-center gap-2.5 px-4 py-2 rounded-[20px] bg-[var(--accent-tint-surface)]/95 border border-[var(--accent-border-tint)] backdrop-blur-xl shadow-lg active:scale-95 transition-all cursor-pointer"
+          className="pointer-events-auto pressable flex items-center gap-2.5 px-4 py-2 rounded-[20px] bg-[#14141b]/95 border border-white/[0.08] backdrop-blur-xl shadow-lg active:scale-95 transition-all cursor-pointer"
         >
-          <PsychologyOutlinedIcon sx={{ fontSize: 18, color: 'var(--accent)', opacity: 0.92 }} />
+          <PsychologyOutlinedIcon sx={{ fontSize: 18, color: 'rgba(255, 255, 255, 0.75)' }} />
           <span className="text-xs font-semibold text-white/90 leading-none">
             {t('brainVaultTitle')}
           </span>
@@ -185,12 +168,7 @@ export const AppShell: React.FC = () => {
       </div>
 
       {/* ================= MOBILE FLOATING BOTTOM PILL BAR (< 768px, z-40, 1:1 Android Parity) ================= */}
-      <nav
-        className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 h-[72px] rounded-[28px] bg-[var(--accent-tint-subtle)]/90 border border-[var(--accent-border-tint)] backdrop-blur-2xl p-1.5 flex items-center justify-between transition-all duration-300"
-        style={{
-          boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 10px 30px -10px var(--accent-glow)',
-        }}
-      >
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-40 h-[72px] rounded-[28px] bg-[#0e0e14]/90 border border-white/[0.08] backdrop-blur-2xl p-1.5 flex items-center justify-between shadow-[0_12px_40px_rgba(0,0,0,0.6)]">
         {/* Tab 1: Tasks / کارها */}
         <button
           type="button"
@@ -198,7 +176,7 @@ export const AppShell: React.FC = () => {
           className={clsx(
             'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'tasks'
-              ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
               : 'text-white/45 hover:text-white/80'
           )}
         >
@@ -217,7 +195,7 @@ export const AppShell: React.FC = () => {
           className={clsx(
             'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'habits'
-              ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
               : 'text-white/45 hover:text-white/80'
           )}
         >
@@ -236,7 +214,7 @@ export const AppShell: React.FC = () => {
           className={clsx(
             'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
             currentTab === 'leisure'
-              ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
+              ? 'bg-[var(--accent)]/15 border border-[var(--accent)]/35 text-[var(--accent)] font-semibold'
               : 'text-white/45 hover:text-white/80'
           )}
         >

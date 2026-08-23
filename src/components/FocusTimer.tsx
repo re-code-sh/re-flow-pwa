@@ -11,7 +11,6 @@ import PauseRoundedIcon from '@mui/icons-material/PauseRounded';
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded';
-import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
 import SpaRoundedIcon from '@mui/icons-material/SpaRounded';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 import MoreTimeRoundedIcon from '@mui/icons-material/MoreTimeRounded';
@@ -167,7 +166,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
             </>
           ) : (
             <>
-              <LocalFireDepartmentRoundedIcon sx={{ fontSize: 16, color: 'var(--accent)' }} />
+              <span className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-accent-glow" />
               <span>{isFa ? 'جلسه تمرکز' : 'Focus Session'}</span>
             </>
           )}

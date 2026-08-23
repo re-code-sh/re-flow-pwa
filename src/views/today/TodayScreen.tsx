@@ -27,7 +27,7 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import NotificationsActiveRoundedIcon from '@mui/icons-material/NotificationsActiveRounded';
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
-import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartmentRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 
 interface TodayScreenProps {
   onOpenSettings?: () => void;
@@ -116,8 +116,9 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
         <header className="flex items-end justify-between pt-1 pb-1">
           <div className="space-y-0.5">
             <p className="text-[12.5px] font-medium text-ink-3">{dateHeaderLabel}</p>
-            <h1 className="text-[26px] font-extrabold tracking-tight text-ink">
-              {t('appTitle')}
+            <h1 className="text-[26px] font-extrabold tracking-tight text-ink flex items-center gap-2">
+              <span>{t('appTitle')}</span>
+              <span className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-accent-glow inline-block" />
             </h1>
           </div>
 
@@ -175,7 +176,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
             className="flex items-center justify-between p-4 bg-gradient-to-r from-[var(--accent-subtle)] to-glass-b border-[var(--accent-border)] cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <LocalFireDepartmentRoundedIcon sx={{ fontSize: 20, color: 'var(--accent)' }} />
+              <AutoAwesomeRoundedIcon sx={{ fontSize: 19, color: 'var(--accent)' }} />
               <div>
                 <h4 className="text-[13.5px] font-semibold text-ink">
                   {isFa ? 'وقتِ بازبینی مبنا-صفر است' : 'Time for zero-based review'}
@@ -205,8 +206,8 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
               className="p-6 space-y-4 relative overflow-hidden"
             >
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
-                <LocalFireDepartmentRoundedIcon sx={{ fontSize: 13 }} />
-                <span>{isFa ? 'یک نقطهٔ داغ' : 'One Hot Spot'}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-accent-glow" />
+                <span>{isFa ? 'تک‌نقطهٔ تمرکز' : 'One Focal Point'}</span>
               </div>
 
               <p className="text-[15.5px] text-ink-2 font-medium leading-relaxed">

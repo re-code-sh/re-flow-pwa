@@ -1,22 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
   <defs>
     <radialGradient id="bgGrad192" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#1A1816"/>
+      <stop offset="0%" stop-color="#14141c"/>
       <stop offset="100%" stop-color="#060608"/>
     </radialGradient>
-    <linearGradient id="flameGrad192" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFD494"/>
+    <radialGradient id="dotGlow192" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EFA55C" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#EFA55C" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#EFA55C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dotGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE1BE"/>
       <stop offset="50%" stop-color="#EFA55C"/>
-      <stop offset="100%" stop-color="#C25A2E"/>
+      <stop offset="100%" stop-color="#D97A2E"/>
     </linearGradient>
   </defs>
   
-  <rect width="192" height="192" rx="48" fill="url(#bgGrad192)"/>
-  <rect width="190" height="190" x="1" y="1" rx="47" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <rect width="192" height="192" rx="44" fill="url(#bgGrad192)"/>
+  <rect width="190" height="190" x="1" y="1" rx="43" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
   
-  <circle cx="96" cy="100" r="50" fill="#EFA55C" opacity="0.2"/>
+  <!-- Outer Glow Halo -->
+  <circle cx="96" cy="96" r="56" fill="url(#dotGlow192)"/>
   
-  <path d="M96 36 C96 36, 124 68, 124 102 C124 120, 110 138, 96 144 C82 138, 68 120, 68 102 C68 77, 86 56, 96 36 Z" fill="url(#flameGrad192)" />
+  <!-- Single Dot (تک‌نقطه) -->
+  <circle cx="96" cy="96" r="24" fill="url(#dotGrad192)"/>
   
-  <path d="M96 82 C96 82, 108 99, 108 112 C108 122, 103 131, 96 135 C89 131, 84 122, 84 112 C84 100, 92 90, 96 82 Z" fill="#FFE8C2" opacity="0.9"/>
+  <!-- Inner Specular Highlight -->
+  <circle cx="90" cy="90" r="7" fill="#FFFFFF" opacity="0.35"/>
 </svg>
