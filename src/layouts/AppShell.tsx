@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { TodayScreen } from '../views/today/TodayScreen';
 import { HabitsView } from '../views/HabitsView';
 import { LeisureView } from '../views/LeisureView';
-import { SettingsView } from '../views/SettingsView';
+import { SettingsSheet } from '../views/settings/SettingsSheet';
 import { BrainDump } from '../components/BrainDump';
 import { clsx } from 'clsx';
 
@@ -18,8 +18,9 @@ import LocalFireDepartmentRoundedIcon from '@mui/icons-material/LocalFireDepartm
 
 export const AppShell: React.FC = () => {
   const { t } = useTranslation();
-  const [currentTab, setCurrentTab] = useState<'tasks' | 'habits' | 'leisure' | 'settings'>('tasks');
+  const [currentTab, setCurrentTab] = useState<'tasks' | 'habits' | 'leisure'>('tasks');
   const [isVaultOpen, setIsVaultOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-bg text-ink relative selection:bg-[var(--accent-subtle)] selection:text-[var(--accent)]">
@@ -114,11 +115,10 @@ export const AppShell: React.FC = () => {
       <main className="w-full max-w-xl mx-auto min-h-[100dvh] px-4 sm:px-6 pt-4 pb-36 sm:pb-32 flex flex-col justify-start">
         <div key={currentTab} className="w-full animate-in fade-in duration-150">
           {currentTab === 'tasks' && (
-            <TodayScreen onOpenSettings={() => setCurrentTab('settings')} />
+            <TodayScreen onOpenSettings={() => setIsSettingsOpen(true)} />
           )}
           {currentTab === 'habits' && <HabitsView />}
           {currentTab === 'leisure' && <LeisureView />}
-          {currentTab === 'settings' && <SettingsView />}
         </div>
       </main>
 
@@ -194,6 +194,9 @@ export const AppShell: React.FC = () => {
 
       {/* Global Brain Dump Sheet */}
       <BrainDump isOpen={isVaultOpen} onClose={() => setIsVaultOpen(false)} />
+
+      {/* Global Settings Modal Bottom Sheet */}
+      <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 };

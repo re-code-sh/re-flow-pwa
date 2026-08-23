@@ -1,32 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { clsx } from 'clsx';
 import { GlassSheet } from '../../components/ui/GlassSheet';
-import { AccentSelector } from '../../components/ui/AccentSelector';
-import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
-import { Pill } from '../../components/ui/Pill';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { useTheme } from '../../theme/ThemeContext';
+import { APP_ACCENTS, AppAccentKey } from '../../theme/tokens';
 import { repo } from '../../db/repo';
 import { toast } from '../../components/ui/Toast';
 import { todayKey, faNum } from '../../utils/fa';
 import { WheelTimePickerSheet } from '../../components/ui/WheelTimePickerSheet';
 
 // Material Icons
-import FileUploadRoundedIcon from '@mui/icons-material/FileUploadRounded';
-import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
-import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 import WbTwilightRoundedIcon from '@mui/icons-material/WbTwilightRounded';
 import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
+import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
+import FileUploadRoundedIcon from '@mui/icons-material/FileUploadRounded';
+import LanguageRoundedIcon from '@mui/icons-material/LanguageRounded';
+import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 import BatteryAlertRoundedIcon from '@mui/icons-material/BatteryAlertRounded';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 
 interface SettingsSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const ACCENT_ORDER: AppAccentKey[] = [
+  'ember',
+  'pine',
+  'indigo',
+  'iris',
+  'slate',
+  'mulberry',
+];
+
 export const SettingsSheet: React.FC<SettingsSheetProps> = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation();
   const isFa = i18n.language === 'fa';
+  const { accent, setAccent } = useTheme();
 
   const [morningReminder, setMorningReminder] = useState<number | null>(null);
   const [eveningReminder, setEveningReminder] = useState<number | null>(null);
@@ -34,22 +49,25 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({ isOpen, onClose })
 
   useEffect(() => {
     if (isOpen) {
-      repo.getSetting('rem_morning').then((v) => {
-        setMorningReminder(v ? parseInt(v, 10) : 8 * 60 + 30);
-      });
-      repo.getSetting('rem_evening').then((v) => {
-        setEveningReminder(v ? parseInt(v, 10) : 21 * 60 + 30);
+      Promise.all([
+        repo.getSetting('rem_morning'),
+        repo.getSetting('rem_evening'),
+      ]).then(([m, e]) => {
+        setMorningReminder(m ? parseInt(m, 10) : 8 * 60 + 30);
+        setEveningReminder(e ? parseInt(e, 10) : 21 * 60 + 30);
       });
     }
   }, [isOpen]);
 
-  const handleToggleMorning = async () => {
+  const handleToggleMorning = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const next = morningReminder === null ? 8 * 60 + 30 : null;
     setMorningReminder(next);
     await repo.setSetting('rem_morning', next !== null ? String(next) : '');
   };
 
-  const handleToggleEvening = async () => {
+  const handleToggleEvening = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const next = eveningReminder === null ? 21 * 60 + 30 : null;
     setEveningReminder(next);
     await repo.setSetting('rem_evening', next !== null ? String(next) : '');
@@ -66,7 +84,8 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({ isOpen, onClose })
     setPickingReminder(null);
   };
 
-  const formatMinutes = (mins: number) => {
+  const formatMinutes = (mins: number | null) => {
+    if (mins === null) return t('off');
     const h = Math.floor(mins / 60).toString().padStart(2, '0');
     const m = (mins % 60).toString().padStart(2, '0');
     return isFa ? faNum(`${h}:${m}`) : `${h}:${m}`;
@@ -78,7 +97,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({ isOpen, onClose })
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `re-flow-backup-${todayKey()}.json`;
+    a.download = `flow-backup-${todayKey()}.json`;
     a.click();
     toast(isFa ? 'پشتیبان ذخیره شد' : 'Backup exported');
   };
@@ -91,11 +110,21 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({ isOpen, onClose })
       const text = await file.text();
       await repo.importJson(text);
       toast(t('restoreSuccess'));
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 500);
     } catch {
       toast(t('invalidBackupFile'));
     }
   };
+
+  const handleToggleLanguage = () => {
+    const next = isFa ? 'en' : 'fa';
+    i18n.changeLanguage(next);
+    document.documentElement.dir = next === 'fa' ? 'rtl' : 'ltr';
+    document.documentElement.lang = next;
+    localStorage.setItem('taknoghte_lang', next);
+  };
+
+  const ChevronIcon = isFa ? ChevronLeftRoundedIcon : ChevronRightRoundedIcon;
 
   return (
     <>
@@ -104,135 +133,224 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({ isOpen, onClose })
         onClose={onClose}
         title={t('settingsHeader')}
         sub={t('settingsSub')}
+        maxWidth="max-w-xl"
       >
-        <div className="space-y-4 pt-1 pb-3 select-none">
-          {/* Scheduled Reminders */}
-          <div className="space-y-2">
-            {/* Morning Reminder Row */}
-            <div className="p-3.5 rounded-[16px] bg-white/[0.04] border border-line flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <WbTwilightRoundedIcon sx={{ fontSize: 19, color: 'var(--ink-2)' }} />
-                <div>
-                  <span className="text-[13.5px] font-semibold text-ink block">
-                    {t('morningReminder')}
-                  </span>
-                  <span className="text-[11px] text-ink-3">{t('morningReminderSub')}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (morningReminder === null) handleToggleMorning();
-                    else setPickingReminder('morning');
-                  }}
-                  className="px-2.5 py-1 rounded-[10px] bg-white/[0.06] text-[12.5px] font-bold text-[var(--accent)]"
-                >
-                  {morningReminder !== null ? formatMinutes(morningReminder) : t('off')}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleToggleMorning}
-                  className="p-1 rounded-full text-ink-3 hover:text-ink"
-                >
-                  {morningReminder !== null ? (
-                    <CloseRoundedIcon sx={{ fontSize: 16, color: 'var(--warn)' }} />
-                  ) : (
-                    <AddCircleOutlineRoundedIcon sx={{ fontSize: 16 }} />
-                  )}
-                </button>
+        <div className="space-y-2.5 pt-1 pb-4 select-none">
+          {/* ================= SECTION 1: DAILY RITUAL REMINDERS ================= */}
+          {/* Morning Reminder Row */}
+          <GlassCard
+            className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.06] transition-colors"
+            onClick={() => {
+              if (morningReminder === null) handleToggleMorning();
+              else setPickingReminder('morning');
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <WbTwilightRoundedIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+              <div>
+                <span className="text-[13.5px] font-semibold text-ink block">
+                  {t('morningReminder')}
+                </span>
+                <span className="text-[11px] text-ink-3">{t('morningReminderSub')}</span>
               </div>
             </div>
 
-            {/* Evening Reminder Row */}
-            <div className="p-3.5 rounded-[16px] bg-white/[0.04] border border-line flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <NightlightRoundIcon sx={{ fontSize: 19, color: 'var(--ink-2)' }} />
-                <div>
-                  <span className="text-[13.5px] font-semibold text-ink block">
-                    {t('eveningReminder')}
-                  </span>
-                  <span className="text-[11px] text-ink-3">{t('eveningReminderSub')}</span>
-                </div>
+            <div className="flex items-center gap-2">
+              <span
+                className={clsx(
+                  'text-[13px] font-bold tabular-nums',
+                  morningReminder === null ? 'text-ink-3' : 'text-[var(--accent)]'
+                )}
+              >
+                {formatMinutes(morningReminder)}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleToggleMorning}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-ink-3 hover:text-ink transition-colors"
+                title={morningReminder === null ? t('turnOn') : t('turnOff')}
+              >
+                {morningReminder !== null ? (
+                  <CloseRoundedIcon sx={{ fontSize: 16, color: 'var(--warn)' }} />
+                ) : (
+                  <AddCircleOutlineRoundedIcon sx={{ fontSize: 16 }} />
+                )}
+              </button>
+            </div>
+          </GlassCard>
+
+          {/* Evening Reminder Row */}
+          <GlassCard
+            className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.06] transition-colors"
+            onClick={() => {
+              if (eveningReminder === null) handleToggleEvening();
+              else setPickingReminder('evening');
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <NightlightRoundIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+              <div>
+                <span className="text-[13.5px] font-semibold text-ink block">
+                  {t('eveningReminder')}
+                </span>
+                <span className="text-[11px] text-ink-3">{t('eveningReminderSub')}</span>
               </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (eveningReminder === null) handleToggleEvening();
-                    else setPickingReminder('evening');
-                  }}
-                  className="px-2.5 py-1 rounded-[10px] bg-white/[0.06] text-[12.5px] font-bold text-[var(--accent)]"
-                >
-                  {eveningReminder !== null ? formatMinutes(eveningReminder) : t('off')}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleToggleEvening}
-                  className="p-1 rounded-full text-ink-3 hover:text-ink"
-                >
-                  {eveningReminder !== null ? (
-                    <CloseRoundedIcon sx={{ fontSize: 16, color: 'var(--warn)' }} />
-                  ) : (
-                    <AddCircleOutlineRoundedIcon sx={{ fontSize: 16 }} />
-                  )}
-                </button>
-              </div>
             </div>
-          </div>
 
-          {/* Accent Color Section */}
-          <div className="space-y-2.5 pt-1">
-            <div className="flex items-center gap-2 px-1">
-              <PaletteOutlinedIcon sx={{ fontSize: 18, color: 'var(--accent)' }} />
-              <h3 className="text-[13.5px] font-bold text-ink">{t('accentColorTitle')}</h3>
+            <div className="flex items-center gap-2">
+              <span
+                className={clsx(
+                  'text-[13px] font-bold tabular-nums',
+                  eveningReminder === null ? 'text-ink-3' : 'text-[var(--accent)]'
+                )}
+              >
+                {formatMinutes(eveningReminder)}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleToggleEvening}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-ink-3 hover:text-ink transition-colors"
+                title={eveningReminder === null ? t('turnOn') : t('turnOff')}
+              >
+                {eveningReminder !== null ? (
+                  <CloseRoundedIcon sx={{ fontSize: 16, color: 'var(--warn)' }} />
+                ) : (
+                  <AddCircleOutlineRoundedIcon sx={{ fontSize: 16 }} />
+                )}
+              </button>
             </div>
-            <AccentSelector />
-          </div>
+          </GlassCard>
 
-          {/* Language Section */}
-          <div className="p-3.5 rounded-[16px] bg-white/[0.04] border border-line flex items-center justify-between">
-            <div>
-              <span className="text-[13.5px] font-bold text-ink block">{t('appLanguage')}</span>
-              <span className="text-[11.5px] text-ink-3">{t('appLanguageSub')}</span>
-            </div>
-            <LanguageSwitcher />
-          </div>
-
-          {/* Backup & Restore */}
-          <div className="space-y-2 pt-1 border-t border-line/60">
-            <Pill
-              label={t('exportBackup')}
-              pillStyle="glass"
-              icon={<FileDownloadRoundedIcon sx={{ fontSize: 18 }} />}
+          {/* ================= SECTION 2: DATA MANAGEMENT ================= */}
+          <div className="pt-2 space-y-2.5">
+            {/* Export Backup */}
+            <GlassCard
+              className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.06] transition-colors"
               onClick={handleExport}
-            />
+            >
+              <div className="flex items-center gap-3">
+                <FileDownloadRoundedIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+                <div>
+                  <span className="text-[13.5px] font-semibold text-ink block">
+                    {t('exportBackup')}
+                  </span>
+                  <span className="text-[11px] text-ink-3 leading-relaxed">
+                    {t('exportBackupSub')}
+                  </span>
+                </div>
+              </div>
+              <ChevronIcon sx={{ fontSize: 18, color: 'var(--ink-3)' }} />
+            </GlassCard>
 
-            <label className="pressable w-full h-[48px] px-[18px] rounded-[16px] inline-flex items-center justify-center gap-2 text-[14px] font-semibold bg-glass-b text-ink-2 border border-line hover:bg-glass-a cursor-pointer">
-              <FileUploadRoundedIcon sx={{ fontSize: 18 }} />
-              <span>{t('restoreBackup')}</span>
-              <input
-                type="file"
-                accept=".json,application/json"
-                onChange={handleImport}
-                className="hidden"
-              />
+            {/* Restore Backup */}
+            <label className="block cursor-pointer">
+              <GlassCard className="p-3.5 flex items-center justify-between hover:bg-white/[0.06] transition-colors">
+                <div className="flex items-center gap-3">
+                  <FileUploadRoundedIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+                  <div>
+                    <span className="text-[13.5px] font-semibold text-ink block">
+                      {t('restoreBackup')}
+                    </span>
+                    <span className="text-[11px] text-ink-3 leading-relaxed">
+                      {t('restoreBackupSub')}
+                    </span>
+                  </div>
+                </div>
+                <ChevronIcon sx={{ fontSize: 18, color: 'var(--ink-3)' }} />
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={handleImport}
+                  className="hidden"
+                />
+              </GlassCard>
             </label>
+
+            {/* ================= SECTION 3: APP LANGUAGE ================= */}
+            <GlassCard
+              className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.06] transition-colors"
+              onClick={handleToggleLanguage}
+            >
+              <div className="flex items-center gap-3">
+                <LanguageRoundedIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+                <div>
+                  <span className="text-[13.5px] font-semibold text-ink block">
+                    {t('appLanguage')}
+                  </span>
+                  <span className="text-[11px] text-ink-3">
+                    {isFa ? 'فارسی' : 'English'}
+                  </span>
+                </div>
+              </div>
+              <ChevronIcon sx={{ fontSize: 18, color: 'var(--ink-3)' }} />
+            </GlassCard>
           </div>
 
-          {/* Battery Optimization Card */}
-          <div className="p-3.5 rounded-[16px] bg-white/[0.02] border border-line flex items-start gap-3">
-            <BatteryAlertRoundedIcon sx={{ fontSize: 19, color: 'var(--ink-3)', marginTop: '2px' }} />
-            <div>
-              <h4 className="text-[13px] font-bold text-ink">{t('batterySettings')}</h4>
-              <p className="text-[11px] text-ink-3 leading-relaxed mt-0.5">
-                {t('batterySettingsSub')}
-              </p>
-            </div>
+          {/* ================= SECTION 4: THEME ACCENT PALETTES ================= */}
+          <div className="pt-2">
+            <GlassCard className="p-4 space-y-3.5">
+              <div className="flex items-center gap-2.5">
+                <PaletteOutlinedIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+                <div>
+                  <h3 className="text-[13.5px] font-semibold text-ink">
+                    {t('accentColorTitle')}
+                  </h3>
+                  <p className="text-[11px] text-ink-3">{t('accentColorSub')}</p>
+                </div>
+              </div>
+
+              {/* 6-Theme Palette Wrap (2 rows x 3 columns) */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {ACCENT_ORDER.map((key) => {
+                  const item = APP_ACCENTS[key];
+                  const isSelected = accent === key;
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setAccent(key)}
+                      className={clsx(
+                        'pressable px-3 py-1.5 rounded-full border text-start flex items-center gap-2 transition-all',
+                        isSelected
+                          ? 'bg-[var(--accent-subtle)] border-[var(--accent)] text-ink ring-1 ring-[var(--accent-subtle)]'
+                          : 'bg-white/[0.04] border-white/10 text-ink-2 hover:bg-white/[0.07]'
+                      )}
+                    >
+                      <div
+                        style={{ backgroundColor: item.color }}
+                        className="w-3.5 h-3.5 rounded-full shadow-sm flex items-center justify-center text-black shrink-0"
+                      >
+                        {isSelected && <CheckRoundedIcon sx={{ fontSize: 9 }} />}
+                      </div>
+                      <span
+                        className={clsx(
+                          'text-[12px]',
+                          isSelected ? 'font-bold text-ink' : 'font-medium text-ink-2'
+                        )}
+                      >
+                        {isFa ? item.nameFa : item.nameEn}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* ================= SECTION 5: BATTERY NOTE ================= */}
+          <div className="pt-2">
+            <GlassCard className="p-3.5 flex items-start gap-3 bg-white/[0.02]">
+              <BatteryAlertRoundedIcon sx={{ fontSize: 18, color: 'var(--ink-3)', marginTop: '2px' }} />
+              <div>
+                <h4 className="text-[13px] font-bold text-ink">{t('batterySettings')}</h4>
+                <p className="text-[11px] text-ink-3 leading-relaxed mt-0.5">
+                  {t('batterySettingsSub')}
+                </p>
+              </div>
+            </GlassCard>
           </div>
         </div>
       </GlassSheet>
