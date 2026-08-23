@@ -110,8 +110,8 @@ export const AppShell: React.FC = () => {
         </button>
       </aside>
 
-      {/* ================= CENTERED MOBILE-FIRST CANVAS CONTAINER ================= */}
-      <main className="w-full max-w-md sm:max-w-lg mx-auto min-h-screen px-4 pt-3 pb-32 flex flex-col justify-start">
+      {/* ================= CENTERED SPACIOUS CANVAS CONTAINER ================= */}
+      <main className="w-full max-w-2xl lg:max-w-3xl mx-auto min-h-screen px-4 sm:px-6 pt-3 pb-32 sm:pb-28 flex flex-col justify-start">
         {currentTab === 'tasks' && (
           <TodayScreen onOpenSettings={() => setCurrentTab('settings')} />
         )}

@@ -114,31 +114,31 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-5 space-y-6">
+    <div className="w-full mx-auto space-y-6">
       {/* Header */}
       <header className="space-y-1">
-        <h1 className="text-[25px] font-extrabold text-ink">{t('settingsHeader')}</h1>
+        <h1 className="text-[26px] font-extrabold text-ink">{t('settingsHeader')}</h1>
         <p className="text-[12.5px] text-ink-3">{t('settingsSub')}</p>
       </header>
 
       {/* Main Settings Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* ================= COLUMN 1: THEME & LANGUAGE ================= */}
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* 6-Theme Palette Picker */}
-          <GlassCard elevated className="p-5 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[10px] bg-[var(--accent-subtle)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent)]">
-                <PaletteOutlinedIcon sx={{ fontSize: 19 }} />
+          <GlassCard elevated className="p-5 sm:p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-[12px] bg-[var(--accent-subtle)] border border-[var(--accent-border)] flex items-center justify-center text-[var(--accent)]">
+                <PaletteOutlinedIcon sx={{ fontSize: 20 }} />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-ink">{t('accentColorTitle')}</h3>
+                <h3 className="text-[15.5px] font-bold text-ink">{t('accentColorTitle')}</h3>
                 <p className="text-[11.5px] text-ink-3">{t('accentColorSub')}</p>
               </div>
             </div>
 
             {/* Dynamic Swatch Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
               {(Object.keys(APP_ACCENTS) as AppAccentKey[]).map((key) => {
                 const item = APP_ACCENTS[key];
                 const isSelected = accent === key;
@@ -149,10 +149,10 @@ export const SettingsView: React.FC = () => {
                     type="button"
                     onClick={() => setAccent(key)}
                     className={clsx(
-                      'pressable p-3 rounded-[16px] border text-start flex flex-col justify-between h-[82px] transition-all relative overflow-hidden',
+                      'pressable p-3.5 rounded-[18px] border text-start flex flex-col justify-between h-[86px] transition-all relative overflow-hidden',
                       isSelected
-                        ? 'bg-white/[0.07] border-white/25 ring-2 ring-[var(--accent)] shadow-glass-card'
-                        : 'bg-white/[0.03] border-line hover:bg-white/[0.05] hover:border-white/15'
+                        ? 'bg-white/[0.08] border-white/30 ring-2 ring-[var(--accent)] shadow-glass-card'
+                        : 'bg-white/[0.03] border-line hover:bg-white/[0.06] hover:border-white/15'
                     )}
                   >
                     <div className="flex items-center justify-between w-full">
@@ -163,12 +163,12 @@ export const SettingsView: React.FC = () => {
                         {isSelected && <CheckRoundedIcon sx={{ fontSize: 13 }} />}
                       </div>
                       {isSelected && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-accent-glow animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-accent-glow animate-pulse" />
                       )}
                     </div>
 
                     <div>
-                      <span className="text-[13px] font-bold text-ink block">
+                      <span className="text-[13px] font-bold text-ink block truncate">
                         {isFa ? item.nameFa : item.nameEn}
                       </span>
                     </div>
@@ -179,26 +179,26 @@ export const SettingsView: React.FC = () => {
           </GlassCard>
 
           {/* Language & Direction Switcher */}
-          <GlassCard elevated className="p-5 space-y-3.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[10px] bg-white/[0.05] border border-line flex items-center justify-center text-ink-2">
-                <LanguageRoundedIcon sx={{ fontSize: 19 }} />
+          <GlassCard elevated className="p-5 sm:p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-[12px] bg-white/[0.05] border border-line flex items-center justify-center text-ink-2">
+                <LanguageRoundedIcon sx={{ fontSize: 20 }} />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-ink">{t('appLanguage')}</h3>
+                <h3 className="text-[15.5px] font-bold text-ink">{t('appLanguage')}</h3>
                 <p className="text-[11.5px] text-ink-3">{t('appLanguageSub')}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-3 pt-1">
               <button
                 type="button"
                 onClick={() => handleLanguageToggle('fa')}
                 className={clsx(
-                  'pressable py-2.5 rounded-[14px] text-[13px] font-bold border transition-all text-center flex items-center justify-center gap-2',
+                  'pressable py-3 rounded-[16px] text-[13.5px] font-bold border transition-all text-center flex items-center justify-center gap-2',
                   isFa
                     ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border-[var(--accent-border)] ring-1 ring-[var(--accent-subtle)]'
-                    : 'bg-white/[0.03] text-ink-3 border-line hover:text-ink'
+                    : 'bg-white/[0.03] text-ink-3 border-line hover:text-ink hover:bg-white/[0.06]'
                 )}
               >
                 <span>فارسی (RTL)</span>
@@ -209,10 +209,10 @@ export const SettingsView: React.FC = () => {
                 type="button"
                 onClick={() => handleLanguageToggle('en')}
                 className={clsx(
-                  'pressable py-2.5 rounded-[14px] text-[13px] font-bold border transition-all text-center flex items-center justify-center gap-2',
+                  'pressable py-3 rounded-[16px] text-[13.5px] font-bold border transition-all text-center flex items-center justify-center gap-2',
                   !isFa
                     ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border-[var(--accent-border)] ring-1 ring-[var(--accent-subtle)]'
-                    : 'bg-white/[0.03] text-ink-3 border-line hover:text-ink'
+                    : 'bg-white/[0.03] text-ink-3 border-line hover:text-ink hover:bg-white/[0.06]'
                 )}
               >
                 <span>English (LTR)</span>
@@ -222,28 +222,28 @@ export const SettingsView: React.FC = () => {
           </GlassCard>
 
           {/* Battery Optimization Card */}
-          <GlassCard className="p-4 flex items-start gap-3 bg-white/[0.02]">
-            <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+          <GlassCard className="p-4 sm:p-5 flex items-start gap-3.5 bg-white/[0.02]">
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
               <BatteryAlertRoundedIcon sx={{ fontSize: 18 }} />
             </div>
             <div>
-              <h4 className="text-[13px] font-bold text-ink">{t('batterySettings')}</h4>
-              <p className="text-[11px] text-ink-3 leading-relaxed mt-0.5">
+              <h4 className="text-[13.5px] font-bold text-ink">{t('batterySettings')}</h4>
+              <p className="text-[11.5px] text-ink-3 leading-relaxed mt-1">
                 {t('batterySettingsSub')}
               </p>
             </div>
           </GlassCard>
 
           {/* Offline PWA Status */}
-          <GlassCard className="p-4 flex items-center gap-3 bg-white/[0.02]">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <GlassCard className="p-4 sm:p-5 flex items-center gap-3.5 bg-white/[0.02]">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
               <OfflinePinRoundedIcon sx={{ fontSize: 18 }} />
             </div>
             <div>
-              <h4 className="text-[13px] font-bold text-ink">
+              <h4 className="text-[13.5px] font-bold text-ink">
                 {isFa ? 'آفلاین و همیشه در دسترس (PWA)' : 'Offline-First PWA Active'}
               </h4>
-              <p className="text-[11px] text-ink-3">
+              <p className="text-[11.5px] text-ink-3 leading-relaxed">
                 {isFa
                   ? 'تمامی داده‌ها روی حافظه محلی دستگاه شما با Dexie.js ذخیره می‌شود.'
                   : 'All data is stored locally in your browser with Dexie.js.'}
@@ -253,80 +253,80 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {/* ================= COLUMN 2: REMINDERS & DATA MANAGEMENT ================= */}
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Daily Ritual Reminders */}
-          <GlassCard elevated className="p-5 space-y-3.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[10px] bg-white/[0.05] border border-line flex items-center justify-center text-ink-2">
-                <NotificationsActiveOutlinedIcon sx={{ fontSize: 19 }} />
+          <GlassCard elevated className="p-5 sm:p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-[12px] bg-white/[0.05] border border-line flex items-center justify-center text-ink-2">
+                <NotificationsActiveOutlinedIcon sx={{ fontSize: 20 }} />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-ink">{t('remindersTitle')}</h3>
+                <h3 className="text-[15.5px] font-bold text-ink">{t('remindersTitle')}</h3>
                 <p className="text-[11.5px] text-ink-3">{t('remindersSub')}</p>
               </div>
             </div>
 
-            <div className="space-y-2 pt-1">
+            <div className="space-y-3 pt-1">
               {/* Morning Reminder */}
-              <div className="flex items-center justify-between p-3 rounded-[14px] bg-white/[0.03] border border-line">
-                <div className="flex items-center gap-2.5">
-                  <WbTwilightRoundedIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+              <div className="flex items-center justify-between gap-4 p-4 rounded-[16px] bg-white/[0.03] border border-line">
+                <div className="flex items-center gap-3">
+                  <WbTwilightRoundedIcon sx={{ fontSize: 20, color: 'var(--ink-2)' }} />
                   <div>
-                    <span className="text-[13px] font-semibold text-ink block">
+                    <span className="text-[14px] font-semibold text-ink block">
                       {t('morningReminder')}
                     </span>
-                    <span className="text-[11px] text-ink-3">{t('morningReminderSub')}</span>
+                    <span className="text-[11.5px] text-ink-3">{t('morningReminderSub')}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => {
                       if (morningReminder === null) handleToggleMorning();
                       else setPickingReminder('morning');
                     }}
-                    className="px-3 py-1 rounded-[10px] bg-white/[0.06] text-[12px] font-bold text-[var(--accent)]"
+                    className="px-3.5 py-1.5 rounded-[12px] bg-white/[0.06] text-[13px] font-bold text-[var(--accent)] hover:bg-white/10 transition-all"
                   >
                     {morningReminder !== null ? formatMinutes(morningReminder) : t('off')}
                   </button>
                   <button
                     type="button"
                     onClick={handleToggleMorning}
-                    className="p-1 rounded-full text-ink-3 hover:text-warn"
+                    className="p-1.5 rounded-full text-ink-3 hover:text-warn transition-all"
                   >
-                    <CloseRoundedIcon sx={{ fontSize: 16 }} />
+                    <CloseRoundedIcon sx={{ fontSize: 17 }} />
                   </button>
                 </div>
               </div>
 
               {/* Evening Review Reminder */}
-              <div className="flex items-center justify-between p-3 rounded-[14px] bg-white/[0.03] border border-line">
-                <div className="flex items-center gap-2.5">
-                  <NightlightRoundIcon sx={{ fontSize: 18, color: 'var(--ink-2)' }} />
+              <div className="flex items-center justify-between gap-4 p-4 rounded-[16px] bg-white/[0.03] border border-line">
+                <div className="flex items-center gap-3">
+                  <NightlightRoundIcon sx={{ fontSize: 20, color: 'var(--ink-2)' }} />
                   <div>
-                    <span className="text-[13px] font-semibold text-ink block">
+                    <span className="text-[14px] font-semibold text-ink block">
                       {t('eveningReminder')}
                     </span>
-                    <span className="text-[11px] text-ink-3">{t('eveningReminderSub')}</span>
+                    <span className="text-[11.5px] text-ink-3">{t('eveningReminderSub')}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => {
                       if (eveningReminder === null) handleToggleEvening();
                       else setPickingReminder('evening');
                     }}
-                    className="px-3 py-1 rounded-[10px] bg-white/[0.06] text-[12px] font-bold text-[var(--accent)]"
+                    className="px-3.5 py-1.5 rounded-[12px] bg-white/[0.06] text-[13px] font-bold text-[var(--accent)] hover:bg-white/10 transition-all"
                   >
                     {eveningReminder !== null ? formatMinutes(eveningReminder) : t('off')}
                   </button>
                   <button
                     type="button"
                     onClick={handleToggleEvening}
-                    className="p-1 rounded-full text-ink-3 hover:text-warn"
+                    className="p-1.5 rounded-full text-ink-3 hover:text-warn transition-all"
                   >
-                    <CloseRoundedIcon sx={{ fontSize: 16 }} />
+                    <CloseRoundedIcon sx={{ fontSize: 17 }} />
                   </button>
                 </div>
               </div>
@@ -334,7 +334,7 @@ export const SettingsView: React.FC = () => {
           </GlassCard>
 
           {/* Backup & Restore */}
-          <GlassCard elevated className="p-5 space-y-3.5">
+          <GlassCard elevated className="p-5 sm:p-6 space-y-4">
             <h3 className="text-[15px] font-bold text-ink">{t('dataManagement')}</h3>
 
             <div className="space-y-2 pt-1">

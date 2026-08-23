@@ -84,7 +84,7 @@ export const LeisureView: React.FC = () => {
     : `${funConfig.minutes} min`;
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-5 space-y-6">
+    <div className="w-full mx-auto space-y-6">
       {/* Top Header */}
       <header className="space-y-1">
         <h1 className="text-[25px] font-extrabold text-ink">{t('leisureTab')}</h1>

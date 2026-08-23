@@ -111,7 +111,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
         <div className="absolute -bottom-[20%] -left-[15%] w-[420px] h-[420px] rounded-full bg-[var(--accent)]/5 blur-[100px]" />
       </div>
 
-      <div className="relative z-10 max-w-xl mx-auto px-4 py-4 sm:py-5 space-y-5">
+      <div className="relative z-10 w-full mx-auto space-y-5">
         {/* Top Header */}
         <header className="flex items-end justify-between pt-1 pb-1">
           <div className="space-y-0.5">
