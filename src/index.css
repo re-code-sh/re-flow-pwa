@@ -1,7 +1,102 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* ================= TAILWIND V4 DESIGN SYSTEM THEME ================= */
+@theme {
+  /* Surface & Base Color Tokens */
+  --color-bg: var(--bg, #060608);
+  --color-ink: var(--ink, #F5F5F7);
+  --color-ink-2: var(--ink-2, rgba(245, 245, 247, 0.55));
+  --color-ink-3: var(--ink-3, rgba(245, 245, 247, 0.38));
+  --color-warn: var(--warn, #FF7A6E);
+
+  /* Dynamic Tone Accent Tokens */
+  --color-accent: var(--accent, #EFA55C);
+  --color-accent-light: var(--accent-light, #F1B57A);
+  --color-accent-dark: var(--accent-dark, #D39251);
+  --color-accent-glow: var(--accent-glow, rgba(239, 165, 92, 0.28));
+  --color-accent-subtle: var(--accent-subtle, rgba(239, 165, 92, 0.13));
+  --color-accent-border: var(--accent-border, rgba(239, 165, 92, 0.35));
+  --color-accent-ink: var(--accent-ink, #1C1207);
+
+  /* Acrylic Dynamic Tint Tokens */
+  --color-accent-tint-subtle: var(--accent-tint-subtle, color-mix(in srgb, var(--accent) 5%, #0d0d14));
+  --color-accent-tint-surface: var(--accent-tint-surface, color-mix(in srgb, var(--accent) 8%, #12121a));
+  --color-accent-tint-active: var(--accent-tint-active, color-mix(in srgb, var(--accent) 16%, transparent));
+  --color-accent-border-tint: var(--accent-border-tint, color-mix(in srgb, var(--accent) 18%, rgba(255, 255, 255, 0.08)));
+  --color-accent-border-active: var(--accent-border-active, color-mix(in srgb, var(--accent) 45%, transparent));
+
+  /* Glass Surface Primitives */
+  --color-glass-a: var(--glass-a, rgba(255, 255, 255, 0.072));
+  --color-glass-b: var(--glass-b, rgba(255, 255, 255, 0.030));
+  --color-line: var(--line, rgba(255, 255, 255, 0.085));
+  --color-spec: var(--spec, rgba(255, 255, 255, 0.16));
+
+  /* Typography Tokens */
+  --font-sans: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-vazir: 'Vazirmatn', sans-serif;
+
+  /* Corner Radii Tokens */
+  --radius-card: 26px;
+  --radius-small: 20px;
+  --radius-pill: 17px;
+
+  /* Elevation & Glow Shadows */
+  --shadow-glass-card: 0 18px 40px rgba(0, 0, 0, 0.55);
+  --shadow-glass-sheet: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-accent-glow: 0 10px 26px var(--accent-glow, rgba(239, 165, 92, 0.25));
+  --shadow-accent-sm-glow: 0 4px 14px var(--accent-glow, rgba(239, 165, 92, 0.3));
+
+  /* Motion Easings */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Animation Tokens */
+  --animate-pop: checkmark-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  --animate-view-in: view-in 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-ambient-breath: ambient-breath 4.5s ease-in-out infinite;
+
+  @keyframes checkmark-pop {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    65% {
+      transform: scale(1.22);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes view-in {
+    0% {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes ambient-breath {
+    0%, 100% {
+      filter: drop-shadow(0 0 15px var(--accent-glow)) drop-shadow(0 0 35px var(--accent-subtle));
+      opacity: 0.85;
+    }
+    50% {
+      filter: drop-shadow(0 0 32px var(--accent-glow)) drop-shadow(0 0 70px var(--accent-glow));
+      opacity: 1;
+    }
+  }
+}
+
+/* Custom Variant for Dark Mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ================= RUNTIME CSS VARIABLES ================= */
 :root {
   --bg: #060608;
   --ink: #F5F5F7;
@@ -37,7 +132,7 @@
 html, body {
   background-color: var(--bg);
   color: var(--ink);
-  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
   min-height: 100vh;
   margin: 0;
   padding: 0;
@@ -54,7 +149,7 @@ html, body {
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  transition: transform 180ms var(--ease-apple), background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 .glass-card-elevated {
@@ -63,7 +158,7 @@ html, body {
   box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.08), 0 18px 40px rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  transition: transform 180ms var(--ease-apple), background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 .glass-sheet {
@@ -78,7 +173,7 @@ html, body {
   background: rgba(255, 255, 255, 0.055);
   border: 1px solid var(--line);
   color: var(--ink);
-  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+  transition: border-color 0.2s var(--ease-apple), box-shadow 0.2s var(--ease-apple), background-color 0.2s ease;
 }
 
 .glass-input:focus {
@@ -98,58 +193,6 @@ html, body {
 .pressable:active {
   transform: scale(0.968);
   filter: brightness(0.94);
-}
-
-/* Micro-Animations: Spring Checkmark Pop */
-@keyframes checkmark-pop {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  65% {
-    transform: scale(1.22);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.animate-pop {
-  animation: checkmark-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* Micro-Animations: Tab View Transition */
-@keyframes view-in {
-  0% {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-view-in {
-  animation: view-in 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Micro-Animations: Ambient Breathing Glow for Focus Timer */
-@keyframes ambient-breath {
-  0%, 100% {
-    filter: drop-shadow(0 0 15px var(--accent-glow)) drop-shadow(0 0 35px var(--accent-subtle));
-    opacity: 0.85;
-  }
-  50% {
-    filter: drop-shadow(0 0 32px var(--accent-glow)) drop-shadow(0 0 70px var(--accent-glow));
-    opacity: 1;
-  }
-}
-
-.animate-ambient-breath {
-  animation: ambient-breath 4.5s ease-in-out infinite;
 }
 
 /* Custom Minimal Scrollbar */
