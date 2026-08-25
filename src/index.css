@@ -123,6 +123,11 @@
   --accent-tint-active: color-mix(in srgb, var(--accent) 16%, transparent);
   --accent-border-tint: color-mix(in srgb, var(--accent) 18%, rgba(255, 255, 255, 0.08));
   --accent-border-active: color-mix(in srgb, var(--accent) 45%, transparent);
+
+  /* View Transition Timing Variables */
+  --duration-exit: 150ms;
+  --duration-enter: 210ms;
+  --duration-move: 380ms;
 }
 
 * {
@@ -213,4 +218,83 @@ html, body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+/* ================= VIEW TRANSITIONS RECIPES (Vercel View Transitions API) ================= */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Shared Element Morph */
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+
+@keyframes via-blur {
+  30% { filter: blur(2px); }
+}
+
+/* Text Morph (Eliminates Raster Scaling Artifacts on Headings) */
+::view-transition-group(.text-morph) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+::view-transition-old(.text-morph) {
+  display: none;
+}
+::view-transition-new(.text-morph) {
+  animation: none;
+  object-fit: none;
+  object-position: left top;
+}
+
+/* Directional Navigation (nav-forward / nav-back) */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -50px;
+  animation:
+    var(--duration-exit) ease-in both fade reverse,
+    var(--duration-move) cubic-bezier(0.16, 1, 0.3, 1) both slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 50px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both fade,
+    var(--duration-move) cubic-bezier(0.16, 1, 0.3, 1) both slide;
+}
+
+::view-transition-old(.nav-back) {
+  --slide-offset: 50px;
+  animation:
+    var(--duration-exit) ease-in both fade reverse,
+    var(--duration-move) cubic-bezier(0.16, 1, 0.3, 1) both slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -50px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both fade,
+    var(--duration-move) cubic-bezier(0.16, 1, 0.3, 1) both slide;
+}
+
+@keyframes fade {
+  from { filter: blur(3px); opacity: 0; }
+  to { filter: blur(0); opacity: 1; }
+}
+
+@keyframes slide {
+  from { translate: var(--slide-offset); }
+  to { translate: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }
