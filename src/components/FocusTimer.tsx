@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 import { repo } from '../db/repo';
 import { toast } from './ui/Toast';
+import { ViewTransition } from './ui/ViewTransition';
 import { faClock, todayKey } from '../utils/fa';
 import { fireCelebrationConfetti } from '../utils/confetti';
 import type { InterruptTagType } from '../db/schema';
@@ -151,11 +152,12 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   const isFun = kind === 'fun';
 
   return (
-    <div className="fixed inset-0 z-50 bg-bg text-ink flex flex-col justify-between p-5 sm:p-8 animate-in fade-in duration-300 overflow-hidden select-none">
-      {/* Ambient background glows */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[350px] h-[350px] rounded-full bg-[var(--accent)]/10 blur-[120px]" />
-      </div>
+    <ViewTransition name="focus-timer-modal" share="morph">
+      <div className="fixed inset-0 z-50 bg-bg text-ink flex flex-col justify-between p-5 sm:p-8 animate-in fade-in duration-300 overflow-hidden select-none">
+        {/* Ambient background glows */}
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[350px] h-[350px] rounded-full bg-[var(--accent)]/10 blur-[120px]" />
+        </div>
 
       {/* Top Bar */}
       <header className="relative z-10 flex items-center justify-between">
@@ -482,6 +484,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </ViewTransition>
   );
 };

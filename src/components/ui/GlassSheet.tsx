@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { clsx } from 'clsx';
+import { ViewTransition } from './ViewTransition';
 
 interface GlassSheetProps {
   isOpen: boolean;
@@ -75,42 +76,41 @@ export const GlassSheet: React.FC<GlassSheetProps> = ({
       />
 
       {/* Sheet Container */}
-      <div
-        style={{
-          transform: dragOffset > 0 ? `translateY(${dragOffset}px)` : undefined,
-          transition: dragOffset > 0 ? 'none' : 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
-        className={clsx(
-          'relative w-full z-10 glass-sheet rounded-t-[32px] sm:rounded-[28px] max-h-[88vh] flex flex-col shadow-glass-sheet animate-in fade-in slide-in-from-bottom duration-250 ease-out',
-          maxWidth
-        )}
-      >
-        {/* Grab Handle Header (Swipe to dismiss anchor) */}
+      <ViewTransition name="active-modal-sheet" share="morph" className={clsx('relative w-full z-10', maxWidth)}>
         <div
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          className="w-full flex flex-col items-center pt-3 pb-1.5 cursor-grab active:cursor-grabbing select-none"
+          style={{
+            transform: dragOffset > 0 ? `translateY(${dragOffset}px)` : undefined,
+            transition: dragOffset > 0 ? 'none' : 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          className="w-full glass-sheet rounded-t-[32px] sm:rounded-[28px] max-h-[88vh] flex flex-col shadow-glass-sheet animate-in fade-in slide-in-from-bottom duration-250 ease-out"
         >
-          <div className="w-[38px] h-[5px] rounded-full bg-white/20 transition-colors hover:bg-white/30" />
-        </div>
-
-        {/* Sheet Header */}
-        {title && (
+          {/* Grab Handle Header (Swipe to dismiss anchor) */}
           <div
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
-            className="px-6 pt-1 pb-1 select-none"
+            className="w-full flex flex-col items-center pt-3 pb-1.5 cursor-grab active:cursor-grabbing select-none"
           >
-            <h2 className="text-[18.5px] font-bold text-ink">{title}</h2>
-            {sub && <p className="text-[12.5px] text-ink-2 mt-1 leading-relaxed">{sub}</p>}
+            <div className="w-[38px] h-[5px] rounded-full bg-white/20 transition-colors hover:bg-white/30" />
           </div>
-        )}
 
-        {/* Sheet Body */}
-        <div className="overflow-y-auto px-6 py-4 flex-1 overscroll-contain">{children}</div>
-      </div>
+          {/* Sheet Header */}
+          {title && (
+            <div
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="px-6 pt-1 pb-1 select-none"
+            >
+              <h2 className="text-[18.5px] font-bold text-ink">{title}</h2>
+              {sub && <p className="text-[12.5px] text-ink-2 mt-1 leading-relaxed">{sub}</p>}
+            </div>
+          )}
+
+          {/* Sheet Body */}
+          <div className="overflow-y-auto px-6 py-4 flex-1 overscroll-contain">{children}</div>
+        </div>
+      </ViewTransition>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import { ViewTransition } from './ui/ViewTransition';
 import { clsx } from 'clsx';
 
 interface BrainDumpProps {
@@ -89,15 +90,12 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ isOpen, onClose }) => {
       />
 
       {/* Sheet on Mobile / Command Palette on Desktop */}
-      <div
-        className={clsx(
-          'relative w-full max-w-lg z-10 glass-sheet rounded-t-[32px] md:rounded-[28px] max-h-[88vh] flex flex-col shadow-2xl animate-in fade-in slide-in-from-bottom duration-300 overflow-hidden'
-        )}
-      >
-        {/* Grab Handle (Mobile) */}
-        <div className="w-full flex md:hidden justify-center pt-3 pb-1">
-          <div className="w-[38px] h-[5px] rounded-full bg-white/15" />
-        </div>
+      <ViewTransition name="brain-vault-sheet" share="morph" className="relative w-full max-w-lg z-10">
+        <div className="w-full glass-sheet rounded-t-[32px] md:rounded-[28px] max-h-[88vh] flex flex-col shadow-2xl animate-in fade-in slide-in-from-bottom duration-300 overflow-hidden">
+          {/* Grab Handle (Mobile) */}
+          <div className="w-full flex md:hidden justify-center pt-3 pb-1">
+            <div className="w-[38px] h-[5px] rounded-full bg-white/15" />
+          </div>
 
         {/* Header */}
         <div className="px-6 pt-4 pb-2 flex items-center justify-between">
@@ -257,6 +255,7 @@ export const BrainDump: React.FC<BrainDumpProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
+      </ViewTransition>
     </div>
   );
 };

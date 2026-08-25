@@ -7,6 +7,7 @@ import { Pill } from '../components/ui/Pill';
 import { GlassSheet } from '../components/ui/GlassSheet';
 import { toast } from '../components/ui/Toast';
 import { FocusTimer } from '../components/FocusTimer';
+import { ViewTransition } from '../components/ui/ViewTransition';
 import { faNum, todayKey } from '../utils/fa';
 import type { FunConfig } from '../db/schema';
 
@@ -221,39 +222,41 @@ export const LeisureView: React.FC = () => {
       {/* ================= MODAL 2: BOULDER LOCK PROMPT ================= */}
       {showBoulderPrompt && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xl flex items-end sm:items-center justify-center p-4">
-          <div className="w-full max-w-md glass-sheet rounded-[28px] p-6 space-y-4 shadow-2xl border border-line animate-in zoom-in-95 duration-200">
-            <div className="text-center space-y-1.5">
-              <h3 className="text-[18px] font-bold text-ink">
-                {isFa ? 'اول تخته‌سنگ؟' : 'Boulder first?'}
-              </h3>
-              <p className="text-[13px] text-ink-3 leading-relaxed">
-                {isFa
-                  ? 'تفریح بعد از افتادنِ تخته‌سنگ، واقعاً بی‌گناه می‌شود. الان مطمئنی؟'
-                  : 'Play after the Boulder is truly guilt-free. Are you sure right now?'}
-              </p>
-            </div>
+          <ViewTransition name="boulder-lock-modal" share="morph" className="w-full max-w-md">
+            <div className="w-full glass-sheet rounded-[28px] p-6 space-y-4 shadow-2xl border border-line animate-in zoom-in-95 duration-200">
+              <div className="text-center space-y-1.5">
+                <h3 className="text-[18px] font-bold text-ink">
+                  {isFa ? 'اول تخته‌سنگ؟' : 'Boulder first?'}
+                </h3>
+                <p className="text-[13px] text-ink-3 leading-relaxed">
+                  {isFa
+                    ? 'تفریح بعد از افتادنِ تخته‌سنگ، واقعاً بی‌گناه می‌شود. الان مطمئنی؟'
+                    : 'Play after the Boulder is truly guilt-free. Are you sure right now?'}
+                </p>
+              </div>
 
-            <div className="flex gap-2.5 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowBoulderPrompt(false)}
-                className="pressable flex-1 h-[48px] rounded-[16px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)] font-bold text-[13.5px]"
-              >
-                {isFa ? 'صبر می‌کنم' : "I'll wait"}
-              </button>
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBoulderPrompt(false)}
+                  className="pressable flex-1 h-[48px] rounded-[16px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)] font-bold text-[13.5px]"
+                >
+                  {isFa ? 'صبر می‌کنم' : "I'll wait"}
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setShowBoulderPrompt(false);
-                  setIsFocusTimerOpen(true);
-                }}
-                className="pressable flex-1 h-[48px] rounded-[16px] bg-white/[0.05] border border-line text-ink-3 font-semibold text-[13px] hover:text-ink"
-              >
-                {isFa ? 'به‌هرحال شروع کن' : 'Start anyway'}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowBoulderPrompt(false);
+                    setIsFocusTimerOpen(true);
+                  }}
+                  className="pressable flex-1 h-[48px] rounded-[16px] bg-white/[0.05] border border-line text-ink-3 font-semibold text-[13px] hover:text-ink"
+                >
+                  {isFa ? 'به‌هرحال شروع کن' : 'Start anyway'}
+                </button>
+              </div>
             </div>
-          </div>
+          </ViewTransition>
         </div>
       )}
 

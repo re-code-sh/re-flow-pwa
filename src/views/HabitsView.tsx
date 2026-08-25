@@ -522,91 +522,93 @@ export const HabitsView: React.FC = () => {
       {/* ================= MODAL: 10-SECOND FRICTION ENGINEERING ================= */}
       {frictionHabit && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-end sm:items-center justify-center p-4">
-          <div className="w-full max-w-md glass-sheet rounded-[28px] p-6 space-y-5 shadow-2xl border border-line animate-in zoom-in-95 duration-200">
-            <div className="text-center space-y-1">
-              <h3 className="text-[20px] font-bold text-ink">
-                {isFa ? 'صبر کن' : 'Pause'}
-              </h3>
-              <p className="text-[12.5px] text-ink-3">
-                {isFa
-                  ? 'ده ثانیه. فقط ده ثانیه بین تو و انتخابِ آگاهانه.'
-                  : 'Ten seconds. Just 10 seconds between you and a conscious choice.'}
-              </p>
-            </div>
+          <ViewTransition name="friction-modal" share="morph" className="w-full max-w-md">
+            <div className="w-full glass-sheet rounded-[28px] p-6 space-y-5 shadow-2xl border border-line animate-in zoom-in-95 duration-200">
+              <div className="text-center space-y-1">
+                <h3 className="text-[20px] font-bold text-ink">
+                  {isFa ? 'صبر کن' : 'Pause'}
+                </h3>
+                <p className="text-[12.5px] text-ink-3">
+                  {isFa
+                    ? 'ده ثانیه. فقط ده ثانیه بین تو و انتخابِ آگاهانه.'
+                    : 'Ten seconds. Just 10 seconds between you and a conscious choice.'}
+                </p>
+              </div>
 
-            {/* Long-term cost card */}
-            <div className="p-4 rounded-[18px] bg-warn/[0.08] border border-warn/20 space-y-1.5 text-center">
-              <p className="text-[11.5px] text-ink-3 font-semibold">
-                {isFa
-                  ? `هزینهٔ بلندمدتِ «${frictionHabit.title}»`
-                  : `Long-term cost of "${frictionHabit.title}"`}
-              </p>
-              <p className="text-[14px] text-warn font-medium leading-relaxed">
-                {frictionHabit.bad_cost || (isFa ? 'به اهداف بلندمدتت فکر کن.' : 'Think about your long-term goals.')}
-              </p>
-            </div>
+              {/* Long-term cost card */}
+              <div className="p-4 rounded-[18px] bg-warn/[0.08] border border-warn/20 space-y-1.5 text-center">
+                <p className="text-[11.5px] text-ink-3 font-semibold">
+                  {isFa
+                    ? `هزینهٔ بلندمدتِ «${frictionHabit.title}»`
+                    : `Long-term cost of "${frictionHabit.title}"`}
+                </p>
+                <p className="text-[14px] text-warn font-medium leading-relaxed">
+                  {frictionHabit.bad_cost || (isFa ? 'به اهداف بلندمدتت فکر کن.' : 'Think about your long-term goals.')}
+                </p>
+              </div>
 
-            {/* 10-Second Countdown Circular Progress */}
-            <div className="flex flex-col items-center justify-center py-2">
-              <div className="relative w-20 h-20 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    className="text-white/[0.08] stroke-current"
-                    strokeWidth="5"
-                    fill="transparent"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    className="text-warn stroke-current transition-all duration-1000"
-                    strokeWidth="5"
-                    strokeDasharray={251.2}
-                    strokeDashoffset={251.2 * (1 - frictionSecondsLeft / 10)}
-                    strokeLinecap="round"
-                    fill="transparent"
-                  />
-                </svg>
-                <span className="absolute text-[24px] font-light text-warn font-mono">
-                  {frictionUnlocked ? '—' : isFa ? faNum(frictionSecondsLeft) : frictionSecondsLeft}
-                </span>
+              {/* 10-Second Countdown Circular Progress */}
+              <div className="flex flex-col items-center justify-center py-2">
+                <div className="relative w-20 h-20 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      className="text-white/[0.08] stroke-current"
+                      strokeWidth="5"
+                      fill="transparent"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      className="text-warn stroke-current transition-all duration-1000"
+                      strokeWidth="5"
+                      strokeDasharray={251.2}
+                      strokeDashoffset={251.2 * (1 - frictionSecondsLeft / 10)}
+                      strokeLinecap="round"
+                      fill="transparent"
+                    />
+                  </svg>
+                  <span className="absolute text-[24px] font-light text-warn font-mono">
+                    {frictionUnlocked ? '—' : isFa ? faNum(frictionSecondsLeft) : frictionSecondsLeft}
+                  </span>
+                </div>
+              </div>
+
+              {/* Replacement & Slip Action Buttons */}
+              <div
+                className={clsx(
+                  'space-y-2.5 transition-all duration-300',
+                  frictionUnlocked ? 'opacity-100' : 'opacity-40 pointer-events-none'
+                )}
+              >
+                <button
+                  type="button"
+                  disabled={!frictionUnlocked}
+                  onClick={() => handleFrictionLog('resisted')}
+                  className="pressable w-full h-[50px] rounded-[16px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)] font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-accent-sm-glow"
+                >
+                  <SwapHorizRoundedIcon sx={{ fontSize: 20 }} />
+                  <span>
+                    {isFa
+                      ? `به‌جایش: ${frictionHabit.replacement || 'دو دقیقه قدم بزن'}`
+                      : `Instead: ${frictionHabit.replacement || 'Walk for two minutes'}`}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={!frictionUnlocked}
+                  onClick={() => handleFrictionLog('slip')}
+                  className="pressable w-full h-[46px] rounded-[16px] bg-white/[0.05] border border-line text-ink-3 hover:text-warn font-semibold text-[13px]"
+                >
+                  {isFa ? 'انجامش دادم (ثبتِ لغزش)' : 'Did it (Log slip)'}
+                </button>
               </div>
             </div>
-
-            {/* Replacement & Slip Action Buttons */}
-            <div
-              className={clsx(
-                'space-y-2.5 transition-all duration-300',
-                frictionUnlocked ? 'opacity-100' : 'opacity-40 pointer-events-none'
-              )}
-            >
-              <button
-                type="button"
-                disabled={!frictionUnlocked}
-                onClick={() => handleFrictionLog('resisted')}
-                className="pressable w-full h-[50px] rounded-[16px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] text-[var(--accent-ink)] font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-accent-sm-glow"
-              >
-                <SwapHorizRoundedIcon sx={{ fontSize: 20 }} />
-                <span>
-                  {isFa
-                    ? `به‌جایش: ${frictionHabit.replacement || 'دو دقیقه قدم بزن'}`
-                    : `Instead: ${frictionHabit.replacement || 'Walk for two minutes'}`}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                disabled={!frictionUnlocked}
-                onClick={() => handleFrictionLog('slip')}
-                className="pressable w-full h-[46px] rounded-[16px] bg-white/[0.05] border border-line text-ink-3 hover:text-warn font-semibold text-[13px]"
-              >
-                {isFa ? 'انجامش دادم (ثبتِ لغزش)' : 'Did it (Log slip)'}
-              </button>
-            </div>
-          </div>
+          </ViewTransition>
         </div>
       )}
     </div>

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { clsx } from 'clsx';
+import { ViewTransition } from './ViewTransition';
 
 interface ToastOptions {
   message: string;
@@ -49,21 +50,23 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
           )}
         >
-          <div className="pointer-events-auto max-w-md mx-4 px-4 py-2.5 rounded-full bg-[#1C1C21]/95 border border-line shadow-2xl backdrop-blur-xl flex items-center gap-3">
-            <span className="text-[13px] font-semibold text-ink">{currentToast.message}</span>
-            {currentToast.actionLabel && (
-              <button
-                type="button"
-                onClick={() => {
-                  currentToast.onAction?.();
-                  setIsVisible(false);
-                }}
-                className="pressable px-3 py-1 rounded-full bg-[var(--accent-subtle)] text-[var(--accent)] text-[12px] font-bold"
-              >
-                {currentToast.actionLabel}
-              </button>
-            )}
-          </div>
+          <ViewTransition name="global-toast-pill" share="morph">
+            <div className="pointer-events-auto max-w-md mx-4 px-4 py-2.5 rounded-full bg-[#1C1C21]/95 border border-line shadow-2xl backdrop-blur-xl flex items-center gap-3">
+              <span className="text-[13px] font-semibold text-ink">{currentToast.message}</span>
+              {currentToast.actionLabel && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    currentToast.onAction?.();
+                    setIsVisible(false);
+                  }}
+                  className="pressable px-3 py-1 rounded-full bg-[var(--accent-subtle)] text-[var(--accent)] text-[12px] font-bold"
+                >
+                  {currentToast.actionLabel}
+                </button>
+              )}
+            </div>
+          </ViewTransition>
         </div>
       )}
     </ToastContext.Provider>
