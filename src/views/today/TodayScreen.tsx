@@ -8,6 +8,7 @@ import { CheckCircle } from '../../components/ui/CheckCircle';
 import { toast } from '../../components/ui/Toast';
 import { faNum, faTodayLabel, todayKey } from '../../utils/fa';
 import { fireCelebrationConfetti } from '../../utils/confetti';
+import { ViewTransition } from '../../components/ui/ViewTransition';
 import { MorningWizardSheet } from './MorningWizardSheet';
 import { TaskEditSheet } from './TaskEditSheet';
 import { EveningSheet } from '../evening/EveningSheet';
@@ -199,35 +200,38 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
 
           {!plan?.planned ? (
             /* Unplanned state */
-            <GlassCard
-              radius={26}
-              accentRing
-              className="p-6 space-y-4 relative overflow-hidden"
-            >
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
-                <LocalFireDepartmentRoundedIcon sx={{ fontSize: 13 }} />
-                <span>{isFa ? 'یک نقطهٔ داغ' : 'One Hot Spot'}</span>
-              </div>
-
-              <p className="text-[15.5px] text-ink-2 font-medium leading-relaxed">
-                {t('todayNotPlannedYet')}
-              </p>
-
-              <Pill
-                label={t('planToday')}
-                pillStyle="accent"
-                onClick={() => setIsWizardOpen(true)}
-              />
-            </GlassCard>
-          ) : plan.boulder ? (
-            /* Planned Boulder Card */
-            <div className="relative group">
-              {/* Breathing Glow */}
-              <div className="pointer-events-none absolute -top-10 -left-6 w-48 h-36 rounded-full bg-[var(--accent)]/15 blur-3xl animate-pulse" />
-
+            <ViewTransition name="today-boulder-card" share="morph">
               <GlassCard
                 radius={26}
                 accentRing
+                className="p-6 space-y-4 relative overflow-hidden"
+              >
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent-border)] text-[var(--accent)] text-[11px] font-bold">
+                  <LocalFireDepartmentRoundedIcon sx={{ fontSize: 13 }} />
+                  <span>{isFa ? 'یک نقطهٔ داغ' : 'One Hot Spot'}</span>
+                </div>
+
+                <p className="text-[15.5px] text-ink-2 font-medium leading-relaxed">
+                  {t('todayNotPlannedYet')}
+                </p>
+
+                <Pill
+                  label={t('planToday')}
+                  pillStyle="accent"
+                  onClick={() => setIsWizardOpen(true)}
+                />
+              </GlassCard>
+            </ViewTransition>
+          ) : plan.boulder ? (
+            /* Planned Boulder Card */
+            <ViewTransition name="today-boulder-card" share="morph">
+              <div className="relative group">
+                {/* Breathing Glow */}
+                <div className="pointer-events-none absolute -top-10 -left-6 w-48 h-36 rounded-full bg-[var(--accent)]/15 blur-3xl animate-pulse" />
+
+                <GlassCard
+                  radius={26}
+                  accentRing
                 onContextMenu={(e) => {
                   e.preventDefault();
                   setEditingTask({
@@ -319,6 +323,7 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                 </div>
               </GlassCard>
             </div>
+            </ViewTransition>
           ) : null}
         </section>
 
@@ -334,82 +339,83 @@ export const TodayScreen: React.FC<TodayScreenProps> = ({ onOpenSettings }) => {
                 const locked = !plan.boulderDone && !task.done;
 
                 return (
-                  <GlassCard
-                    key={task.taskId}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      setEditingTask({
-                        id: task.taskId,
-                        title: task.title,
-                        isBoulder: false,
-                        reminderTime: task.reminderTime,
-                      });
-                    }}
-                    className={`flex items-center justify-between gap-3 p-3.5 sm:p-4 transition-all ${
-                      task.done ? 'opacity-50' : 'opacity-100'
-                    }`}
-                  >
-                    {/* Focus Button on Left (RTL) */}
-                    {!task.done ? (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFocusingTask({
-                            id: task.taskId,
-                            title: task.title,
-                          })
-                        }
-                        className="pressable px-3 py-1.5 rounded-[12px] bg-white/[0.05] border border-line text-ink-2 hover:text-[var(--accent)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-subtle)] text-[12px] font-bold flex items-center gap-1 shrink-0 transition-all"
-                      >
-                        <PlayArrowRoundedIcon sx={{ fontSize: 16 }} />
-                        <span>{t('focusButton')}</span>
-                      </button>
-                    ) : (
-                      <div className="w-12" />
-                    )}
-
-                    {/* Middle Info */}
-                    <div
-                      className="min-w-0 flex-1 cursor-pointer text-start"
-                      onClick={() =>
+                  <ViewTransition key={task.taskId} name={`task-item-${task.taskId}`} share="morph">
+                    <GlassCard
+                      onContextMenu={(e) => {
+                        e.preventDefault();
                         setEditingTask({
                           id: task.taskId,
                           title: task.title,
                           isBoulder: false,
                           reminderTime: task.reminderTime,
-                        })
-                      }
+                        });
+                      }}
+                      className={`flex items-center justify-between gap-3 p-3.5 sm:p-4 transition-all ${
+                        task.done ? 'opacity-50' : 'opacity-100'
+                      }`}
                     >
-                      <h3
-                        className={`text-[15.5px] font-semibold truncate ${
-                          task.done ? 'line-through text-ink-3' : 'text-ink'
-                        }`}
+                      {/* Focus Button on Left (RTL) */}
+                      {!task.done ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFocusingTask({
+                              id: task.taskId,
+                              title: task.title,
+                            })
+                          }
+                          className="pressable px-3 py-1.5 rounded-[12px] bg-white/[0.05] border border-line text-ink-2 hover:text-[var(--accent)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-subtle)] text-[12px] font-bold flex items-center gap-1 shrink-0 transition-all"
+                        >
+                          <PlayArrowRoundedIcon sx={{ fontSize: 16 }} />
+                          <span>{t('focusButton')}</span>
+                        </button>
+                      ) : (
+                        <div className="w-12" />
+                      )}
+
+                      {/* Middle Info */}
+                      <div
+                        className="min-w-0 flex-1 cursor-pointer text-start"
+                        onClick={() =>
+                          setEditingTask({
+                            id: task.taskId,
+                            title: task.title,
+                            isBoulder: false,
+                            reminderTime: task.reminderTime,
+                          })
+                        }
                       >
-                        {task.title}
-                      </h3>
+                        <h3
+                          className={`text-[15.5px] font-semibold truncate ${
+                            task.done ? 'line-through text-ink-3' : 'text-ink'
+                          }`}
+                        >
+                          {task.title}
+                        </h3>
 
-                      <div className="flex items-center gap-2 mt-0.5">
-                        {task.reminderTime !== null && !task.done && (
-                          <span className="text-[11.5px] text-[var(--accent)] font-semibold flex items-center gap-1">
-                            <span>{formatReminderTime(task.reminderTime)}</span>
-                            <NotificationsActiveRoundedIcon sx={{ fontSize: 12 }} />
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {task.reminderTime !== null && !task.done && (
+                            <span className="text-[11.5px] text-[var(--accent)] font-semibold flex items-center gap-1">
+                              <span>{formatReminderTime(task.reminderTime)}</span>
+                              <NotificationsActiveRoundedIcon sx={{ fontSize: 12 }} />
+                            </span>
+                          )}
 
-                        {locked && (
-                          <span className="text-[11.5px] text-ink-3">
-                            {t('queuedBehindBoulder')}
-                          </span>
-                        )}
+                          {locked && (
+                            <span className="text-[11.5px] text-ink-3">
+                              {t('queuedBehindBoulder')}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Circular Checkbox on Right (RTL) */}
-                    <CheckCircle
-                      checked={task.done}
-                      onToggle={() => handleToggleOtherTask(task)}
-                    />
-                  </GlassCard>
+                      {/* Circular Checkbox on Right (RTL) */}
+                      <CheckCircle
+                        checked={task.done}
+                        onToggle={() => handleToggleOtherTask(task)}
+                      />
+                    </GlassCard>
+                  </ViewTransition>
                 );
               })}
             </div>

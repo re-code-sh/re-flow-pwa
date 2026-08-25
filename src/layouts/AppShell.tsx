@@ -6,6 +6,7 @@ import { LeisureView } from '../views/LeisureView';
 import { SettingsView } from '../views/SettingsView';
 import { SettingsSheet } from '../views/settings/SettingsSheet';
 import { BrainDump } from '../components/BrainDump';
+import { ViewTransition, startViewTransition } from '../components/ui/ViewTransition';
 import { clsx } from 'clsx';
 
 // Material Icons
@@ -25,11 +26,18 @@ export const AppShell: React.FC = () => {
   const [isVaultOpen, setIsVaultOpen] = useState(false);
   const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
 
+  const handleSelectTab = (newTab: 'tasks' | 'habits' | 'leisure' | 'settings') => {
+    if (newTab === currentTab) return;
+    startViewTransition(() => {
+      setCurrentTab(newTab);
+    });
+  };
+
   const handleOpenSettings = () => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setIsMobileSettingsOpen(true);
     } else {
-      setCurrentTab('settings');
+      handleSelectTab('settings');
     }
   };
 
@@ -45,7 +53,7 @@ export const AppShell: React.FC = () => {
         {/* Brand App Icon Button */}
         <button
           type="button"
-          onClick={() => setCurrentTab('tasks')}
+          onClick={() => handleSelectTab('tasks')}
           className="w-11 h-11 rounded-[18px] bg-gradient-to-b from-[var(--accent-light)] to-[var(--accent-dark)] flex items-center justify-center shadow-accent-sm-glow transition-all hover:scale-105"
           title={t('appTitle')}
         >
@@ -59,9 +67,9 @@ export const AppShell: React.FC = () => {
           {/* Tab 1: Tasks */}
           <button
             type="button"
-            onClick={() => setCurrentTab('tasks')}
+            onClick={() => handleSelectTab('tasks')}
             className={clsx(
-              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
+              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1 relative',
               currentTab === 'tasks'
                 ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
@@ -79,9 +87,9 @@ export const AppShell: React.FC = () => {
           {/* Tab 2: Habits */}
           <button
             type="button"
-            onClick={() => setCurrentTab('habits')}
+            onClick={() => handleSelectTab('habits')}
             className={clsx(
-              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
+              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1 relative',
               currentTab === 'habits'
                 ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
@@ -99,9 +107,9 @@ export const AppShell: React.FC = () => {
           {/* Tab 3: Leisure */}
           <button
             type="button"
-            onClick={() => setCurrentTab('leisure')}
+            onClick={() => handleSelectTab('leisure')}
             className={clsx(
-              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
+              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1 relative',
               currentTab === 'leisure'
                 ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
@@ -119,9 +127,9 @@ export const AppShell: React.FC = () => {
           {/* Tab 4: Settings (Desktop Rail) */}
           <button
             type="button"
-            onClick={() => setCurrentTab('settings')}
+            onClick={() => handleSelectTab('settings')}
             className={clsx(
-              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1',
+              'pressable flex flex-col items-center justify-center w-14 h-14 rounded-[18px] text-[11px] transition-all gap-1 relative',
               currentTab === 'settings'
                 ? 'bg-[var(--accent-tint-active)] text-[var(--accent)] border border-[var(--accent-border-active)] font-bold shadow-sm'
                 : 'text-ink-3 hover:text-ink-2 hover:bg-white/[0.04]'
@@ -147,16 +155,18 @@ export const AppShell: React.FC = () => {
         </button>
       </aside>
 
-      {/* ================= UNIFIED SCALING CANVAS CONTAINER ================= */}
+      {/* ================= UNIFIED SCALING CANVAS CONTAINER WITH VIEW TRANSITIONS ================= */}
       <main className="w-full max-w-xl lg:max-w-2xl mx-auto min-h-[100dvh] px-4 sm:px-6 pt-4 pb-36 sm:pb-32 flex flex-col justify-start">
-        <div key={currentTab} className="w-full animate-view-in">
-          {currentTab === 'tasks' && (
-            <TodayScreen onOpenSettings={handleOpenSettings} />
-          )}
-          {currentTab === 'habits' && <HabitsView />}
-          {currentTab === 'leisure' && <LeisureView />}
-          {currentTab === 'settings' && <SettingsView />}
-        </div>
+        <ViewTransition name="app-canvas-content" share="morph">
+          <div key={currentTab} className="w-full animate-view-in">
+            {currentTab === 'tasks' && (
+              <TodayScreen onOpenSettings={handleOpenSettings} />
+            )}
+            {currentTab === 'habits' && <HabitsView />}
+            {currentTab === 'leisure' && <LeisureView />}
+            {currentTab === 'settings' && <SettingsView />}
+          </div>
+        </ViewTransition>
       </main>
 
       {/* ================= SUB-CANVAS BOTTOM AMBIENT ATMOSPHERE GLOW ================= */}
@@ -194,9 +204,9 @@ export const AppShell: React.FC = () => {
         {/* Tab 1: Tasks / کارها */}
         <button
           type="button"
-          onClick={() => setCurrentTab('tasks')}
+          onClick={() => handleSelectTab('tasks')}
           className={clsx(
-            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
+            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all relative',
             currentTab === 'tasks'
               ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
               : 'text-white/45 hover:text-white/80'
@@ -213,9 +223,9 @@ export const AppShell: React.FC = () => {
         {/* Tab 2: Habits / عادتها */}
         <button
           type="button"
-          onClick={() => setCurrentTab('habits')}
+          onClick={() => handleSelectTab('habits')}
           className={clsx(
-            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
+            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all relative',
             currentTab === 'habits'
               ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
               : 'text-white/45 hover:text-white/80'
@@ -232,9 +242,9 @@ export const AppShell: React.FC = () => {
         {/* Tab 3: Leisure / تفریحها */}
         <button
           type="button"
-          onClick={() => setCurrentTab('leisure')}
+          onClick={() => handleSelectTab('leisure')}
           className={clsx(
-            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all',
+            'pressable flex-1 h-full flex flex-col items-center justify-center gap-1 rounded-[22px] transition-all relative',
             currentTab === 'leisure'
               ? 'bg-[var(--accent-tint-active)] border border-[var(--accent-border-active)] text-[var(--accent)] font-semibold shadow-sm'
               : 'text-white/45 hover:text-white/80'

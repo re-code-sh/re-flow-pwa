@@ -8,7 +8,6 @@ import { GlassSheet } from '../components/ui/GlassSheet';
 import { toast } from '../components/ui/Toast';
 import { FocusTimer } from '../components/FocusTimer';
 import { faNum, todayKey } from '../utils/fa';
-import { ProductCardDetailTransition } from '../components/ProductCardDetailTransition';
 import type { FunConfig } from '../db/schema';
 
 // Material Icons
@@ -149,11 +148,6 @@ export const LeisureView: React.FC = () => {
           {t('leisurePhilosophyBody')}
         </p>
       </GlassCard>
-
-      {/* View Transition Product Catalog Showcase */}
-      <div className="pt-4 border-t border-line/40">
-        <ProductCardDetailTransition />
-      </div>
 
       {/* ================= MODAL 1: CONFIGURE LEISURE ================= */}
       <GlassSheet

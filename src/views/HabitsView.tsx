@@ -9,6 +9,7 @@ import { GlassSheet } from '../components/ui/GlassSheet';
 import { toast } from '../components/ui/Toast';
 import { faNum, todayKey, shiftDayKey } from '../utils/fa';
 import { fireCelebrationConfetti } from '../utils/confetti';
+import { ViewTransition } from '../components/ui/ViewTransition';
 import type { HabitRecord, HabitWithLogs } from '../db/schema';
 
 // Material Icons
@@ -240,44 +241,45 @@ export const HabitsView: React.FC = () => {
               const recovery = getRecoveryNote(habit);
 
               return (
-                <GlassCard
-                  key={habit.id}
-                  onClick={() => openEditor(habit)}
-                  className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:border-white/20 transition-all"
-                >
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <CheckCircle
-                        checked={isDone}
-                        onToggle={() => handleToggleHabit(habit.id, isDone)}
-                      />
-                    </div>
+                <ViewTransition key={habit.id} name={`habit-item-${habit.id}`} share="morph">
+                  <GlassCard
+                    onClick={() => openEditor(habit)}
+                    className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:border-white/20 transition-all"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <CheckCircle
+                          checked={isDone}
+                          onToggle={() => handleToggleHabit(habit.id, isDone)}
+                        />
+                      </div>
 
-                    <div className="min-w-0 flex-1">
-                      <h3
-                        className={`text-[15.5px] font-semibold truncate ${
-                          isDone ? 'line-through text-ink-3' : 'text-ink'
-                        }`}
-                      >
-                        {habit.title}
-                      </h3>
-                      <p className="text-[12px] text-ink-3 truncate mt-0.5">
-                        {isFa ? `بعد از ${habit.cue}` : `after ${habit.cue}`}
-                      </p>
-                      {recovery && (
-                        <p className={`text-[11px] font-semibold mt-1 ${recovery.color}`}>
-                          {recovery.text}
+                      <div className="min-w-0 flex-1">
+                        <h3
+                          className={`text-[15.5px] font-semibold truncate ${
+                            isDone ? 'line-through text-ink-3' : 'text-ink'
+                          }`}
+                        >
+                          {habit.title}
+                        </h3>
+                        <p className="text-[12px] text-ink-3 truncate mt-0.5">
+                          {isFa ? `بعد از ${habit.cue}` : `after ${habit.cue}`}
                         </p>
-                      )}
+                        {recovery && (
+                          <p className={`text-[11px] font-semibold mt-1 ${recovery.color}`}>
+                            {recovery.text}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {habit.reminder_minutes !== null && (
-                    <div className="w-7 h-7 rounded-full bg-white/[0.05] flex items-center justify-center text-[var(--accent)] shrink-0">
-                      <NotificationsActiveOutlinedIcon sx={{ fontSize: 14 }} />
-                    </div>
-                  )}
-                </GlassCard>
+                    {habit.reminder_minutes !== null && (
+                      <div className="w-7 h-7 rounded-full bg-white/[0.05] flex items-center justify-center text-[var(--accent)] shrink-0">
+                        <NotificationsActiveOutlinedIcon sx={{ fontSize: 14 }} />
+                      </div>
+                    )}
+                  </GlassCard>
+                </ViewTransition>
               );
             })}
           </div>
@@ -301,49 +303,50 @@ export const HabitsView: React.FC = () => {
               const status = habit.logs[today];
 
               return (
-                <GlassCard
-                  key={habit.id}
-                  onClick={() => openEditor(habit)}
-                  className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:border-white/20 transition-all"
-                >
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div className="w-[30px] h-[30px] rounded-full bg-warn/10 border border-warn/35 flex items-center justify-center text-warn shrink-0">
-                      <BlockRoundedIcon sx={{ fontSize: 16 }} />
+                <ViewTransition key={habit.id} name={`habit-item-${habit.id}`} share="morph">
+                  <GlassCard
+                    onClick={() => openEditor(habit)}
+                    className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:border-white/20 transition-all"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      <div className="w-[30px] h-[30px] rounded-full bg-warn/10 border border-warn/35 flex items-center justify-center text-warn shrink-0">
+                        <BlockRoundedIcon sx={{ fontSize: 16 }} />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-[15.5px] font-semibold text-ink truncate">
+                          {habit.title}
+                        </h3>
+                        <p className="text-[12px] text-ink-3 truncate mt-0.5">
+                          {isFa ? `محرک: ${habit.cue}` : `Trigger: ${habit.cue}`}
+                        </p>
+                        {status === 'resisted' && (
+                          <p className="text-[11px] font-semibold text-[var(--accent)] mt-1">
+                            {isFa ? 'امروز مقاومت کردی ✓' : 'Resisted today ✓'}
+                          </p>
+                        )}
+                        {status === 'slip' && (
+                          <p className="text-[11px] font-semibold text-warn mt-1">
+                            {isFa ? 'لغزش ثبت شد — فردا از نو' : 'Slip logged — start fresh tomorrow'}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-[15.5px] font-semibold text-ink truncate">
-                        {habit.title}
-                      </h3>
-                      <p className="text-[12px] text-ink-3 truncate mt-0.5">
-                        {isFa ? `محرک: ${habit.cue}` : `Trigger: ${habit.cue}`}
-                      </p>
-                      {status === 'resisted' && (
-                        <p className="text-[11px] font-semibold text-[var(--accent)] mt-1">
-                          {isFa ? 'امروز مقاومت کردی ✓' : 'Resisted today ✓'}
-                        </p>
-                      )}
-                      {status === 'slip' && (
-                        <p className="text-[11px] font-semibold text-warn mt-1">
-                          {isFa ? 'لغزش ثبت شد — فردا از نو' : 'Slip logged — start fresh tomorrow'}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {!status && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFrictionHabit(habit);
-                      }}
-                      className="pressable px-3 py-2 rounded-[11px] bg-warn/10 border border-warn/25 text-warn text-[11.5px] font-bold shrink-0 hover:bg-warn/20"
-                    >
-                      {isFa ? 'وسوسه شدم' : 'Tempted'}
-                    </button>
-                  )}
-                </GlassCard>
+                    {!status && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFrictionHabit(habit);
+                        }}
+                        className="pressable px-3 py-2 rounded-[11px] bg-warn/10 border border-warn/25 text-warn text-[11.5px] font-bold shrink-0 hover:bg-warn/20"
+                      >
+                        {isFa ? 'وسوسه شدم' : 'Tempted'}
+                      </button>
+                    )}
+                  </GlassCard>
+                </ViewTransition>
               );
             })}
           </div>
